@@ -1,10 +1,13 @@
 # clip_nightbot
 
 The whole purpose of this is to ease the process of clipping
-after extensive issue in clipping by my one of the favorite streamer. I have made this </br>
+after extensive issue in clipping by my one of the favorite streamer. I made this </br>
 
 How to Use ? 
 first edit `creds.json` with channelid and discord webhook where the request is to be done </br>
+and then just run `main.py` `python3 main.py` </br>
+you can use `nohup python3 main.py &` to run the script in background </br>
+PLEASE NOTE THAT THE PORT 5001 is open to world for this to be discoverable.
 
 Nightbot command:
 `​!addcom !clip $(urlfetch http://your_host_here:5001/clip/$(chatid)/$(querystring))`
