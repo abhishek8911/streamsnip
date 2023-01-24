@@ -4,6 +4,13 @@ The whole purpose of this is to ease the process of clipping
 after extensive issue in clipping by my one of the favorite streamer. I made this </br>
 
 How to Use ? 
+
+2 options 
+1 ) give me discord webhook url and your youtube channel link. I can host it for you for the time being
+
+or
+
+Host it yoursef
 first edit `creds.json` with channelid and discord webhook where the request is to be done </br>
 and then just run `main.py` `python3 main.py` </br>
 you can use `nohup python3 main.py &` to run the script in background </br>
