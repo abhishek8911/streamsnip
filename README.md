@@ -1,4 +1,4 @@
-#Archived. Why ? 
+# Archived. Why ? 
 Since I loved the project so much and it was too useful to not monetize
 I now host it for my fellow friends. if you want me to do it for you. DM me
 although the code in the state is working as of 05/05/22. so you can still host it youself.
