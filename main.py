@@ -126,13 +126,13 @@ def clip(message_id, clip_desc=None):
     else:
         hour_minute_second = f"{minute}:{second}"
     message_cc_webhook = f"**{clip_desc}** \n\n{hour_minute_second}<{url}>"
-    channel_image = get_channel_image(f"https://youtube.com/channel/{user_id}")
+    channel_image = get_channel_image(user_id)
 
     # insert the entry to database
     cur.execute("INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, message_id, clip_desc, request_time, clip_time, user_id, user_name, url))
     db.commit()
     try:
-        return f"Clip requested by {user_name} with message -> {clip_desc} {url} (or {hour_minute_second}) sent to discord."
+        return f"Clip requested by {user_name} with message -> {clip_desc} at {hour_minute_second} sent to discord. See all clips at http://{request.host}{url_for('exports', channel_id=channel_id)}"
     finally:
         file_name = take_screenshot(url, clip_time)
         webhook = DiscordWebhook(url=webhook_url, content=message_cc_webhook, username= user_name + f" ({user_id})", avatar_url=channel_image)
