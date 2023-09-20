@@ -38,14 +38,45 @@ def export():
     channel_id = channel.get("providerId")[0]
     return f"You can download the export from http://surajbhari.info:5001/exports/{channel_id}"
 
-@app.route("/exports/<channel_id>")
-def exports(channel_id = None):
+def get_channel_clips(channel_id:str):
     if not channel_id:
-        return "No channel id provided"
-    # send file 
+        return {}
     cur.execute(f"select * from QUERIES where channel_id=?", (channel_id, ))
     data = cur.fetchall()
-    return jsonify(data)
+    l = []
+    for y in data:
+        x = {}
+        x['link'] = y[7]
+        x['author'] = {
+            'name': y[6],
+            'id': y[5]
+        }
+        x['clip_time'] = y[5]
+        x['time'] = y[4]
+        x['message'] = y[2]
+        x['stream_id'] = y[7].replace("https://youtu.be/", "").split("?")[0]
+        x['dt'] = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.localtime(y[3]))
+        l.append(x)
+    l.reverse()
+    return l
+
+@app.route("/exports/<channel_id>")
+def exports(channel_id = None):
+    return render_template("export.html", data=get_channel_clips(channel_id))
+
+def get_channel_image(channel_id:str):
+    if not channel_id:
+        return "https://foreignpolicyi.org/wp-content/uploads/2022/04/avatar.jpg"
+    try:
+        channel_link = f"https://youtube.com/channel/{channel_id}"
+        html_data = get(channel_link).text
+        soup = BeautifulSoup(html_data, 'html.parser')
+        channel_image = soup.find("meta", property="og:image")["content"]
+    except Exception as e:
+        channel_image = "https://foreignpolicyi.org/wp-content/uploads/2022/04/avatar.jpg"
+        print(e)
+        pass
+    return channel_image
 
 @app.route("/clip/<message_id>/")
 @app.route("/clip/<message_id>/<clip_desc>")
@@ -95,15 +126,7 @@ def clip(message_id, clip_desc=None):
     else:
         hour_minute_second = f"{minute}:{second}"
     message_cc_webhook = f"**{clip_desc}** \n\n{hour_minute_second}<{url}>"
-    try:
-        channel_link = f"https://youtube.com/channel/{user_id}"
-        html_data = get(channel_link).text
-        soup = BeautifulSoup(html_data, 'html.parser')
-        channel_image = soup.find("meta", property="og:image")["content"]
-    except Exception as e:
-        channel_image = "https://foreignpolicyi.org/wp-content/uploads/2022/04/avatar.jpg"
-        print(e)
-        pass
+    channel_image = get_channel_image(f"https://youtube.com/channel/{user_id}")
 
     # insert the entry to database
     cur.execute("INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, message_id, clip_desc, request_time, clip_time, user_id, user_name, url))
