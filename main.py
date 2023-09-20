@@ -125,7 +125,7 @@ def clip(message_id, clip_desc=None):
         hour_minute_second = f"{hour}:{minute}:{second}"
     else:
         hour_minute_second = f"{minute}:{second}"
-    message_cc_webhook = f"**{clip_desc}** \n\n{hour_minute_second}<{url}>"
+    message_cc_webhook = f"**{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
     channel_image = get_channel_image(user_id)
 
     # insert the entry to database
@@ -135,7 +135,7 @@ def clip(message_id, clip_desc=None):
         return f"Clip requested by {user_name} with message -> {clip_desc} at {hour_minute_second} sent to discord. See all clips at http://{request.host}{url_for('exports', channel_id=channel_id)}"
     finally:
         file_name = take_screenshot(url, clip_time)
-        webhook = DiscordWebhook(url=webhook_url, content=message_cc_webhook, username= user_name + f" ({user_id})", avatar_url=channel_image)
+        webhook = DiscordWebhook(url=webhook_url, content=message_cc_webhook, username= user_name, avatar_url=channel_image)
         with open(file_name, "rb") as f:
             webhook.add_file(file=f.read(), filename="ss.jpg")
         response = webhook.execute()
