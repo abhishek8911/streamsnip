@@ -1,0 +1,6 @@
+flask
+beautifulsoup4
+requests
+discord_webhook
+chat_downloader
+scrapetube
