@@ -78,9 +78,14 @@ def get_channel_image(channel_id:str):
         pass
     return channel_image
 
+# /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true
 @app.route("/clip/<message_id>/")
 @app.route("/clip/<message_id>/<clip_desc>")
 def clip(message_id, clip_desc=None):
+    show_link = request.args.get("showlink", True)
+    screenshot = request.args.get("screenshot", True)
+    show_link = False if show_link == "false" else True
+    screenshot = False if screenshot == "false" else True
     request_time = time.time()
     if not message_id:
         return "No message id provided"
@@ -131,16 +136,19 @@ def clip(message_id, clip_desc=None):
     # insert the entry to database
     cur.execute("INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, message_id, clip_desc, request_time, clip_time, user_id, user_name, url))
     db.commit()
-    try:
-        return f"{user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second} | sent to discord. See all clips at http://{request.host}{url_for('exports', channel_id=channel_id)}"
-    finally:
+
+    webhook = DiscordWebhook(url=webhook_url, content=message_cc_webhook, username= user_name, avatar_url=channel_image)
+
+    message_to_return = f"{user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second} | sent to discord."
+    if show_link:
+        message_to_return += f" See all clips at http://{request.host}{url_for('exports', channel_id=channel_id)}"
+    if screenshot:
         file_name = take_screenshot(url, clip_time)
-        webhook = DiscordWebhook(url=webhook_url, content=message_cc_webhook, username= user_name, avatar_url=channel_image)
         with open(file_name, "rb") as f:
             webhook.add_file(file=f.read(), filename="ss.jpg")
-        response = webhook.execute()
-        print(f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}\n {response}")
-
+        print(f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}")
+    webhook.execute()
+    return message_to_return
 
 def take_screenshot(video_url:str, seconds:int):
     # Get the video URL using yt-dlp
