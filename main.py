@@ -78,14 +78,19 @@ def get_channel_image(channel_id:str):
         pass
     return channel_image
 
-# /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true
+# /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10
 @app.route("/clip/<message_id>/")
 @app.route("/clip/<message_id>/<clip_desc>")
 def clip(message_id, clip_desc=None):
     show_link = request.args.get("showlink", True)
     screenshot = request.args.get("screenshot", True)
+    delay = request.args.get("delay", 0)
     show_link = False if show_link == "false" else True
     screenshot = False if screenshot == "false" else True
+    try:
+        delay = 0 if not delay else int(delay)
+    except ValueError:
+        return "Delay should be an integer (plus or minus)"
     request_time = time.time()
     if not message_id:
         return "No message id provided"
@@ -121,6 +126,7 @@ def clip(message_id, clip_desc=None):
     #only get the previous chat and don't wait for new one
     vid = YouTubeChatDownloader().get_video_data(video_id=vid["videoId"])
     clip_time  = request_time - vid["start_time"]/1000000 + 5
+    clip_time += delay
     url = "https://youtu.be/"+vid["original_video_id"]+"?t="+str(int(clip_time))
     # if clip_time is in seconds. then hh:mm:ss format would be like
     hour = int(clip_time/3600)
@@ -131,6 +137,8 @@ def clip(message_id, clip_desc=None):
     else:
         hour_minute_second = f"{minute}:{second}"
     message_cc_webhook = f"**{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
+    if delay:
+        message_cc_webhook += f"\nDelayed by {delay} seconds."
     channel_image = get_channel_image(user_id)
 
     # insert the entry to database
@@ -139,7 +147,10 @@ def clip(message_id, clip_desc=None):
 
     webhook = DiscordWebhook(url=webhook_url, content=message_cc_webhook, username= user_name, avatar_url=channel_image)
 
-    message_to_return = f"{user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second} | sent to discord."
+    message_to_return = f"{user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
+    if delay:
+        message_to_return += f" Delayed by {delay} seconds."
+    message_to_return += " | sent to discord."
     if show_link:
         message_to_return += f" See all clips at http://{request.host}{url_for('exports', channel_id=channel_id)}"
     if screenshot:
