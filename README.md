@@ -24,9 +24,9 @@ optional arguments
 showlink (defaults to true) - shows the link where you can see all of the links
 screenshot (defaults to true) - take the screenshot or not. set it to false if you are facing issues with it
 
-`http://your_host_here:5001/clip/$(chatid)/$(querystring)?showlink=false&screenshot=false` - no links no screenshot 
-`http://your_host_here:5001/clip/$(chatid)/$(querystring)?showlink=false` - no links but screenshot
-`http://your_host_here:5001/clip/$(chatid)/$(querystring)?screenshot=false` - links but no screenshot
+`http://your_host_here:5001/clip/$(chatid)/$(querystring)?showlink=false&screenshot=false` - no links no screenshot </br>
+`http://your_host_here:5001/clip/$(chatid)/$(querystring)?showlink=false` - no links but screenshot</br>
+`http://your_host_here:5001/clip/$(chatid)/$(querystring)?screenshot=false` - links but no screenshot</br>
 
 
 you can add `-ul=userlevel` userlevel can be found [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to decrease the spam and allow only particular person to do the clipping part (mods etc.)
