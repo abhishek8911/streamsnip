@@ -21,12 +21,16 @@ Nightbot command:
 `​!addcom !clip $(urlfetch http://your_host_here:5001/clip/$(chatid)/$(querystring))`
 
 optional arguments
-showlink (defaults to true) - shows the link where you can see all of the links
-screenshot (defaults to true) - take the screenshot or not. set it to false if you are facing issues with it
+showlink (defaults to true) - shows the link where you can see all of the links </br>
+screenshot (defaults to true) - take the screenshot or not. set it to false if you are facing issues with it</br>
+delay (defaults to 0) - add a artifical delay to the command. useful if you want to show the link in future or in past </br>
+
 
 `http://your_host_here:5001/clip/$(chatid)/$(querystring)?showlink=false&screenshot=false` - no links no screenshot </br>
 `http://your_host_here:5001/clip/$(chatid)/$(querystring)?showlink=false` - no links but screenshot</br>
 `http://your_host_here:5001/clip/$(chatid)/$(querystring)?screenshot=false` - links but no screenshot</br>
+
+`http://your_host_here:5001/clip/$(chatid)/$(querystring)?delay=-20` - delay in past by 20 seconds.</br>
 
 
 you can add `-ul=userlevel` userlevel can be found [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to decrease the spam and allow only particular person to do the clipping part (mods etc.)
