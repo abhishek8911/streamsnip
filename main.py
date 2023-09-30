@@ -27,7 +27,26 @@ db.commit()
 
 @app.route('/')
 def slash():
-    return "if you can read this, then the program is running absolutely fine."
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+        return f"If you can read this, then the program is running absolutely fine. See exports at -> http://{request.host}{url_for('exports', channel_id=channel.get('providerId')[0])}"
+    except:
+        pass
+    cur.execute(f"SELECT DISTINCT channel_id FROM QUERIES")
+    data = cur.fetchall()
+    returning = []
+    for ch_id in data:
+        ch = {}
+        channel_link = f"https://youtube.com/channel/{ch_id[0]}"
+        html_data = get(channel_link).text
+        soup = BeautifulSoup(html_data, 'html.parser')
+        channel_image = soup.find("meta", property="og:image")["content"]
+        ch["image"] = channel_image
+        ch["id"] = ch_id[0]
+        ch["name"] = soup.find("meta", property="og:title")["content"]
+        ch['link'] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
+        returning.append(ch)
+    return render_template("home.html", data=returning)    
 
 @app.route("/export")
 def export():
