@@ -87,7 +87,10 @@ def exports(channel_id = None):
     channel_image = soup.find("meta", property="og:image")["content"]
     channel_name = soup.find("meta", property="og:title")["content"]
 
-    return render_template("export.html", data=get_channel_clips(channel_id), channel_name = channel_name, channel_image=channel_image)
+    return render_template("export.html", 
+                           data=get_channel_clips(channel_id), 
+                           channel_name = channel_name, 
+                           channel_image=channel_image)
 
 def get_channel_name_image(channel_id:str):
     if not channel_id:
