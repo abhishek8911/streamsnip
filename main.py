@@ -37,13 +37,10 @@ def slash():
     returning = []
     for ch_id in data:
         ch = {}
-        channel_link = f"https://youtube.com/channel/{ch_id[0]}"
-        html_data = get(channel_link).text
-        soup = BeautifulSoup(html_data, 'html.parser')
-        channel_image = soup.find("meta", property="og:image")["content"]
+        channel_name, channel_image = get_channel_name_image(ch_id[0])
         ch["image"] = channel_image
         ch["id"] = ch_id[0]
-        ch["name"] = soup.find("meta", property="og:title")["content"]
+        ch["name"] = channel_name
         ch['link'] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
         returning.append(ch)
     return render_template("home.html", data=returning)    
@@ -81,21 +78,26 @@ def get_channel_clips(channel_id:str):
 
 @app.route("/exports/<channel_id>")
 def exports(channel_id = None):
-    return render_template("export.html", data=get_channel_clips(channel_id))
-
-def get_channel_image(channel_id:str):
     if not channel_id:
-        return "https://foreignpolicyi.org/wp-content/uploads/2022/04/avatar.jpg"
-    try:
-        channel_link = f"https://youtube.com/channel/{channel_id}"
-        html_data = get(channel_link).text
-        soup = BeautifulSoup(html_data, 'html.parser')
-        channel_image = soup.find("meta", property="og:image")["content"]
-    except Exception as e:
-        channel_image = "https://foreignpolicyi.org/wp-content/uploads/2022/04/avatar.jpg"
-        print(e)
-        pass
-    return channel_image
+        return redirect(url_for("slash"))
+    
+    channel_link = f"https://youtube.com/channel/{channel_id}"
+    html_data = get(channel_link).text
+    soup = BeautifulSoup(html_data, 'html.parser')
+    channel_image = soup.find("meta", property="og:image")["content"]
+    channel_name = soup.find("meta", property="og:title")["content"]
+
+    return render_template("export.html", data=get_channel_clips(channel_id), channel_name = channel_name, channel_image=channel_image)
+
+def get_channel_name_image(channel_id:str):
+    if not channel_id:
+        return {}
+    channel_link = f"https://youtube.com/channel/{channel_id}"
+    html_data = get(channel_link).text
+    soup = BeautifulSoup(html_data, 'html.parser')
+    channel_image = soup.find("meta", property="og:image")["content"]
+    channel_name = soup.find("meta", property="og:title")["content"]
+    return channel_name, channel_image
 
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10
 @app.route("/clip/<message_id>/")
@@ -158,7 +160,7 @@ def clip(message_id, clip_desc=None):
     message_cc_webhook = f"**{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
     if delay:
         message_cc_webhook += f"\nDelayed by {delay} seconds."
-    channel_image = get_channel_image(user_id)
+    channel_name, channel_image = get_channel_name_image(user_id)
 
     # insert the entry to database
     cur.execute("INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, message_id, clip_desc, request_time, clip_time, user_id, user_name, url))
