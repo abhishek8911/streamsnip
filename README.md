@@ -7,7 +7,9 @@ after extensive issue in clipping by my one of the favorite streamer. I made thi
 How to Use ? 
 
 2 options 
-1 ) give me discord webhook url and your youtube channel link. I can host it for you for the time being
+1 ) give me discord webhook url and your youtube channel link. I can host it for you for the time being </br>
+![](https://dcbadge.vercel.app/api/shield/408994955147870208)
+![](https://dcbadge.vercel.app/api/server/2XVBWK99Vy) </br>
 
 or
 
