@@ -107,10 +107,10 @@ def get_channel_name_image(channel_id:str):
 @app.route("/clip/<message_id>/<clip_desc>")
 def clip(message_id, clip_desc=None):
     show_link = request.args.get("showlink", True)
-    screenshot = request.args.get("screenshot", True)
+    screenshot = request.args.get("screenshot", False)
     delay = request.args.get("delay", 0)
     show_link = False if show_link == "false" else True
-    screenshot = False if screenshot == "false" else True
+    screenshot = True if screenshot == "true" else False
     try:
         delay = 0 if not delay else int(delay)
     except ValueError:
