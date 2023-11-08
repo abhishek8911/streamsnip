@@ -25,13 +25,21 @@ cur.execute("CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_
 db.commit()
 
 
+global last_slash_request, last_slash_data
+last_slash_request = 0
+last_slash_data = []
+
 @app.route('/')
 def slash():
+    global last_slash_request, last_slash_data
     try:
         channel = parse_qs(request.headers["Nightbot-Channel"])
         return f"If you can read this, then the program is running absolutely fine. See exports at -> http://{request.host}{url_for('exports', channel_id=channel.get('providerId')[0])}"
     except:
         pass
+    if time.time() - last_slash_request < 28800: # 8 hours
+        print("returning from cache")
+        return render_template("home.html", data=last_slash_data)
     cur.execute(f"SELECT DISTINCT channel_id FROM QUERIES")
     data = cur.fetchall()
     returning = []
@@ -43,6 +51,8 @@ def slash():
         ch["name"] = channel_name
         ch['link'] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
         returning.append(ch)
+    last_slash_request = time.time()
+    last_slash_data = returning
     return render_template("home.html", data=returning)    
 
 @app.route("/export")
