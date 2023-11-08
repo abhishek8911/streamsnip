@@ -67,14 +67,31 @@ def get_channel_clips(channel_id:str):
             'name': y[6],
             'id': y[5]
         }
-        x['clip_time'] = y[5]
-        x['time'] = y[4]
+        x['clip_time'] = y[4]  # time in stream when clip was made. if stream starts at 0 
+        x['time'] = y[3] # real life time when clip was made
         x['message'] = y[2]
         x['stream_id'] = y[7].replace("https://youtu.be/", "").split("?")[0]
         x['dt'] = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.localtime(y[3]))
+        x['hms'] = time_to_hms(y[4])
         l.append(x)
     l.reverse()
     return l
+
+def time_to_hms(seconds:int):
+    hour = int(seconds/3600)
+    minute = int(seconds/60) % 60
+    second = int(seconds) % 60
+    if hour < 10:
+        hour = f"0{hour}"
+    if minute < 10:
+        minute = f"0{minute}"
+    if second < 10:
+        second = f"0{second}"
+    if hour:
+        hour_minute_second = f"{hour}:{minute}:{second}"
+    else:
+        hour_minute_second = f"{minute}:{second}"
+    return hour_minute_second
 
 @app.route("/exports/<channel_id>")
 def exports(channel_id = None):
@@ -86,11 +103,23 @@ def exports(channel_id = None):
     soup = BeautifulSoup(html_data, 'html.parser')
     channel_image = soup.find("meta", property="og:image")["content"]
     channel_name = soup.find("meta", property="og:title")["content"]
-
+    data = get_channel_clips(channel_id)
     return render_template("export.html", 
-                           data=get_channel_clips(channel_id), 
+                           data= data,
+                           clips_string = create_simplified(data), 
                            channel_name = channel_name, 
                            channel_image=channel_image)
+
+def create_simplified(clips:list) -> str:
+    known_vid_id = []
+    string = ""
+    for clip in clips:
+        if clip['stream_id'] not in known_vid_id:
+            string += f"https://youtu.be/{clip['stream_id']}\n"
+        string += f"{clip['author']['name']} -> {clip['message']} -> {clip['hms']}\n"
+        string += f"Link: {clip['link']}\n\n\n"
+        known_vid_id.append(clip['stream_id'])
+    return string
 
 def get_channel_name_image(channel_id:str):
     if not channel_id:

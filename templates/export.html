@@ -6,8 +6,38 @@
     <link rel="icon" href={{channel_image}} type="image/x-icon">
     </head>
     <body>
-        <p class="text-center" style="font-family: 'Exo 2', sans-serif; font-size: 30px; margin-top: 20px;">If you want raw data. open console and type 'data'</p>
+        <!-- a textbox containing raw data-->
+        <center>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1>{{ channel_name }} - Clips</h1>
+                    </div>
+                </div>
+                <!-- text saying Raw Data-->
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>Raw Data</h2>
+                    </div>
+                </div>
 
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea class="form-control" id="raw_data" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>Simplified String</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea class="form-control" id="raw_string_data" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </center>
         <div class="container">
             <div class="row">
                 {% for clip in data %}
@@ -28,5 +58,10 @@
     </body>
     <script>
         var data = {{ data|tojson }};
+        var channel_name = "{{ channel_name }}";
+        var channel_image = "{{ channel_image }}";
+        var clips_string = {{ clips_string|tojson }};
+        document.getElementById("raw_data").value = JSON.stringify(data, null, 2);
+        document.getElementById("raw_string_data").value = clips_string;
     </script>
 </html>
