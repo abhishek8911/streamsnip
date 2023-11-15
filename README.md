@@ -45,5 +45,3 @@ You can use `-ul=userlevel` to limit clipping to specific user levels (e.g., mod
 ![Screenshot 2](/assets/Screenshot_157.png)
 
 ---
-
-Feel free to adjust as needed!
