@@ -27,7 +27,7 @@ The primary goal of Clip_Nightbot is to streamline the clipping process, address
 ## Optional Arguments:
 
 - `showlink` (default: true) - Display the link where all clips can be viewed.
-- `screenshot` (default: true) - Enable or disable screenshot capture.
+- `screenshot` (default: false) - Enable or disable screenshot capture. If enabled the nightbot may not get response in given time and will say "Timed out" message. but it will still clip.
 - `delay` (default: 0) - Introduce an artificial delay to the command. Useful for scheduling links in the future or past.
 
 ### Examples:
