@@ -37,6 +37,22 @@ The primary goal of Clip_Nightbot is to streamline the clipping process, address
 - `http://your_host_here:5001/clip/$(chatid)/$(querystring)?screenshot=false` - Links provided, no screenshots.
 - `http://your_host_here:5001/clip/$(chatid)/$(querystring)?delay=-20` - Set a delay in the past by 20 seconds.
 
+## Other Commands
+1. `!delete <clip_id>` - delete the given clip
+```
+!addcom !delete $(urlfetch http://your_host_here:5001/delete/$(query)) -ul=moderator
+```
+⚠️ don't remove the `-ul=moderator` part, otherwise everyone can delete your clips.
+
+2. `!clips` or `!export` - gives link where you can see all the clips 
+```markdown
+!addcom !export $(urlfetch http://your_host_here:5001/export/$(chatid))
+```
+
+3. `!cliptest` - test if the clipper is working
+```markdown
+!addcom !cliptest $(urlfetch http://your_host_here:5001/)
+```
 ### Additional Customization:
 
 You can use `-ul=userlevel` to limit clipping to specific user levels (e.g., mods). Find user levels [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to reduce spam and grant clipping access to specific individuals.
