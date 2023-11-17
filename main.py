@@ -48,6 +48,8 @@ def get_channel_clips(channel_id:str):
         x['stream_id'] = y[7].replace("https://youtu.be/", "").split("?")[0]
         x['dt'] = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.localtime(y[3]))
         x['hms'] = time_to_hms(y[4])
+        x['id'] = y[1][-3:] + str(int(y[4]))
+
         l.append(x)
     l.reverse()
     return l
