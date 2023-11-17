@@ -29,41 +29,6 @@ global last_slash_request, last_slash_data
 last_slash_request = 0
 last_slash_data = []
 
-@app.route('/')
-def slash():
-    global last_slash_request, last_slash_data
-    try:
-        channel = parse_qs(request.headers["Nightbot-Channel"])
-        return f"If you can read this, then the program is running absolutely fine. See exports at -> http://{request.host}{url_for('exports', channel_id=channel.get('providerId')[0])}"
-    except:
-        pass
-    if time.time() - last_slash_request < 28800: # 8 hours
-        print("returning from cache")
-        return render_template("home.html", data=last_slash_data)
-    cur.execute(f"SELECT DISTINCT channel_id FROM QUERIES")
-    data = cur.fetchall()
-    returning = []
-    for ch_id in data:
-        ch = {}
-        channel_name, channel_image = get_channel_name_image(ch_id[0])
-        ch["image"] = channel_image
-        ch["id"] = ch_id[0]
-        ch["name"] = channel_name
-        ch['link'] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
-        returning.append(ch)
-    last_slash_request = time.time()
-    last_slash_data = returning
-    return render_template("home.html", data=returning)    
-
-@app.route("/export")
-def export():
-    try:
-        channel = parse_qs(request.headers["Nightbot-Channel"])
-    except KeyError:
-        return "Not able to auth"
-    channel_id = channel.get("providerId")[0]
-    return f"You can download the export from http://surajbhari.info:5001/exports/{channel_id}"
-
 def get_channel_clips(channel_id:str):
     if not channel_id:
         return {}
@@ -103,23 +68,6 @@ def time_to_hms(seconds:int):
         hour_minute_second = f"{minute}:{second}"
     return hour_minute_second
 
-@app.route("/exports/<channel_id>")
-def exports(channel_id = None):
-    if not channel_id:
-        return redirect(url_for("slash"))
-    
-    channel_link = f"https://youtube.com/channel/{channel_id}"
-    html_data = get(channel_link).text
-    soup = BeautifulSoup(html_data, 'html.parser')
-    channel_image = soup.find("meta", property="og:image")["content"]
-    channel_name = soup.find("meta", property="og:title")["content"]
-    data = get_channel_clips(channel_id)
-    return render_template("export.html", 
-                           data= data,
-                           clips_string = create_simplified(data), 
-                           channel_name = channel_name, 
-                           channel_image=channel_image)
-
 def create_simplified(clips:list) -> str:
     known_vid_id = []
     string = ""
@@ -140,6 +88,60 @@ def get_channel_name_image(channel_id:str):
     channel_image = soup.find("meta", property="og:image")["content"]
     channel_name = soup.find("meta", property="og:title")["content"]
     return channel_name, channel_image
+
+@app.route('/')
+def slash():
+    global last_slash_request, last_slash_data
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+        return f"If you can read this, then the program is running absolutely fine. See exports at -> http://{request.host}{url_for('exports', channel_id=channel.get('providerId')[0])}"
+    except:
+        pass
+    if time.time() - last_slash_request < 28800: # 8 hours
+        print("returning from cache")
+        return render_template("home.html", data=last_slash_data)
+    cur.execute(f"SELECT DISTINCT channel_id FROM QUERIES")
+    data = cur.fetchall()
+    returning = []
+    for ch_id in data:
+        ch = {}
+        channel_name, channel_image = get_channel_name_image(ch_id[0])
+        ch["image"] = channel_image
+        ch["id"] = ch_id[0]
+        ch["name"] = channel_name
+        ch['link'] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
+        returning.append(ch)
+    last_slash_request = time.time()
+    last_slash_data = returning
+    return render_template("home.html", data=returning)    
+
+@app.route("/export")
+def export():
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+    except KeyError:
+        return "Not able to auth"
+    channel_id = channel.get("providerId")[0]
+    return f"You can download the export from http://surajbhari.info:5001/exports/{channel_id}"
+
+
+@app.route("/exports/<channel_id>")
+def exports(channel_id = None):
+    if not channel_id:
+        return redirect(url_for("slash"))
+    
+    channel_link = f"https://youtube.com/channel/{channel_id}"
+    html_data = get(channel_link).text
+    soup = BeautifulSoup(html_data, 'html.parser')
+    channel_image = soup.find("meta", property="og:image")["content"]
+    channel_name = soup.find("meta", property="og:title")["content"]
+    data = get_channel_clips(channel_id)
+    return render_template("export.html", 
+                           data= data,
+                           clips_string = create_simplified(data), 
+                           channel_name = channel_name, 
+                           channel_image=channel_image)
+
 
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10
 @app.route("/clip/<message_id>/")
@@ -251,4 +253,5 @@ def take_screenshot(video_url:str, seconds:int):
     
     return file_name
 
-app.run(host='0.0.0.0', port=5001)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001)
