@@ -89,6 +89,39 @@ def get_channel_name_image(channel_id:str):
     channel_name = soup.find("meta", property="og:title")["content"]
     return channel_name, channel_image
 
+def take_screenshot(video_url:str, seconds:int):
+    # Get the video URL using yt-dlp
+    try:
+        video_info = subprocess.check_output(["yt-dlp", "-f", "bestvideo", "--get-url", video_url], universal_newlines=True)
+    except subprocess.CalledProcessError as e:
+        print("Error:", e)
+        exit(1)
+
+    # Remove leading/trailing whitespace and newline characters from the video URL
+    video_url = video_info.strip()
+    file_name = "ss.jpg"
+
+    # FFmpeg command
+    ffmpeg_command = [
+        "ffmpeg",
+        "-y",                     # say yes to prompts
+        "-ss", str(seconds),      # Start time
+        "-i", video_url,          # Input video URL
+        "-vframes", "1",          # Number of frames to extract (1)
+        "-q:v", "2",              # Video quality (2)
+        "-hide_banner",           # Hide banner
+        "-loglevel", "error",     # Hide logs
+        file_name                 # Output image file
+    ]
+
+    try:
+        subprocess.run(ffmpeg_command, check=True)
+    except subprocess.CalledProcessError as e:
+        print("Error:", e)
+        exit(1)
+    
+    return file_name
+
 @app.route('/')
 def slash():
     global last_slash_request, last_slash_data
@@ -220,38 +253,6 @@ def clip(message_id, clip_desc=None):
     webhook.execute()
     return message_to_return
 
-def take_screenshot(video_url:str, seconds:int):
-    # Get the video URL using yt-dlp
-    try:
-        video_info = subprocess.check_output(["yt-dlp", "-f", "bestvideo", "--get-url", video_url], universal_newlines=True)
-    except subprocess.CalledProcessError as e:
-        print("Error:", e)
-        exit(1)
-
-    # Remove leading/trailing whitespace and newline characters from the video URL
-    video_url = video_info.strip()
-    file_name = "ss.jpg"
-
-    # FFmpeg command
-    ffmpeg_command = [
-        "ffmpeg",
-        "-y",                     # say yes to prompts
-        "-ss", str(seconds),      # Start time
-        "-i", video_url,          # Input video URL
-        "-vframes", "1",          # Number of frames to extract (1)
-        "-q:v", "2",              # Video quality (2)
-        "-hide_banner",           # Hide banner
-        "-loglevel", "error",     # Hide logs
-        file_name                 # Output image file
-    ]
-
-    try:
-        subprocess.run(ffmpeg_command, check=True)
-    except subprocess.CalledProcessError as e:
-        print("Error:", e)
-        exit(1)
-    
-    return file_name
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
