@@ -192,13 +192,7 @@ def clip(message_id, clip_desc=None):
     clip_time += delay
     url = "https://youtu.be/"+vid["original_video_id"]+"?t="+str(int(clip_time))
     # if clip_time is in seconds. then hh:mm:ss format would be like
-    hour = int(clip_time/3600)
-    minute = int(clip_time/60) % 60
-    second = int(clip_time) % 60
-    if hour:
-        hour_minute_second = f"{hour}:{minute}:{second}"
-    else:
-        hour_minute_second = f"{minute}:{second}"
+    hour_minute_second = time_to_hms(clip_time)
     message_cc_webhook = f"**{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
     if delay:
         message_cc_webhook += f"\nDelayed by {delay} seconds."
