@@ -155,7 +155,7 @@ def export():
     except KeyError:
         return "Not able to auth"
     channel_id = channel.get("providerId")[0]
-    return f"You can download the export from http://surajbhari.info:5001/exports/{channel_id}"
+    return f"You can download the export from http://{request.host}{url_for('exports', channel_id=channel_id)}"
 
 
 @app.route("/exports/<channel_id>")
