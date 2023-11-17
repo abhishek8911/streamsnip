@@ -226,9 +226,11 @@ def clip(message_id, clip_desc=None):
     clip_time  = request_time - vid["start_time"]/1000000 + 5
     clip_time += delay
     url = "https://youtu.be/"+vid["original_video_id"]+"?t="+str(int(clip_time))
+    clip_id = message_id[-3:] + str(int(clip_time))
+
     # if clip_time is in seconds. then hh:mm:ss format would be like
     hour_minute_second = time_to_hms(clip_time)
-    message_cc_webhook = f"**{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
+    message_cc_webhook = f"{clip_id} | **{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
     if delay:
         message_cc_webhook += f"\nDelayed by {delay} seconds."
     channel_name, channel_image = get_channel_name_image(user_id)
@@ -238,8 +240,7 @@ def clip(message_id, clip_desc=None):
     db.commit()
 
     webhook = DiscordWebhook(url=webhook_url, content=message_cc_webhook, username= user_name, avatar_url=channel_image)
-
-    message_to_return = f"{user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
+    message_to_return = f"Clip {clip_id} by {user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
     if delay:
         message_to_return += f" Delayed by {delay} seconds."
     message_to_return += " | sent to discord."
@@ -253,6 +254,23 @@ def clip(message_id, clip_desc=None):
     webhook.execute()
     return message_to_return
 
+@app.route("/delete/<clip_id>")
+def delete(clip_id = None):
+    if not clip_id:
+        print("No Clip ID provided")
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+    except KeyError:
+        return "Not able to auth"
+    try:
+        tis = int(clip_id[3:])
+    except ValueError:
+        return "Clip ID should be in format of 3 characters + time in seconds"
+    channel_id = channel.get("providerId")[0]
+    # an id is last 3 characters of message_id + time_in_seconds
+    cur.execute("DELETE FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?", (channel_id, f"%{clip_id[:3]}", tis-1, tis+1))
+    db.commit()
+    return f"Deleted clip ID {clip_id}."
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
