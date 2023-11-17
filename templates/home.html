@@ -12,13 +12,14 @@
             <div class="row">
                 {% for channel in data %}
                 <div class="col-md-4 col-lg-3">
-                    <div class="card" style="width: 100%;">
-                        <img class="card-img-top" src="{{channel['image']}}" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ channel['name'] }}</h5>
-                            <a href="{{ channel['link'] }}" class="btn btn-primary">Clips</a>
+                    <a href = "{{ channel['link'] }}">
+                        <div class="card" style="width: 100%;">
+                            <img class="card-img-top" src="{{channel['image']}}" alt="Card image cap">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ channel['name'] }}</h5>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>

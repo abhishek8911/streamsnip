@@ -14,7 +14,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
-                        <h1>{{ channel_name }} - Clips</h1>
+                        <h1>{{ channel_name }} - Clips ({{data|length}})</h1>
                     </div>
                 </div>
                 <!-- text saying Raw Data-->
@@ -44,15 +44,17 @@
             <div class="row">
                 {% for clip in data %}
                 <div class="col-md-4 col-lg-3">
-                    <div class="card" style="width: 100%;">
-                        <img class="card-img-top" src="https://i.ytimg.com/vi/{{ clip['stream_id'] }}/sddefault.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ clip['author']['name'] }}</h5>
-                            <p class="card-text">{{ clip['message'] }} </p>
-                            <p class="card-text">{{ clip['dt'] }} </p>
-                            <a href="{{ clip['link'] }}" class="btn btn-primary">Link</a>
+                    <a href="{{ clip['link'] }}">
+                        <div class="card" style="width: 100%;">
+                            <img class="card-img-top" src="https://i.ytimg.com/vi/{{ clip['stream_id'] }}/sddefault.jpg" alt="Card image cap">
+                            <div class="card-body">
+                                <h6 class="card-text"> {{ clip['id'] }} </h6>
+                                <h5 class="card-title">{{ clip['author']['name'] }}</h5>
+                                <p class="card-text">{{ clip['message'] }} </p>
+                                <p class="card-text">{{ clip['hms'] }} </p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
