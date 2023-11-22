@@ -39,17 +39,23 @@ The primary goal of Clip_Nightbot is to streamline the clipping process, address
 
 ## Other Commands
 1. `!delete <clip_id>` - delete the given clip
-```
+```markdown
 !addcom !delete $(urlfetch http://your_host_here:5001/delete/$(query)) -ul=moderator
 ```
-⚠️ don't remove the `-ul=moderator` part, otherwise everyone can delete your clips.
+⚠️ don't remove the `-ul=moderator` part, otherwise anyone can delete your clips.
 
-2. `!clips` or `!export` - gives link where you can see all the clips 
+2. `!edit <clip_id> <new_title>` - edit the title of the given clip
+```markdown
+!addcom !edit $(urlfetch http://your_host_here:5001/edit/$(querystring)) -ul=moderator
+```
+⚠️ don't remove the `-ul=moderator` part, otherwise anyone can delete your clips.
+
+3. `!clips` or `!export` - gives link where you can see all the clips 
 ```markdown
 !addcom !export $(urlfetch http://your_host_here:5001/export/$(chatid))
 ```
 
-3. `!cliptest` - test if the clipper is working
+4. `!cliptest` - test if the clipper is working
 ```markdown
 !addcom !cliptest $(urlfetch http://your_host_here:5001/)
 ```
