@@ -274,5 +274,31 @@ def delete(clip_id = None):
     db.commit()
     return f"Deleted clip ID {clip_id}."
 
+@app.route("/edit/<xxx>")
+def edit(xxx=None):
+    if not xxx:
+        return "No Clip ID provided"
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+    except KeyError:
+        return "Not able to auth"
+    if len(xxx.split(" ")) < 2:
+        return "Please provide clip id and new description"
+    clip_id = xxx.split(" ")[0]
+    new_desc = " ".join(xxx.split(" ")[1:])
+    
+    channel_id = channel.get("providerId")[0]
+    # an id is last 3 characters of message_id + time_in_seconds
+    # get previous description
+    cur.execute("SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?", (channel_id, f"%{clip_id[:3]}", int(clip_id[3:])-1, int(clip_id[3:])+1))
+    data = cur.fetchall()
+    if not data:
+        return "Clip ID not found"
+    old_desc = data[0][2]
+    cur.execute("UPDATE QUERIES SET clip_desc=? WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?", (new_desc, channel_id, f"%{clip_id[:3]}", int(clip_id[3:])-1, int(clip_id[3:])+1))
+    db.commit()
+    return f"Edited clip ID {clip_id} from '{old_desc}' to '{new_desc}'."
+
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
