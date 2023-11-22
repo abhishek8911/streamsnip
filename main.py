@@ -64,7 +64,7 @@ def time_to_hms(seconds:int):
         minute = f"0{minute}"
     if second < 10:
         second = f"0{second}"
-    if hour:
+    if int(hour):
         hour_minute_second = f"{hour}:{minute}:{second}"
     else:
         hour_minute_second = f"{minute}:{second}"
