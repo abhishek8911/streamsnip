@@ -270,6 +270,11 @@ def delete(clip_id = None):
         return "Clip ID should be in format of 3 characters + time in seconds"
     channel_id = channel.get("providerId")[0]
     # an id is last 3 characters of message_id + time_in_seconds
+    # get previous description
+    cur.execute("SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?", (channel_id, f"%{clip_id[:3]}", tis-1, tis+1))
+    data = cur.fetchall()
+    if not data:
+        return "Clip ID not found"
     cur.execute("DELETE FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?", (channel_id, f"%{clip_id[:3]}", tis-1, tis+1))
     db.commit()
     return f"Deleted clip ID {clip_id}."
