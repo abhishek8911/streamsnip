@@ -193,7 +193,7 @@ def clip(message_id, clip_desc=None):
         return "Delay should be an integer (plus or minus)"
     request_time = time.time()
     if not message_id:
-        return "No message id provided"
+        return "No message id provided, You have configured it wrong. please contact AG at https://discord.gg/2XVBWK99Vy"
     if not clip_desc:
         clip_desc = "None"
     try:
@@ -209,7 +209,7 @@ def clip(message_id, clip_desc=None):
     try:
         webhook_url = creds[channel_id]
     except KeyError:
-        return "we don't have info where to send the clip to. contact owner of website where you got the link from."
+        return "We don't have info where to send the clip to. contact AG at https://discord.gg/2XVBWK99Vy"
 
 
     user_id = user.get("providerId")[0]
@@ -241,7 +241,13 @@ def clip(message_id, clip_desc=None):
     cur.execute("INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, message_id, clip_desc, request_time, clip_time, user_id, user_name, url))
     db.commit()
 
-    webhook = DiscordWebhook(url=webhook_url, content=message_cc_webhook, username= user_name, avatar_url=channel_image)
+    webhook = DiscordWebhook(
+        url=webhook_url, 
+        content=message_cc_webhook, 
+        username= user_name, 
+        avatar_url=channel_image
+    )
+    
     message_to_return = f"Clip {clip_id} by {user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
     if delay:
         message_to_return += f" Delayed by {delay} seconds."
