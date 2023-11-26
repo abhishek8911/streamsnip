@@ -21,7 +21,7 @@ The primary goal of Clip_Nightbot is to streamline the clipping process, address
 ## Nightbot Command:
 
 ```markdown
-!addcom !clip $(urlfetch http://your_host_here:5001/clip/$(chatid)/$(querystring))
+!addcom !clip $(urlfetch http://surajbhari.info:5001/clip/$(chatid)/$(querystring))
 ```
 
 ## Optional Arguments:
@@ -32,32 +32,32 @@ The primary goal of Clip_Nightbot is to streamline the clipping process, address
 
 ### Examples:
 
-- `http://your_host_here:5001/clip/$(chatid)/$(querystring)?showlink=false&screenshot=false` - No links, no screenshots.
-- `http://your_host_here:5001/clip/$(chatid)/$(querystring)?showlink=false` - No links, but with screenshots.
-- `http://your_host_here:5001/clip/$(chatid)/$(querystring)?screenshot=false` - Links provided, no screenshots.
-- `http://your_host_here:5001/clip/$(chatid)/$(querystring)?delay=-20` - Set a delay in the past by 20 seconds.
+- `http://surajbhari.info:5001/clip/$(chatid)/$(querystring)?showlink=false&screenshot=false` - No links, no screenshots.
+- `http://surajbhari.info:5001/clip/$(chatid)/$(querystring)?showlink=false` - No links, but with screenshots.
+- `http://surajbhari.info:5001/clip/$(chatid)/$(querystring)?screenshot=false` - Links provided, no screenshots.
+- `http://surajbhari.info:5001/clip/$(chatid)/$(querystring)?delay=-20` - Set a delay in the past by 20 seconds.
 
 ## Other Commands
 1. `!delete <clip_id>` - delete the given clip
 ```markdown
-!addcom !delete $(urlfetch http://your_host_here:5001/delete/$(query)) -ul=moderator
+!addcom !delete $(urlfetch http://surajbhari.info:5001/delete/$(query)) -ul=moderator
 ```
 ⚠️ don't remove the `-ul=moderator` part, otherwise anyone can delete your clips.
 
 2. `!edit <clip_id> <new_title>` - edit the title of the given clip
 ```markdown
-!addcom !edit $(urlfetch http://your_host_here:5001/edit/$(querystring)) -ul=moderator
+!addcom !edit $(urlfetch http://surajbhari.info:5001/edit/$(querystring)) -ul=moderator
 ```
 ⚠️ don't remove the `-ul=moderator` part, otherwise anyone can delete your clips.
 
 3. `!clips` or `!export` - gives link where you can see all the clips 
 ```markdown
-!addcom !export $(urlfetch http://your_host_here:5001/export/$(chatid))
+!addcom !export $(urlfetch http://surajbhari.info:5001/export/$(chatid))
 ```
 
 4. `!cliptest` - test if the clipper is working
 ```markdown
-!addcom !cliptest $(urlfetch http://your_host_here:5001/)
+!addcom !cliptest $(urlfetch http://surajbhari.info:5001/)
 ```
 ### Additional Customization:
 
