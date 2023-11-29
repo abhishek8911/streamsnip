@@ -8,9 +8,9 @@ The primary goal of Clip_Nightbot is to streamline the clipping process, address
    Provide your Discord webhook URL and YouTube channel link, and I'll handle the hosting temporarily for you. 
 
    ![Discord Badge](https://dcbadge.vercel.app/api/shield/408994955147870208)
-   ![Server Badge](https://dcbadge.vercel.app/api/server/2XVBWK99Vy)
+   [![Server Badge](https://dcbadge.vercel.app/api/server/2XVBWK99Vy)](https://discord.gg/2XVBWK99Vy)
 
-2. **Self-Hosting:**
+3. **Self-Hosting:**
    If you prefer more control, follow these steps:
    - Edit `creds.json` with your channel ID and Discord webhook details.
    - Run `main.py` using `python3 main.py`.
