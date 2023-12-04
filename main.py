@@ -146,6 +146,7 @@ def slash():
         ch["name"] = channel_name
         ch['link'] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
         returning.append(ch)
+    returning.reverse()
     last_slash_request = time.time()
     last_slash_data = returning
     return render_template("home.html", data=returning)    

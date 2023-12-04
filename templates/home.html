@@ -4,6 +4,18 @@
 {% block head_content%}
 <title> Clip Nightbot </title>
 <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- meta data -->
+<meta property="og:title" content="Clip Nightbot" />
+{% set channel_names = [] %}
+{% for channel in data %}
+    {% set _ = channel_names.append(channel['name']) %}
+{% endfor %}
+{% set channel_names_str = channel_names|join('\n') %}
+<meta property="og:image" content="/static/favicon.ico" />
+
+<meta property="og:description" content="A way for streamers to clip stuff with single nightbot command. used mainly in IGC 
+{{channel_names_str}}" />
 {% endblock %}
 
 {% block content %}
