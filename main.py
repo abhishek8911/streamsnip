@@ -25,10 +25,6 @@ cur.execute("CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_
 db.commit()
 
 
-global last_slash_request, last_slash_data
-last_slash_request = 0
-last_slash_data = []
-
 def get_channel_clips(channel_id:str):
     if not channel_id:
         return {}
@@ -126,33 +122,29 @@ def take_screenshot(video_url:str, seconds:int):
 
 @app.route('/')
 def slash():
-    global last_slash_request, last_slash_data
-    try:
-        channel = parse_qs(request.headers["Nightbot-Channel"])
-        return f"If you can read this, then the program is running absolutely fine. See exports at -> http://{request.host}{url_for('exports', channel_id=channel.get('providerId')[0])}"
-    except:
-        pass
-    if time.time() - last_slash_request < 28800: # 8 hours
-        print("returning from cache")
-        return render_template("home.html", data=last_slash_data)
-    # Select distinct channel_id and sort by 
+    # this offload the load from every slash request to only the time when the script is initially ran 
     cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC") 
     data = cur.fetchall()
-    known_channels = []
     returning = []
+    known_channels = []
     for ch_id in data:
         ch = {}
         if ch_id[0] in known_channels:
             continue
         known_channels.append(ch_id[0])
-        channel_name, channel_image = get_channel_name_image(ch_id[0])
-        ch["image"] = channel_image
+        if ch_id[0] in channel_info:
+            ch['image'] = channel_info[ch_id[0]]['image']
+            ch['name'] = channel_info[ch_id[0]]['name']
+        else:
+            channel_name, channel_image = get_channel_name_image(ch_id[0])
+            ch["image"] = channel_image
+            ch["name"] = channel_name
+            channel_info[ch_id[0]] = {}
+            channel_info[ch_id[0]]['name'] = channel_name
+            channel_info[ch_id[0]]['image'] = channel_image
         ch["id"] = ch_id[0]
-        ch["name"] = channel_name
         ch['link'] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
         returning.append(ch)
-    last_slash_request = time.time()
-    last_slash_data = returning
     return render_template("home.html", data=returning)    
 
 @app.route("/export")
@@ -317,4 +309,12 @@ def edit(xxx=None):
 
     
 if __name__ == '__main__':
+    channel_info = {}
+    cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC") 
+    data = cur.fetchall()
+    for ch_id in data:
+        if ch_id[0] in channel_info:
+            continue
+        channel_info[ch_id[0]] = {}
+        channel_info[ch_id[0]]['name'], channel_info[ch_id[0]]['image'] = get_channel_name_image(ch_id[0])
     app.run(host='0.0.0.0', port=5001)
