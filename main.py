@@ -135,18 +135,22 @@ def slash():
     if time.time() - last_slash_request < 28800: # 8 hours
         print("returning from cache")
         return render_template("home.html", data=last_slash_data)
-    cur.execute(f"SELECT DISTINCT channel_id FROM QUERIES")
+    # Select distinct channel_id and sort by 
+    cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC") 
     data = cur.fetchall()
+    known_channels = []
     returning = []
     for ch_id in data:
         ch = {}
+        if ch_id[0] in known_channels:
+            continue
+        known_channels.append(ch_id[0])
         channel_name, channel_image = get_channel_name_image(ch_id[0])
         ch["image"] = channel_image
         ch["id"] = ch_id[0]
         ch["name"] = channel_name
         ch['link'] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
         returning.append(ch)
-    returning.reverse()
     last_slash_request = time.time()
     last_slash_data = returning
     return render_template("home.html", data=returning)    
