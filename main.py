@@ -32,10 +32,16 @@ db = sqlite3.connect("queries.db", check_same_thread=False)
 cur = db.cursor()
 # create a table channel_id message_id clip_desc, time, time_in_seconds, user_id, user_name, stream_link
 cur.execute(
-    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40))"
+    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40))"
 )
 db.commit()
-
+# check if there is a column named webhook in QUERIES table, if not then add it 
+cur.execute("PRAGMA table_info(QUERIES)")
+data = cur.fetchall()
+if len(data) == 8:
+    cur.execute("ALTER TABLE QUERIES ADD COLUMN webhook VARCHAR(40)")
+    db.commit()
+    print("Added webhook column to QUERIES table")
 
 def get_channel_clips(channel_id: str):
     if not channel_id:
@@ -143,7 +149,15 @@ def take_screenshot(video_url: str, seconds: int):
 
     return file_name
 
+def get_webhook_url(channel_id):
+    with open("creds.json", "r") as f:
+        creds = load(f)
 
+    try:
+        webhook_url = creds[channel_id]
+    except KeyError:
+        return None
+    return webhook_url
 @app.route("/")
 def slash():
     # this offload the load from every slash request to only the time when the script is initially ran
@@ -226,15 +240,12 @@ def clip(message_id, clip_desc=None):
     except KeyError:
         return "Not able to auth"
 
-    with open("creds.json", "r") as f:
-        creds = load(f)
 
     channel_id = channel.get("providerId")[0]
-    try:
-        webhook_url = creds[channel_id]
-    except KeyError:
-        return "We don't have info where to send the clip to. contact AG at https://discord.gg/2XVBWK99Vy"
-
+    webhook_url = get_webhook_url(channel_id)
+    if not webhook_url:
+        return "No webhook found for this channel. Please contact AG at https://discord.gg/2XVBWK99Vy"
+    
     user_id = user.get("providerId")[0]
     user_name = user.get("displayName")[0]
     vids = scrapetube.get_channel(channel_id, content_type="streams", limit=2, sleep=0)
@@ -265,27 +276,12 @@ def clip(message_id, clip_desc=None):
         message_cc_webhook += f"\nDelayed by {delay} seconds."
     channel_name, channel_image = get_channel_name_image(user_id)
 
-    # insert the entry to database
-    cur.execute(
-        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-        (
-            channel_id,
-            message_id,
-            clip_desc,
-            request_time,
-            clip_time,
-            user_id,
-            user_name,
-            url,
-        ),
-    )
-    db.commit()
-
     webhook = DiscordWebhook(
         url=webhook_url,
         content=message_cc_webhook,
         username=user_name,
         avatar_url=channel_image,
+        allowed_mentions={'role':[], 'user':[], 'everyone':False}
     )
 
     message_to_return = f"Clip {clip_id} by {user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
@@ -302,6 +298,22 @@ def clip(message_id, clip_desc=None):
             f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}"
         )
     webhook.execute()
+    # insert the entry to database
+    cur.execute(
+        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            channel_id,
+            message_id,
+            clip_desc,
+            request_time,
+            clip_time,
+            user_id,
+            user_name,
+            url,
+            webhook.id,
+        ),
+    )
+    db.commit()
     return message_to_return
 
 
@@ -332,6 +344,13 @@ def delete(clip_id=None):
         (channel_id, f"%{clip_id[:3]}", tis - 1, tis + 1),
     )
     db.commit()
+    webhook_url = get_webhook_url(channel_id)
+    if webhook_url:
+        webhook = DiscordWebhook(url=webhook_url, id=data[0][8], allowed_mentions={'role':[], 'user':[], 'everyone':False})
+        try:
+            webhook.delete()
+        except:
+            pass
     return f"Deleted clip ID {clip_id}."
 
 
@@ -370,6 +389,19 @@ def edit(xxx=None):
         ),
     )
     db.commit()
+    webhook_url = get_webhook_url(channel_id)
+    if webhook_url:
+        new_message = f"{clip_id} | **{new_desc}** \n\n<{data[0][7]}>"
+        webhook = DiscordWebhook(url=webhook_url, 
+                                 id=data[0][8], 
+                                 allowed_mentions={'role':[], 'user':[], 'everyone':False},
+                                 content=new_message
+                                 )
+        try:
+            webhook.edit()
+        except Exception as e:
+            print(e)
+            pass
     return f"Edited clip ID {clip_id} from '{old_desc}' to '{new_desc}'."
 
 
