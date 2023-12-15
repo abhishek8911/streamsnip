@@ -35,13 +35,20 @@ cur.execute(
     "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40))"
 )
 db.commit()
-# check if there is a column named webhook in QUERIES table, if not then add it 
+# check if there is a column named webhook in QUERIES table, if not then add it
 cur.execute("PRAGMA table_info(QUERIES)")
 data = cur.fetchall()
-if len(data) == 8:
+colums = [xp[1] for xp in data]
+if "webhook" not in colums:
     cur.execute("ALTER TABLE QUERIES ADD COLUMN webhook VARCHAR(40)")
     db.commit()
     print("Added webhook column to QUERIES table")
+
+if "delay" not in colums:
+    cur.execute("ALTER TABLE QUERIES ADD COLUMN delay INT")
+    db.commit()
+    print("Added delay column to QUERIES table")
+
 
 def get_channel_clips(channel_id: str):
     if not channel_id:
@@ -62,7 +69,7 @@ def get_channel_clips(channel_id: str):
         x["dt"] = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.localtime(y[3]))
         x["hms"] = time_to_hms(y[4])
         x["id"] = y[1][-3:] + str(int(y[4]))
-        x['webhook'] = y[8]
+        x["webhook"] = y[8]
         l.append(x)
     l.reverse()
     return l
@@ -149,6 +156,7 @@ def take_screenshot(video_url: str, seconds: int):
 
     return file_name
 
+
 def get_webhook_url(channel_id):
     with open("creds.json", "r") as f:
         creds = load(f)
@@ -158,6 +166,8 @@ def get_webhook_url(channel_id):
     except KeyError:
         return None
     return webhook_url
+
+
 @app.route("/")
 def slash():
     # this offload the load from every slash request to only the time when the script is initially ran
@@ -240,12 +250,11 @@ def clip(message_id, clip_desc=None):
     except KeyError:
         return "Not able to auth"
 
-
     channel_id = channel.get("providerId")[0]
     webhook_url = get_webhook_url(channel_id)
     if not webhook_url:
         return "No webhook found for this channel. Please contact AG at https://discord.gg/2XVBWK99Vy"
-    
+
     user_id = user.get("providerId")[0]
     user_name = user.get("displayName")[0]
     vids = scrapetube.get_channel(channel_id, content_type="streams", limit=2, sleep=0)
@@ -281,7 +290,7 @@ def clip(message_id, clip_desc=None):
         content=message_cc_webhook,
         username=user_name,
         avatar_url=channel_image,
-        allowed_mentions={'role':[], 'user':[], 'everyone':False}
+        allowed_mentions={"role": [], "user": [], "everyone": False},
     )
 
     message_to_return = f"Clip {clip_id} by {user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
@@ -300,7 +309,7 @@ def clip(message_id, clip_desc=None):
     webhook.execute()
     # insert the entry to database
     cur.execute(
-        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             channel_id,
             message_id,
@@ -311,6 +320,7 @@ def clip(message_id, clip_desc=None):
             user_name,
             url,
             webhook.id,
+            delay,
         ),
     )
     db.commit()
@@ -346,7 +356,11 @@ def delete(clip_id=None):
     db.commit()
     webhook_url = get_webhook_url(channel_id)
     if webhook_url:
-        webhook = DiscordWebhook(url=webhook_url, id=data[0][8], allowed_mentions={'role':[], 'user':[], 'everyone':False})
+        webhook = DiscordWebhook(
+            url=webhook_url,
+            id=data[0][8],
+            allowed_mentions={"role": [], "user": [], "everyone": False},
+        )
         try:
             webhook.delete()
         except:
@@ -392,11 +406,14 @@ def edit(xxx=None):
     webhook_url = get_webhook_url(channel_id)
     if webhook_url:
         new_message = f"{clip_id} | **{new_desc}** \n\n<{data[0][7]}>"
-        webhook = DiscordWebhook(url=webhook_url, 
-                                 id=data[0][8], 
-                                 allowed_mentions={'role':[], 'user':[], 'everyone':False},
-                                 content=new_message
-                                 )
+        if data[0][9]:
+            new_message += f"\nDelayed by {data[0][9]} seconds."
+        webhook = DiscordWebhook(
+            url=webhook_url,
+            id=data[0][8],
+            allowed_mentions={"role": [], "user": [], "everyone": False},
+            content=new_message,
+        )
         try:
             webhook.edit()
         except Exception as e:
