@@ -384,10 +384,13 @@ def edit(xxx=None):
     channel_id = channel.get("providerId")[0]
     # an id is last 3 characters of message_id + time_in_seconds
     # get previous description
-    cur.execute(
-        "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-        (channel_id, f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-    )
+    try:
+        cur.execute(
+            "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (channel_id, f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+        )
+    except ValueError:
+        return "Clip ID should be in format of 3 characters + time in seconds"
     data = cur.fetchall()
     if not data:
         return "Clip ID not found"
