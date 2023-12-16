@@ -409,7 +409,8 @@ def edit(xxx=None):
     db.commit()
     webhook_url = get_webhook_url(channel_id)
     if webhook_url:
-        new_message = f"{clip_id} | **{new_desc}** \n\n<{data[0][7]}>"
+        hms = time_to_hms(int(data[0][4]))
+        new_message = f"{clip_id} | **{new_desc}** \n\n{hms}\n<{data[0][7]}>"
         if data[0][9]:
             new_message += f"\nDelayed by {data[0][9]} seconds."
         webhook = DiscordWebhook(
