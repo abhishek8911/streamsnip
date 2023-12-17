@@ -359,6 +359,7 @@ def clip(message_id, clip_desc=None):
         print(
             f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}"
         )
+        webhook.execute()
     return message_to_return
 
 
