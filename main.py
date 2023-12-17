@@ -11,7 +11,7 @@ from flask import (
 from bs4 import BeautifulSoup
 import requests
 import subprocess
-
+import os
 from json import load, loads, dump, dumps
 import time
 import builtins
@@ -50,6 +50,11 @@ if "delay" not in colums:
     print("Added delay column to QUERIES table")
 
 
+# if there is no folder named clips then make one 
+if not os.path.exists("clips"):
+    os.makedirs("clips")
+    print("Created clips folder")
+
 def get_channel_clips(channel_id: str):
     if not channel_id:
         return {}
@@ -71,6 +76,7 @@ def get_channel_clips(channel_id: str):
         x["id"] = y[1][-3:] + str(int(y[4]))
         x["webhook"] = y[8]
         x["delay"] = y[9]
+        x["direct_download_link"] = f"http://{request.host}{url_for('video', clip_id=x['id'])}"
         l.append(x)
     l.reverse()
     return l
@@ -426,6 +432,51 @@ def edit(xxx=None):
             pass
     return f"Edited clip ID {clip_id} from '{old_desc}' to '{new_desc}'."
 
+def download_and_store(clip_id):
+    data = cur.execute(
+            "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+        )
+    data = cur.fetchall()
+    if not data:
+        return None
+    video_url = data[0][7]
+    timestamp = data[0][4]
+    output_filename = f"./clips/{clip_id}"
+    # if there is a file that start with that clip in current directory then don't download it
+    files = [os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)]
+    if files:
+        return files[0]
+    delay = data[0][9]
+    if not delay:
+        delay = -60
+    # download that clip and send it 
+    start_time = time_to_hms(timestamp + delay) # add delay
+    end_time = time_to_hms(timestamp)
+    params = [
+        "yt-dlp",
+        "--output",
+        f"{output_filename}",
+        "--download-sections",
+        f'*{start_time}-{end_time}',
+        video_url
+    ]
+    subprocess.run(params,
+        check=True,
+    )
+    files = [os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)]
+    if files:
+        return files[0]
+    
+
+@app.route("/video/<clip_id>")
+def video(clip_id):
+    if not id:
+        return redirect(url_for("slash"))
+    clip = download_and_store(clip_id)
+    if not clip:
+        return "Clip not found"
+    return send_file(clip, as_attachment=True)
 
 if __name__ == "__main__":
     channel_info = {}
