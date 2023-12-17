@@ -8,6 +8,7 @@ from flask import (
     session,
     flash,
 )
+import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import requests
 import subprocess
@@ -174,6 +175,23 @@ def get_webhook_url(channel_id):
         return None
     return webhook_url
 
+@app.before_request
+def before_request():
+    # if request is for /clip or /delete or /edit then check if its from real account 
+    if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
+        ip = request.remote_addr
+        addrs = dns.reversename.from_address(ip)
+        try:
+            if not str(dns.resolver.resolve(addrs,"PTR")[0]).endswith(".nightbot.net."):
+                return "Not able to auth"
+            else:
+                print(f"Request from {ip} is allowed")
+        except Exception as e:
+            print(e)
+            return "Not able to auth"
+    else:
+        pass
+
 
 @app.route("/")
 def slash():
@@ -202,6 +220,9 @@ def slash():
         returning.append(ch)
     return render_template("home.html", data=returning)
 
+@app.route("/ip")
+def get_ip():
+    return request.remote_addr
 
 @app.route("/export")
 def export():
@@ -306,13 +327,7 @@ def clip(message_id, clip_desc=None):
     message_to_return += " | sent to discord."
     if show_link:
         message_to_return += f" See all clips at http://{request.host}{url_for('exports', channel_id=channel_id)}"
-    if screenshot:
-        file_name = take_screenshot(url, clip_time)
-        with open(file_name, "rb") as f:
-            webhook.add_file(file=f.read(), filename="ss.jpg")
-        print(
-            f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}"
-        )
+
     webhook.execute()
     # insert the entry to database
     cur.execute(
@@ -331,6 +346,19 @@ def clip(message_id, clip_desc=None):
         ),
     )
     db.commit()
+    if screenshot:
+        webhook = DiscordWebhook(
+            url=webhook_url,
+            username=user_name,
+            avatar_url=channel_image,
+            allowed_mentions={"role": [], "user": [], "everyone": False},
+        )
+        file_name = take_screenshot(url, clip_time)
+        with open(file_name, "rb") as f:
+            webhook.add_file(file=f.read(), filename="ss.jpg")
+        print(
+            f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}"
+        )
     return message_to_return
 
 
