@@ -51,10 +51,11 @@ if "delay" not in colums:
     print("Added delay column to QUERIES table")
 
 
-# if there is no folder named clips then make one 
+# if there is no folder named clips then make one
 if not os.path.exists("clips"):
     os.makedirs("clips")
     print("Created clips folder")
+
 
 def get_channel_clips(channel_id: str):
     if not channel_id:
@@ -77,7 +78,9 @@ def get_channel_clips(channel_id: str):
         x["id"] = y[1][-3:] + str(int(y[4]))
         x["webhook"] = y[8]
         x["delay"] = y[9]
-        x["direct_download_link"] = f"http://{request.host}{url_for('video', clip_id=x['id'])}"
+        x[
+            "direct_download_link"
+        ] = f"http://{request.host}{url_for('video', clip_id=x['id'])}"
         l.append(x)
     l.reverse()
     return l
@@ -175,14 +178,17 @@ def get_webhook_url(channel_id):
         return None
     return webhook_url
 
+
 @app.before_request
 def before_request():
-    # if request is for /clip or /delete or /edit then check if its from real account 
+    # if request is for /clip or /delete or /edit then check if its from real account
     if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
         ip = request.remote_addr
         addrs = dns.reversename.from_address(ip)
         try:
-            if not str(dns.resolver.resolve(addrs,"PTR")[0]).endswith(".nightbot.net."):
+            if not str(dns.resolver.resolve(addrs, "PTR")[0]).endswith(
+                ".nightbot.net."
+            ):
                 return "Not able to auth"
             else:
                 print(f"Request from {ip} is allowed")
@@ -220,9 +226,11 @@ def slash():
         returning.append(ch)
     return render_template("home.html", data=returning)
 
+
 @app.route("/ip")
 def get_ip():
     return request.remote_addr
+
 
 @app.route("/export")
 def export():
@@ -461,11 +469,12 @@ def edit(xxx=None):
             pass
     return f"Edited clip ID {clip_id} from '{old_desc}' to '{new_desc}'."
 
+
 def download_and_store(clip_id):
     data = cur.execute(
-            "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-        )
+        "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+        (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+    )
     data = cur.fetchall()
     if not data:
         return None
@@ -473,21 +482,23 @@ def download_and_store(clip_id):
     timestamp = data[0][4]
     output_filename = f"./clips/{clip_id}"
     # if there is a file that start with that clip in current directory then don't download it
-    files = [os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)]
+    files = [
+        os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
+    ]
     if files:
         return files[0]
     delay = data[0][9]
     if not delay:
         delay = -60
-    # download that clip and send it 
-    start_time = time_to_hms(timestamp + delay) # add delay
+    # download that clip and send it
+    start_time = time_to_hms(timestamp + delay)  # add delay
     end_time = time_to_hms(timestamp)
     params = [
         "yt-dlp",
         "--output",
         f"{output_filename}",
         "--download-sections",
-        f'*{start_time}-{end_time}',
+        f"*{start_time}-{end_time}",
         "--quiet",
         "--no-warnings",
         "--match-filter",
@@ -496,18 +507,18 @@ def download_and_store(clip_id):
     ]
     current_time = time.time()
     try:
-        subprocess.run(params,
-        check=True,
-        timeout=60)
+        subprocess.run(params, check=True, timeout=60)
     except subprocess.TimeoutExpired as e:
         pass
     except subprocess.CalledProcessError as e:
         return None
     print("Completed the process in ", time.time() - current_time)
-    files = [os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)]
+    files = [
+        os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
+    ]
     if files:
         return files[0]
-    
+
 
 @app.route("/video/<clip_id>")
 def video(clip_id):
@@ -529,12 +540,13 @@ def video(clip_id):
         # reaname it to mp4
         while True:
             try:
-                os.rename(clip, clip +".mp4")
+                os.rename(clip, clip + ".mp4")
                 break
             except:
                 pass
         clip += ".mp4"
     return send_file(clip, as_attachment=True)
+
 
 if __name__ == "__main__":
     channel_info = {}
