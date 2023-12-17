@@ -472,6 +472,8 @@ def download_and_store(clip_id):
         timeout=60)
     except subprocess.TimeoutExpired as e:
         pass
+    except subprocess.CalledProcessError as e:
+        return None
     print("Completed the process in ", time.time() - current_time)
     files = [os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)]
     if files:
