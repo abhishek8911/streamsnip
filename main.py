@@ -459,11 +459,20 @@ def download_and_store(clip_id):
         f"{output_filename}",
         "--download-sections",
         f'*{start_time}-{end_time}',
-        video_url
+        "--quiet",
+        "--no-warnings",
+        "--match-filter",
+        "!is_live & live_status!=is_upcoming & availability=public",
+        video_url,
     ]
-    subprocess.run(params,
+    current_time = time.time()
+    try:
+        subprocess.run(params,
         check=True,
-    )
+        timeout=60)
+    except subprocess.TimeoutExpired as e:
+        pass
+    print("Completed the process in ", time.time() - current_time)
     files = [os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)]
     if files:
         return files[0]
@@ -475,7 +484,25 @@ def video(clip_id):
         return redirect(url_for("slash"))
     clip = download_and_store(clip_id)
     if not clip:
-        return "Clip not found"
+        return "Seems like you are trying to download a clip that is currently live. we currently doesn't support that."
+    if ".part" in clip:
+        # rename to mp4
+        while True:
+            try:
+                os.rename(clip, clip.replace(".part", ".mp4"))
+                break
+            except:
+                pass
+        clip = clip.replace(".part", ".mp4")
+    if "." not in clip:
+        # reaname it to mp4
+        while True:
+            try:
+                os.rename(clip, clip +".mp4")
+                break
+            except:
+                pass
+        clip += ".mp4"
     return send_file(clip, as_attachment=True)
 
 if __name__ == "__main__":
