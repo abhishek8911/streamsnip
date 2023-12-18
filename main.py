@@ -487,12 +487,17 @@ def download_and_store(clip_id):
     ]
     if files:
         return files[0]
+    # real thing happened at 50. but we stored timestamp with delay. take back that delay
     delay = data[0][9]
-    if not delay:
+    timestamp += -1*delay
+    if not delay;
         delay = -60
-    # download that clip and send it
-    start_time = time_to_hms(timestamp + delay)  # add delay
-    end_time = time_to_hms(timestamp)
+    l = [timestamp, timestamp + delay]
+    start_time = min(l)
+    end_time = max(l)
+
+    start_time = time_to_hms(start_time)
+    end_time = time_to_hms(end_time)
     params = [
         "yt-dlp",
         "--output",
