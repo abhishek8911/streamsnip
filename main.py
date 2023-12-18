@@ -490,7 +490,7 @@ def download_and_store(clip_id):
     # real thing happened at 50. but we stored timestamp with delay. take back that delay
     delay = data[0][9]
     timestamp += -1*delay
-    if not delay;
+    if not delay:
         delay = -60
     l = [timestamp, timestamp + delay]
     start_time = min(l)
