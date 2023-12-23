@@ -4,8 +4,7 @@ from flask import (
     render_template,
     redirect,
     url_for,
-    session,
-    flash,
+    send_file
 )
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
@@ -13,7 +12,6 @@ import subprocess
 import os
 from json import load, dump
 import time
-import builtins
 from bs4 import BeautifulSoup
 from requests import get
 from flask import request
