@@ -28,7 +28,7 @@ db = sqlite3.connect("queries.db", check_same_thread=False)
 cur = db.cursor()
 # create a table channel_id message_id clip_desc, time, time_in_seconds, user_id, user_name, stream_link
 cur.execute(
-    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40))"
+    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40))"
 )
 db.commit()
 # check if there is a column named webhook in QUERIES table, if not then add it
@@ -45,6 +45,10 @@ if "delay" not in colums:
     db.commit()
     print("Added delay column to QUERIES table")
 
+if "userlevel" not in colums:
+    cur.execute("ALTER TABLE QUERIES ADD COLUMN userlevel VARCHAR(40)")
+    db.commit()
+    print("Added userlevel column to QUERIES table")
 
 # if there is no folder named clips then make one
 if not os.path.exists("clips"):
@@ -286,6 +290,7 @@ def clip(message_id, clip_desc=None):
     if not webhook_url:
         return "No webhook found for this channel. Please contact AG at https://discord.gg/2XVBWK99Vy"
 
+    user_level = user.get("userLevel")[0]
     user_id = user.get("providerId")[0]
     user_name = user.get("displayName")[0]
     vids = scrapetube.get_channel(channel_id, content_type="streams", limit=2, sleep=0)
@@ -315,11 +320,20 @@ def clip(message_id, clip_desc=None):
     if delay:
         message_cc_webhook += f"\nDelayed by {delay} seconds."
     channel_name, channel_image = get_channel_name_image(user_id)
+    webhook_name = user_name
+    if user_level == "owner":
+        webhook_name += " 👑"
+    elif user_level == "moderator":
+        webhook_name += " 🛡️"
+    elif user_level == "regular":
+        webhook_name += " 🧑‍🌾"
+    elif user_level == "subscriber":
+        webhook_name += " 🎖️"
 
     webhook = DiscordWebhook(
         url=webhook_url,
         content=message_cc_webhook,
-        username=user_name,
+        username=webhook_name,
         avatar_url=channel_image,
         allowed_mentions={"role": [], "user": [], "everyone": False},
     )
@@ -334,7 +348,7 @@ def clip(message_id, clip_desc=None):
     webhook.execute()
     # insert the entry to database
     cur.execute(
-        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             channel_id,
             message_id,
@@ -346,6 +360,7 @@ def clip(message_id, clip_desc=None):
             url,
             webhook.id,
             delay,
+            user_level,
         ),
     )
     db.commit()
