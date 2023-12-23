@@ -44,21 +44,36 @@
         <div class="row">
             {% for clip in data %}
             <div class="col-md-4 col-lg-3">
-                <a href="{{ clip['link'] }}" target="_blank">
-                    <div class="card" style="width: 100%;">
-                        <img class="card-img-top" src="https://i.ytimg.com/vi/{{ clip['stream_id'] }}/sddefault.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <h6 class="card-text"> {{ clip['id'] }} </h6>
-                            <h5 class="card-title">{{ clip['author']['name'] }}</h5>
-                            <p class="card-text">{{ clip['message'] }} </p>
-                            <p class="card-text">{{ clip['hms'] }} </p>
-                        </div>
+                <div class="card {% if clip['author']['level'] == 'moderator' %}border-primary{% elif clip['author']['level'] == 'subscriber' %}border-success{% elif clip['author']['level'] == 'owner' %}border-warning{% else %}border-secondary{% endif %}" style="width: 100%;">
+                    <img class="card-img-top" src="https://i.ytimg.com/vi/{{ clip['stream_id'] }}/sddefault.jpg" alt="Card image cap">
+                    <div class="card-body">
+                        <h6 class="card-text">{{ clip['id'] }}</h6>
+                        <h5 class="card-title">
+                            {% if clip['author']['level'] == 'owner' %}
+                                {{ owner_icon }} {{ clip['author']['name'] }}
+                            {% elif clip['author']['level'] == 'moderator' %}
+                                {{ mod_icon }} {{ clip['author']['name'] }}
+                            {% elif clip['author']['level'] == 'subscriber' %}
+                                {{ subscriber_icon }} {{ clip['author']['name'] }}
+                            {% elif clip['author']['level'] == 'regular' %}
+                                {{ regular_icon }} {{ clip['author']['name'] }}
+                            {% else %}
+                                {{ clip['author']['name'] }}
+                            {% endif %}
+                        </h5>
+                        <a href="{{ clip['link'] }}" target="_blank">
+                            <p class="card-text">{{ clip['message'] }}</p>
+                            <p class="card-text">{{ clip['hms'] }}</p>
+                        </a>
+                        <a href="{{ clip['direct_download_link'] }}">
+                            <button type="button" class="btn btn-primary">Download</button>
+                        </a>
                     </div>
-                </a>
+                </div>
             </div>
             {% endfor %}
         </div>
-    </div>
+    </div>     
 </center>
 <script>
     var data = {{ data|tojson }};

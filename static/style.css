@@ -46,3 +46,24 @@ a:link {
 	background-color: transparent;
 	text-decoration: none;
   }
+
+.border-primary {
+    border: 2px solid blue;
+}
+
+.border-success {
+    border: 2px solid green;
+}
+
+.border-secondary {
+    border: 2px solid gray; /* You can adjust the default color as needed */
+}
+
+.border-warning {
+    border: 2px solid yellow;
+}
+
+/* card-body should have a fixed height */
+.card-body {
+	height: 250px;
+}

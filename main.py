@@ -26,6 +26,10 @@ app = Flask(__name__)
 
 db = sqlite3.connect("queries.db", check_same_thread=False)
 cur = db.cursor()
+owner_icon = "👑"
+mod_icon = "🔧"
+regular_icon = "🧑‍🌾"
+subscriber_icon = "⭐"
 # create a table channel_id message_id clip_desc, time, time_in_seconds, user_id, user_name, stream_link
 cur.execute(
     "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40))"
@@ -64,8 +68,11 @@ def get_channel_clips(channel_id: str):
     l = []
     for y in data:
         x = {}
+        level = y[10]
+        if not level:
+            level = "everyone"
         x["link"] = y[7]
-        x["author"] = {"name": y[6], "id": y[5]}
+        x["author"] = {"name": y[6], "id": y[5], "level":level}
         x["clip_time"] = y[
             4
         ]  # time in stream when clip was made. if stream starts at 0
@@ -258,6 +265,10 @@ def exports(channel_id=None):
         clips_string=create_simplified(data),
         channel_name=channel_name,
         channel_image=channel_image,
+        owner_icon=owner_icon,
+        mod_icon=mod_icon,
+        regular_icon=regular_icon,
+        subscriber_icon=subscriber_icon
     )
 
 
@@ -322,13 +333,13 @@ def clip(message_id, clip_desc=None):
     channel_name, channel_image = get_channel_name_image(user_id)
     webhook_name = user_name
     if user_level == "owner":
-        webhook_name += " 👑"
+        webhook_name += f" {owner_icon}"
     elif user_level == "moderator":
-        webhook_name += " 🛡️"
+        webhook_name += f" {mod_icon}"
     elif user_level == "regular":
-        webhook_name += " 🧑‍🌾"
+        webhook_name += f" {regular_icon}"
     elif user_level == "subscriber":
-        webhook_name += " 🎖️"
+        webhook_name += f" {subscriber_icon}"
 
     webhook = DiscordWebhook(
         url=webhook_url,
