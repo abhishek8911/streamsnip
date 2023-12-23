@@ -1,6 +1,5 @@
 from flask import (
     Flask,
-    jsonify,
     request,
     render_template,
     redirect,
@@ -10,10 +9,9 @@ from flask import (
 )
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
-import requests
 import subprocess
 import os
-from json import load, loads, dump, dumps
+from json import load, dump
 import time
 import builtins
 from bs4 import BeautifulSoup
@@ -21,7 +19,6 @@ from requests import get
 from flask import request
 from discord_webhook import DiscordWebhook
 import sqlite3
-from flask import redirect, render_template, request, send_file, session, url_for
 
 from urllib.parse import parse_qs
 import scrapetube
