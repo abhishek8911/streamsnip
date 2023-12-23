@@ -62,8 +62,3 @@ a:link {
 .border-warning {
     border: 2px solid yellow;
 }
-
-/* card-body should have a fixed height */
-.card-body {
-	height: 250px;
-}
