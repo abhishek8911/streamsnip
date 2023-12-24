@@ -1,86 +1,153 @@
 {% extends 'layout.html' %}
 
-
-{% block head_content%}
-<title> {{ channel_name }} - Clips ({{data|length}}) </title>
-<link rel="icon" href={{channel_image}} type="image/x-icon">
-<meta property="og:title" content="{{ channel_name }} - Clips ({{data|length}})" />
+{% block head_content %}
+<title>{{ channel_name }} - Clips ({{ data|length }})</title>
+<link rel="icon" href={{ channel_image }} type="image/x-icon">
+<meta property="og:title" content="{{ channel_name }} - Clips ({{ data|length }})" />
 <meta property="og:description" content="Clips from {{ channel_name }}'s stream" />
 <meta property="og:image" content="{{ channel_image }}" />
 {% endblock %}
 
 {% block content %}
 <center>
-    <div class="container">
+    <div class="container"
         <div class="row">
             <div class="col-md-12">
-                <h1>{{ channel_name }} - Clips ({{data|length}})</h1>
-            </div>
-        </div>
-        <!-- text saying Raw Data-->
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Raw Data</h2>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <textarea class="form-control" id="raw_data" rows="3"></textarea>
+                <h1>{{ channel_name }} - Clips ({{ data|length }})</h1>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2>Simplified String</h2>
+                <label for="filter">Filter by Level:</label>
+                <select id="filter" class="form-control">
+                    <option value="all">All Levels</option>
+                    <option value="owner">Owner</option>
+                    <option value="moderator">Moderator</option>
+                    <option value="subscriber">Subscriber</option>
+                    <option value="regular">Regular</option>
+                </select>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <textarea class="form-control" id="raw_string_data" rows="3"></textarea>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item" id="prev-page">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item" id="next-page">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
+        </div>
+        <div class="row" id="clips-container">
+            <!-- Clips will be dynamically added here using JavaScript -->
         </div>
     </div>
-    <div class="container">
-        <div class="row">
-            {% for clip in data %}
-            <div class="col-md-4 col-lg-3">
-                <div class="card {% if clip['author']['level'] == 'moderator' %}border-primary{% elif clip['author']['level'] == 'subscriber' %}border-success{% elif clip['author']['level'] == 'owner' %}border-warning{% else %}border-secondary{% endif %}" style="width: 100%;">
-                    <img class="card-img-top" src="https://i.ytimg.com/vi/{{ clip['stream_id'] }}/sddefault.jpg" alt="Card image cap">
-                    <div class="card-body">
-                        <h6 class="card-text">{{ clip['id'] }}</h6>
-                        <h5 class="card-title">
-                            {% if clip['author']['level'] == 'owner' %}
-                                {{ owner_icon }} {{ clip['author']['name'] }}
-                            {% elif clip['author']['level'] == 'moderator' %}
-                                {{ mod_icon }} {{ clip['author']['name'] }}
-                            {% elif clip['author']['level'] == 'subscriber' %}
-                                {{ subscriber_icon }} {{ clip['author']['name'] }}
-                            {% elif clip['author']['level'] == 'regular' %}
-                                {{ regular_icon }} {{ clip['author']['name'] }}
-                            {% else %}
-                                {{ clip['author']['name'] }}
-                            {% endif %}
-                        </h5>
-                        <a href="{{ clip['link'] }}" target="_blank">
-                            <p class="card-text">{{ clip['message'] }}</p>
-                            <p class="card-text">{{ clip['hms'] }}</p>
-                        </a>
-                        <a href="{{ clip['direct_download_link'] }}">
-                            <button type="button" class="btn btn-primary">Download</button>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>     
 </center>
 <script>
     var data = {{ data|tojson }};
     var channel_name = "{{ channel_name }}";
     var channel_image = "{{ channel_image }}";
-    var clips_string = {{ clips_string|tojson }};
-    document.getElementById("raw_data").value = JSON.stringify(data, null, 2);
-    document.getElementById("raw_string_data").value = clips_string;
+    var filter = "all";  // Default filter option
+    var clipsPerPage = 50;
+    var currentPage = 1;
+
+    document.getElementById("filter").addEventListener("change", function () {
+        filter = this.value;
+        currentPage = 1; // Reset to the first page when the filter changes
+        updateClips();
+    });
+
+    document.getElementById("prev-page").addEventListener("click", function (e) {
+        e.preventDefault();
+        if (currentPage > 1) {
+            currentPage--;
+            updateClips();
+        }
+    });
+
+    document.getElementById("next-page").addEventListener("click", function (e) {
+        e.preventDefault();
+        var maxPage = Math.ceil(data.length / clipsPerPage);
+        if (currentPage < maxPage) {
+            currentPage++;
+            updateClips();
+        }
+    });
+
+    function updateClips() {
+        var container = document.getElementById("clips-container");
+        container.innerHTML = "";
+        var startIndex = (currentPage - 1) * clipsPerPage;
+        var endIndex = startIndex + clipsPerPage;
+        var displayedClips = data.slice(startIndex, endIndex);
+    
+        displayedClips.forEach(function (clip) {
+            if (filter == 'all' || clip['author']['level'] == filter) {
+                var cardHtml = `<div class="col-md-4 col-lg-3">`;
+                cardHtml += `<div class="card ${getBorderStyle(clip['author']['level'])}" style="width: 100%;">`;
+                cardHtml += `<a href="${clip['link']}" target="_blank">`;
+                cardHtml += `<img class="card-img-top" src="https://i.ytimg.com/vi/${clip['stream_id']}/sddefault.jpg" alt="Card image cap">`;
+                cardHtml += `</a>`;
+                cardHtml += `<div class="card-body">`;
+                cardHtml += `<a href="${getUserChannelLink(clip['author']['id'])}" target="_blank">`;
+                cardHtml += `<h5 class="card-title">${getAuthorTitle(clip['author']['level'])} ${clip['author']['name']}</h5>`;
+                cardHtml += `</a>`;
+                cardHtml += `<p class="card-text">${clip['id']}</p>`;
+                cardHtml += `<a href="${clip['link']}" target="_blank">`;
+                cardHtml += `<p class="card-text">${clip['message']}</p>`;
+                cardHtml += `<p class="card-text">${clip['hms']}</p>`;
+                cardHtml += `</a>`;
+                cardHtml += `<a href="${clip['direct_download_link']}">`;
+                cardHtml += `<button type="button" class="btn btn-primary">Download</button>`;
+                cardHtml += `</a>`;
+                cardHtml += `</div>`;
+                cardHtml += `</div>`;
+                cardHtml += `</div>`;
+                container.innerHTML += cardHtml;
+            }
+        });
+    }
+    function getUserChannelLink(authorId) {
+        return `https://www.youtube.com/channel/${authorId}`;
+    }
+
+    function getBorderStyle(level) {
+        switch (level) {
+            case 'moderator':
+                return 'border-primary';
+            case 'subscriber':
+                return 'border-success';
+            case 'owner':
+                return 'border-warning';
+            default:
+                return 'border-secondary';
+        }
+    }
+
+    function getAuthorTitle(level) {
+        switch (level) {
+            case 'owner':
+                return '{{ owner_icon }}';
+            case 'moderator':
+                return '{{ mod_icon }}';
+            case 'subscriber':
+                return '{{ subscriber_icon }}';
+            case 'regular':
+                return '{{ regular_icon }}';
+            default:
+                return '';
+        }
+    }
+
+    // Initial update when the page loads
+    updateClips();
 </script>
 {% endblock %}
