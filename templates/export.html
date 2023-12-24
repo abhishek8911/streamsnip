@@ -10,7 +10,7 @@
 
 {% block content %}
 <center>
-    <div class="container"
+    <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <h1>{{ channel_name }} - Clips ({{ data|length }})</h1>
@@ -18,7 +18,28 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <label for="filter">Filter by Level:</label>
+                <h2>Raw Data</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <textarea class="form-control" id="raw_data" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Simplified String</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <textarea class="form-control" id="raw_string_data" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Filter by Level:</h2>
                 <select id="filter" class="form-control">
                     <option value="all">All Levels</option>
                     <option value="owner">Owner</option>
@@ -82,6 +103,8 @@
         }
     });
 
+    document.getElementById("raw_data").value = JSON.stringify(data, null, 2);
+    document.getElementById("raw_string_data").value = {{ clips_string|tojson }};
     function updateClips() {
         var container = document.getElementById("clips-container");
         container.innerHTML = "";
