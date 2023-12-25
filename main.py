@@ -592,4 +592,11 @@ if __name__ == "__main__":
             channel_info[ch_id[0]]["name"],
             channel_info[ch_id[0]]["image"],
         ) = get_channel_name_image(ch_id[0])
-    app.run(host="0.0.0.0", port=5001)
+    context = ("/root/certs/cert.pem", "/root/certs/key.pem")
+    use_ssl = False
+    if all([os.path.exists(x) for x in context]) and use_ssl:
+        print("Starting with ssl")
+        app.run(host="0.0.0.0", port=5001, ssl_context=context, debug=True)
+    else:
+        print("Starting without ssl")
+        app.run(host="0.0.0.0", port=5001, debug=True)
