@@ -2,27 +2,17 @@
 
 The primary goal of Clip_Nightbot is to streamline the clipping process, addressing challenges faced by one of my favorite streamers. Here's how you can make the most of it:
 
-## Usage Options:
-
-1. **Hosted Solution:**
-   Provide your Discord webhook URL and YouTube channel link, and I'll handle the hosting temporarily for you. 
-
-   ![Discord Badge](https://dcbadge.vercel.app/api/shield/408994955147870208)
-   [![Server Badge](https://dcbadge.vercel.app/api/server/2XVBWK99Vy)](https://discord.gg/2XVBWK99Vy)
-
-3. **Self-Hosting:**
-   If you prefer more control, follow these steps:
-   - Edit `creds.json` with your channel ID and Discord webhook details.
-   - Run `main.py` using `python3 main.py`.
-   - Optionally, use `nohup python3 main.py &` to run the script in the background.
-
-   *Note: Port 5001 must be open for external accessibility.*
-
 ## Nightbot Command:
 
 ```markdown
 !addcom !clip $(urlfetch http://surajbhari.info:5001/clip/$(chatid)/$(querystring))
 ```
+Just adding this command will get you started. but if you want to have a discord message. or customization then read below.
+
+If you want to send a discord message. then I would need to add a webhook URL alongside the youtube channel ID. for that contact me here.
+![Discord Badge](https://dcbadge.vercel.app/api/shield/408994955147870208)
+[![Server Badge](https://dcbadge.vercel.app/api/server/2XVBWK99Vy)](https://discord.gg/2XVBWK99Vy)
+
 
 ## Optional Arguments:
 
