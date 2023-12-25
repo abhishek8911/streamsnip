@@ -298,8 +298,6 @@ def clip(message_id, clip_desc=None):
 
     channel_id = channel.get("providerId")[0]
     webhook_url = get_webhook_url(channel_id)
-    if not webhook_url:
-        return "No webhook found for this channel. Please contact AG at https://discord.gg/2XVBWK99Vy"
 
     user_level = user.get("userLevel")[0]
     user_id = user.get("providerId")[0]
@@ -341,22 +339,26 @@ def clip(message_id, clip_desc=None):
     elif user_level == "subscriber":
         webhook_name += f" {subscriber_icon}"
 
-    webhook = DiscordWebhook(
-        url=webhook_url,
-        content=message_cc_webhook,
-        username=webhook_name,
-        avatar_url=channel_image,
-        allowed_mentions={"role": [], "user": [], "everyone": False},
-    )
-
     message_to_return = f"Clip {clip_id} by {user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
     if delay:
         message_to_return += f" Delayed by {delay} seconds."
-    message_to_return += " | sent to discord."
+    if webhook_url: # if webhook is not found then don't send the message
+        message_to_return += " | sent to discord."
+        webhook = DiscordWebhook(
+            url=webhook_url,
+            content=message_cc_webhook,
+            username=webhook_name,
+            avatar_url=channel_image,
+            allowed_mentions={"role": [], "user": [], "everyone": False},
+        )
+        webhook.execute()
+        webhook_id = webhook.id
+    else:
+        webhook_id = None
+
     if show_link:
         message_to_return += f" See all clips at http://{request.host}{url_for('exports', channel_id=channel_id)}"
 
-    webhook.execute()
     # insert the entry to database
     cur.execute(
         "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -369,13 +371,13 @@ def clip(message_id, clip_desc=None):
             user_id,
             user_name,
             url,
-            webhook.id,
+            webhook_id,
             delay,
             user_level,
         ),
     )
     db.commit()
-    if screenshot:
+    if screenshot and webhook_url:
         webhook = DiscordWebhook(
             url=webhook_url,
             username=user_name,
