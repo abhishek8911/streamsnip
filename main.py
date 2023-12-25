@@ -30,7 +30,7 @@ owner_icon = "👑"
 mod_icon = "🔧"
 regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
-# create a table channel_id message_id clip_desc, time, time_in_seconds, user_id, user_name, stream_link
+allowed_ip = [] # store the nightbot ips here. or your own ip for testing purpose
 cur.execute(
     "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40))"
 )
@@ -190,14 +190,18 @@ def before_request():
     # if request is for /clip or /delete or /edit then check if its from real account
     if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
         ip = request.remote_addr
+        if ip in allowed_ip:
+            print(f"Request from {ip} is allowed, known ip")
+            return
         addrs = dns.reversename.from_address(ip)
         try:
             if not str(dns.resolver.resolve(addrs, "PTR")[0]).endswith(
                 ".nightbot.net."
             ):
-                return "Not able to auth"
+                raise ValueError("Not a nightbot request")
             else:
                 print(f"Request from {ip} is allowed")
+                allowed_ip.append(ip)
         except Exception as e:
             print(e)
             return "Not able to auth"
