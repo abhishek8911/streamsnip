@@ -17,6 +17,7 @@ from requests import get
 from flask import request
 from discord_webhook import DiscordWebhook
 import sqlite3
+from typing import Optional, Tuple
 
 from urllib.parse import parse_qs
 import scrapetube
@@ -121,13 +122,11 @@ def create_simplified(clips: list) -> str:
     return string
 
 
-def get_channel_name_image(channel_id: str):
-    if not channel_id:
-        return {}
+def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
     soup = BeautifulSoup(html_data, "html.parser")
-    channel_image = soup.find("meta", property="og:image")["content"]
+    channel_image = soup.find("meta", property="og:image")["content"] 
     channel_name = soup.find("meta", property="og:title")["content"]
     return channel_name, channel_image
 
@@ -260,8 +259,10 @@ def exports(channel_id=None):
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
     soup = BeautifulSoup(html_data, "html.parser")
-    channel_image = soup.find("meta", property="og:image")["content"]
-    channel_name = soup.find("meta", property="og:title")["content"]
+    try:
+        channel_name, channel_image = get_channel_name_image(channel_id)
+    except TypeError:
+        return redirect(url_for("slash")) # if channel is not found then redirect to home page
     data = get_channel_clips(channel_id)
     return render_template(
         "export.html",
