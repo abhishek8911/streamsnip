@@ -55,6 +55,26 @@ If you want to send a discord message. then I would need to add a webhook URL al
 ```markdown
 !addcom !cliptest $(urlfetch http://surajbhari.info:5001/)
 ```
+
+#### Super Advanced, Proceed with caution here
+5. `!search` gives the last clip that had the query in in it
+ ```markdown
+ !addcom !search $(urlfetch http://surajbhari.info:5001/search/$(querystring))
+```
+SUPER PRO MODE </br>
+Idea from [here](https://community.nightdev.com/t/clip-command-then-have-lastclip-automatically-update/35360), You can combine !search command to give out timestamp to particular events in the stream </br>
+A combo can look like this 
+```
+!addcom !clipkill $(urlfetch http://surajbhari.info:5001/clip/$(chatid)/kill-automated)
+!addcom !lastkill $(urlfetch http://surajbhari.info:5001/search/kill-automated)
+```
+Want more advanced ? here </br>
+There is one more endpoint named `/searchx/<clip-desc>` that returns JSON of the clip with that clip-desc.</br>
+THIS IS JUST 1 EXAMPLE. SKY IS THE LIMIT HERE
+```
+!addcom !lastkilltime $(eval clip=$(urlfetch json http://surajbhari.info:5001/searchx/kill-automated); clip['hms'])
+```
+You can see example of `clip` from Raw-Data on site.
 ### Additional Customization:
 
 You can use `-ul=userlevel` to limit clipping to specific user levels (e.g., mods). Find user levels [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to reduce spam and grant clipping access to specific individuals.  </br>
