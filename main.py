@@ -252,6 +252,7 @@ def export():
 
 
 @app.route("/exports/<channel_id>")
+@app.route("/e/<channel_id>")
 def exports(channel_id=None):
     if not channel_id:
         return redirect(url_for("slash"))
@@ -498,6 +499,37 @@ def edit(xxx=None):
     return f"Edited clip ID {clip_id} from '{old_desc}' to '{new_desc}'."
 
 
+@app.route("/search/<clip_desc>")
+def search(clip_desc=None):
+    # returns the first clip['url'] that matches the description
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+    except KeyError:
+        return "Not able to auth"
+    clip = get_clip_with_desc(clip_desc, channel.get("providerId")[0])
+    if clip:
+        return clip["link"]
+    return "Clip not found"
+
+@app.route("/searchx/<clip_desc>")
+def searchx(clip_desc=None):
+    # returns the first clip['url'] that matches the description
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+    except KeyError:
+        return "Not able to auth"
+    clip = get_clip_with_desc(clip_desc, channel.get("providerId")[0])
+    if clip:
+        return clip
+    return "{}"
+
+def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[dict]:
+    clips = get_channel_clips(channel_id)
+    for clip in clips:
+        if clip_desc.lower() in clip["message"].lower():
+            return clip
+    return None
+   
 def download_and_store(clip_id):
     data = cur.execute(
         "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
