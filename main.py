@@ -257,28 +257,10 @@ def download_and_store(clip_id):
         return files[0]
 
 def periodic_task():
-    # get all the clips and download them
-    try:
-        cur.execute(f"SELECT * FROM QUERIES ORDER BY time DESC")
-    except sqlite3.ProgrammingError:
-        time.sleep(5) # wait for 5 seconds and
-        periodic_task() # try again
-    data = cur.fetchall()
-    downloaded = os.listdir("./clips")
-    downloaded = [x.split(".")[0] for x in downloaded]
-    download_count = 0
-    for clip in data:
-        clip_id = clip[1][:3] + str(int(clip[4]))
-        if clip_id in downloaded:
-            continue
-        status = download_and_store(clip_id)
-        if clip_id in status:
-            download_count += 1
-
     if management_webhook:
         # send the database.db
         management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")
-        management_webhook.content = f"<t:{int(time.time())}:F>\nDownloaded `{download_count}` clips.`"
+        management_webhook.content = f"<t:{int(time.time())}:F>"
         management_webhook.execute()
     else:
         print("No management webhook found")
@@ -663,7 +645,7 @@ def video(clip_id):
 
 
 if __name__ == "__main__":
-    schedule.every(5).seconds.do(periodic_task)
+    schedule.every(10).minutes.do(periodic_task)
     scheduler_thread = threading.Thread(target=run_scheduled_jobs)
     scheduler_thread.start()
 
