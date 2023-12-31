@@ -1,11 +1,4 @@
-from flask import (
-    Flask,
-    request,
-    render_template,
-    redirect,
-    url_for,
-    send_file
-)
+from flask import Flask, request, render_template, redirect, url_for, send_file
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import subprocess
@@ -31,7 +24,7 @@ owner_icon = "👑"
 mod_icon = "🔧"
 regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
-allowed_ip = [] # store the nightbot ips here. or your own ip for testing purpose
+allowed_ip = []  # store the nightbot ips here. or your own ip for testing purpose
 cur.execute(
     "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40))"
 )
@@ -73,7 +66,7 @@ def get_channel_clips(channel_id: str):
         if not level:
             level = "everyone"
         x["link"] = y[7]
-        x["author"] = {"name": y[6], "id": y[5], "level":level}
+        x["author"] = {"name": y[6], "id": y[5], "level": level}
         x["clip_time"] = y[
             4
         ]  # time in stream when clip was made. if stream starts at 0
@@ -126,7 +119,7 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
     soup = BeautifulSoup(html_data, "html.parser")
-    channel_image = soup.find("meta", property="og:image")["content"] 
+    channel_image = soup.find("meta", property="og:image")["content"]
     channel_name = soup.find("meta", property="og:title")["content"]
     return channel_name, channel_image
 
@@ -182,6 +175,69 @@ def get_webhook_url(channel_id):
     except KeyError:
         return None
     return webhook_url
+
+
+def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[dict]:
+    clips = get_channel_clips(channel_id)
+    for clip in clips:
+        if clip_desc.lower() in clip["message"].lower():
+            return clip
+    return None
+
+
+def download_and_store(clip_id):
+    data = cur.execute(
+        "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+        (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+    )
+    data = cur.fetchall()
+    if not data:
+        return None
+    video_url = data[0][7]
+    timestamp = data[0][4]
+    output_filename = f"./clips/{clip_id}"
+    # if there is a file that start with that clip in current directory then don't download it
+    files = [
+        os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
+    ]
+    if files:
+        return files[0]
+    # real thing happened at 50. but we stored timestamp with delay. take back that delay
+    delay = data[0][9]
+    timestamp += -1 * delay
+    if not delay:
+        delay = -60
+    l = [timestamp, timestamp + delay]
+    start_time = min(l)
+    end_time = max(l)
+
+    start_time = time_to_hms(start_time)
+    end_time = time_to_hms(end_time)
+    params = [
+        "yt-dlp",
+        "--output",
+        f"{output_filename}",
+        "--download-sections",
+        f"*{start_time}-{end_time}",
+        "--quiet",
+        "--no-warnings",
+        "--match-filter",
+        "!is_live & live_status!=is_upcoming & availability=public",
+        video_url,
+    ]
+    current_time = time.time()
+    try:
+        subprocess.run(params, check=True, timeout=60)
+    except subprocess.TimeoutExpired as e:
+        pass
+    except subprocess.CalledProcessError as e:
+        return None
+    print("Completed the process in ", time.time() - current_time)
+    files = [
+        os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
+    ]
+    if files:
+        return files[0]
 
 
 @app.before_request
@@ -263,7 +319,9 @@ def exports(channel_id=None):
     try:
         channel_name, channel_image = get_channel_name_image(channel_id)
     except TypeError:
-        return redirect(url_for("slash")) # if channel is not found then redirect to home page
+        return redirect(
+            url_for("slash")
+        )  # if channel is not found then redirect to home page
     data = get_channel_clips(channel_id)
     return render_template(
         "export.html",
@@ -274,7 +332,7 @@ def exports(channel_id=None):
         owner_icon=owner_icon,
         mod_icon=mod_icon,
         regular_icon=regular_icon,
-        subscriber_icon=subscriber_icon
+        subscriber_icon=subscriber_icon,
     )
 
 
@@ -348,7 +406,7 @@ def clip(message_id, clip_desc=None):
     message_to_return = f"Clip {clip_id} by {user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
     if delay:
         message_to_return += f" Delayed by {delay} seconds."
-    if webhook_url: # if webhook is not found then don't send the message
+    if webhook_url:  # if webhook is not found then don't send the message
         message_to_return += " | sent to discord."
         webhook = DiscordWebhook(
             url=webhook_url,
@@ -511,6 +569,7 @@ def search(clip_desc=None):
         return clip["link"]
     return "Clip not found"
 
+
 @app.route("/searchx/<clip_desc>")
 def searchx(clip_desc=None):
     # returns the first clip['url'] that matches the description
@@ -522,67 +581,6 @@ def searchx(clip_desc=None):
     if clip:
         return clip
     return "{}"
-
-def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[dict]:
-    clips = get_channel_clips(channel_id)
-    for clip in clips:
-        if clip_desc.lower() in clip["message"].lower():
-            return clip
-    return None
-   
-def download_and_store(clip_id):
-    data = cur.execute(
-        "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-        (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-    )
-    data = cur.fetchall()
-    if not data:
-        return None
-    video_url = data[0][7]
-    timestamp = data[0][4]
-    output_filename = f"./clips/{clip_id}"
-    # if there is a file that start with that clip in current directory then don't download it
-    files = [
-        os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
-    ]
-    if files:
-        return files[0]
-    # real thing happened at 50. but we stored timestamp with delay. take back that delay
-    delay = data[0][9]
-    timestamp += -1*delay
-    if not delay:
-        delay = -60
-    l = [timestamp, timestamp + delay]
-    start_time = min(l)
-    end_time = max(l)
-
-    start_time = time_to_hms(start_time)
-    end_time = time_to_hms(end_time)
-    params = [
-        "yt-dlp",
-        "--output",
-        f"{output_filename}",
-        "--download-sections",
-        f"*{start_time}-{end_time}",
-        "--quiet",
-        "--no-warnings",
-        "--match-filter",
-        "!is_live & live_status!=is_upcoming & availability=public",
-        video_url,
-    ]
-    current_time = time.time()
-    try:
-        subprocess.run(params, check=True, timeout=60)
-    except subprocess.TimeoutExpired as e:
-        pass
-    except subprocess.CalledProcessError as e:
-        return None
-    print("Completed the process in ", time.time() - current_time)
-    files = [
-        os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
-    ]
-    if files:
-        return files[0]
 
 
 @app.route("/video/<clip_id>")
