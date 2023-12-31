@@ -1,3 +1,4 @@
 {
-    "channel_id" : "discord webhook url here"
+    "channel_id" : "discord webhook url here",
+    "management_webhook": "discord webhook url here for managment"
 }

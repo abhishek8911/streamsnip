@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, redirect, url_for, send_file
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import subprocess
+import schedule
+import threading
 import os
 from json import load, dump
 import time
@@ -52,6 +54,21 @@ if "userlevel" not in colums:
 if not os.path.exists("clips"):
     os.makedirs("clips")
     print("Created clips folder")
+
+try:
+    with open("creds.json", "r") as f:
+        creds = load(f)
+except FileNotFoundError:
+    with open("creds.json", "w") as f:
+        dump({}, f)
+        creds = {}
+management_webhook_url = creds.get("management_webhook", None)
+management_webhook = None
+if management_webhook_url:
+    management_webhook = DiscordWebhook(
+        url=management_webhook_url,
+        allowed_mentions={"role": [], "user": [], "everyone": False},
+    )
 
 
 def get_channel_clips(channel_id: str):
@@ -238,6 +255,22 @@ def download_and_store(clip_id):
     ]
     if files:
         return files[0]
+
+def periodic_task():
+    if management_webhook:
+        # send the database.db
+        management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")
+        management_webhook.content = f"<t:{int(time.time())}:F>"
+        management_webhook.execute()
+    else:
+        print("No management webhook found")
+        
+
+def run_scheduled_jobs():
+    schedule.run_all() # initially run all the jobs
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 @app.before_request
@@ -612,9 +645,16 @@ def video(clip_id):
 
 
 if __name__ == "__main__":
+    schedule.every(10).minutes.do(periodic_task)
+    scheduler_thread = threading.Thread(target=run_scheduled_jobs)
+    scheduler_thread.start()
+
+
     channel_info = {}
     cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
     data = cur.fetchall()
+
+
     for ch_id in data:
         if ch_id[0] in channel_info:
             continue
@@ -623,6 +663,7 @@ if __name__ == "__main__":
             channel_info[ch_id[0]]["name"],
             channel_info[ch_id[0]]["image"],
         ) = get_channel_name_image(ch_id[0])
+
     context = ("/root/certs/cert.pem", "/root/certs/key.pem")
     use_ssl = False
     if all([os.path.exists(x) for x in context]) and use_ssl:
