@@ -64,11 +64,16 @@ except FileNotFoundError:
         creds = {}
 management_webhook_url = creds.get("management_webhook", None)
 management_webhook = None
-if management_webhook_url:
-    management_webhook = DiscordWebhook(
+def create_managment_webhook():
+    if not management_webhook_url:
+        return None
+    wh = DiscordWebhook(
         url=management_webhook_url,
         allowed_mentions={"role": [], "user": [], "everyone": False},
     )
+    return wh
+if management_webhook_url:
+    management_webhook = create_managment_webhook() # we implement this function because we have to recreate this wh again and again to use.
 
 
 def get_channel_clips(channel_id: str):
@@ -257,8 +262,8 @@ def download_and_store(clip_id):
         return files[0]
 
 def periodic_task():
-    if management_webhook:
-        # send the database.db
+    if management_webhook_url:
+        management_webhook = create_managment_webhook()
         management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")
         management_webhook.content = f"<t:{int(time.time())}:F>"
         management_webhook.execute()
