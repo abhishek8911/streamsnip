@@ -57,3 +57,42 @@ a:link {
 .border-warning {
     border: 4px solid yellow;
 }
+
+body {
+	background-color: white;
+}
+
+.card {
+	--bs-card-bg: rgba(255, 255, 255, 1);
+}
+
+a:link {
+	color: black;
+}
+
+.form-control{
+	background-color:white;
+	color:black;
+}
+
+/* Dark theme styles */
+body.dark-theme {
+	background-color: rgba(33, 37, 41, 1);
+}
+
+body.dark-theme .card {
+	--bs-card-bg: rgba(33, 37, 41, 1);
+}
+
+body.dark-theme a:link {
+	color: white;
+}
+
+body.dark-theme {
+	color:white;
+}
+
+.form-control.dark-theme{
+	background-color:rgba(33, 37, 41, 1);
+	color:white;
+}

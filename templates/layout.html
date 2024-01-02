@@ -8,6 +8,40 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Check user preference and set the initial theme
+            var isDarkTheme = localStorage.getItem("darkTheme") === "true";
+            const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+            var form_control = document.getElementsByClassName("form-control");
+            if (!localStorage.getItem("darkTheme")) {
+                if (darkThemeMq.matches) {
+                    isDarkTheme = true;
+                }
+            }
+            console.log(darkThemeMq.matches);
+            console.log(isDarkTheme);
+            var body = document.body;
+            var theme_button = document.getElementById("theme_button");
+            if (isDarkTheme) {
+                body.classList.add("dark-theme");
+                for (var i = 0; i < form_control.length; i++) {
+                    form_control[i].classList.add("dark-theme");
+                }
+            }
+        });
+        function toggleDarkTheme() {
+            var body = document.body;
+            body.classList.toggle("dark-theme");
+            var form_control = document.getElementsByClassName("form-control");
+            var isDarkTheme = body.classList.contains("dark-theme");
+            for (var i = 0; i < form_control.length; i++) {
+                form_control[i].classList.toggle("dark-theme");
+            }
+            localStorage.setItem("darkTheme", isDarkTheme);
+        }
+        
+    </script>
     {% block head_content %}
     {% endblock %}
 </head>
@@ -28,6 +62,11 @@
                         <a href="http://discord.surajbhari.info" class="nav-link text-white">
                             <i class="fas fa-plus"></i>  Add your own channel here
                         </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link text-white" onclick="toggleDarkTheme()" id="theme_button">
+                            <i class="fas fa-sun"></i>   
+                        </a>                               
                     </li>
                 </ul>
             </div>
