@@ -19,8 +19,9 @@
                     isDarkTheme = true;
                 }
             }
-            console.log(darkThemeMq.matches);
-            console.log(isDarkTheme);
+            if (!window.matchMedia){ // for phone we just assume dark theme
+                isDarkTheme = true;
+            }
             var body = document.body;
             var theme_button = document.getElementById("theme_button");
             if (isDarkTheme) {
