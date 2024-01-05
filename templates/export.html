@@ -67,6 +67,13 @@
                 </nav>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Search</h2>
+                <input type="text" id="search" class="form-control" placeholder="Search for clips...">
+            </div>
+        </div>
+
         <div class="row" id="clips-container">
             <!-- Clips will be dynamically added here using JavaScript -->
         </div>
@@ -79,6 +86,10 @@
     var filter = "all";  // Default filter option
     var clipsPerPage = 50;
     var currentPage = 1;
+    document.getElementById("search").addEventListener("keyup", function () {
+        currentPage = 1; // Reset to the first page when the search changes
+        updateClips();
+    });
 
     document.getElementById("filter").addEventListener("change", function () {
         filter = this.value;
@@ -107,10 +118,14 @@
     document.getElementById("raw_string_data").value = {{ clips_string|tojson }};
     function updateClips() {
         var container = document.getElementById("clips-container");
+        var search = document.getElementById("search").value.toLowerCase();
+        var filteredData = data.filter(function (clip) {
+            return clip['message'].toLowerCase().includes(search) || clip['author']['name'].toLowerCase().includes(search);
+        });
         container.innerHTML = "";
         var startIndex = (currentPage - 1) * clipsPerPage;
         var endIndex = startIndex + clipsPerPage;
-        var displayedClips = data.slice(startIndex, endIndex);
+        var displayedClips = filteredData.slice(startIndex, endIndex);
     
         displayedClips.forEach(function (clip) {
             if (filter == 'all' || clip['author']['level'] == filter) {
