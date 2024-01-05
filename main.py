@@ -683,7 +683,7 @@ if __name__ == "__main__":
     use_ssl = False
     if all([os.path.exists(x) for x in context]) and use_ssl:
         print("Starting with ssl")
-        app.run(host="0.0.0.0", port=5001, ssl_context=context, debug=True)
+        app.run(host="0.0.0.0", port=5001, ssl_context=context, debug=False)
     else:
         print("Starting without ssl")
-        app.run(host="0.0.0.0", port=5001, debug=True)
+        app.run(host="0.0.0.0", port=5001, debug=False)
