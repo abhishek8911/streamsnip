@@ -380,6 +380,11 @@ def exports(channel_id=None):
 def clip(message_id, clip_desc=None):
     show_link = request.args.get("showlink", True)
     screenshot = request.args.get("screenshot", False)
+    silent = request.args.get("silent", 2) # silent level. if not then 2
+    try:
+        silent = int(silent)
+    except ValueError:
+        silent = 2
     delay = request.args.get("delay", 0)
     show_link = False if show_link == "false" else True
     screenshot = True if screenshot == "true" else False
@@ -493,7 +498,12 @@ def clip(message_id, clip_desc=None):
             f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}"
         )
         webhook.execute()
-    return message_to_return
+    if silent == 2:
+        return message_to_return
+    elif silent == 1:
+        return clip_id
+    else:
+        return " "
 
 
 @app.route("/delete/<clip_id>")
@@ -673,7 +683,7 @@ if __name__ == "__main__":
     use_ssl = False
     if all([os.path.exists(x) for x in context]) and use_ssl:
         print("Starting with ssl")
-        app.run(host="0.0.0.0", port=5001, ssl_context=context, debug=False)
+        app.run(host="0.0.0.0", port=5001, ssl_context=context, debug=True)
     else:
         print("Starting without ssl")
-        app.run(host="0.0.0.0", port=5001, debug=False)
+        app.run(host="0.0.0.0", port=5001, debug=True)
