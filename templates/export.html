@@ -67,6 +67,11 @@
                 </nav>
             </div>
         </div>
+        <h2>Seperate streams</h2>
+        <label class="switch">
+            <input type="checkbox" id="iview" checked="checked">
+            <span class="slider round"></span>
+        </label>
         <div class="row">
             <div class="col-md-12">
                 <h2>Search</h2>
@@ -86,6 +91,16 @@
     var filter = "all";  // Default filter option
     var clipsPerPage = 50;
     var currentPage = 1;
+    var iview = true;
+
+    document.getElementById("iview").addEventListener("click", function () {
+        if (iview == true) {
+            iview = false;
+        } else {
+            iview = true;
+        }
+        updateClips();
+    });
     document.getElementById("search").addEventListener("keyup", function () {
         currentPage = 1; // Reset to the first page when the search changes
         updateClips();
@@ -126,9 +141,17 @@
         var startIndex = (currentPage - 1) * clipsPerPage;
         var endIndex = startIndex + clipsPerPage;
         var displayedClips = filteredData.slice(startIndex, endIndex);
-    
+        var last_id = displayedClips[0]['stream_id'];
         displayedClips.forEach(function (clip) {
             if (filter == 'all' || clip['author']['level'] == filter) {
+                if(clip['stream_id'] != last_id && iview == true) {
+                    // Add a separator between clips from different streams
+                    var separatorHtml = `<div class="col-md-12">`;
+                    separatorHtml += `<hr>`;
+                    separatorHtml += `</div>`;
+                    container.innerHTML += separatorHtml;
+                    last_id = clip['stream_id'];
+                }
                 var cardHtml = `<div class="col-md-4 col-lg-3">`;
                 cardHtml += `<div class="card ${getBorderStyle(clip['author']['level'])}" style="width: 100%;">`;
                 cardHtml += `<a href="${clip['link']}" target="_blank">`;
