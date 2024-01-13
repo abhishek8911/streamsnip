@@ -1,7 +1,10 @@
 # Clip_Nightbot: Stream Clipping Simplified
 
 The primary goal of Clip_Nightbot is to streamline the clipping process, addressing challenges faced by one of my favorite streamers. Here's how you can make the most of it:
-
+## Monetization
+This program is a free for small streamers (have less than 40 viewers) and for selected people. </br>
+<a href="https://surajbhari.stck.me" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a> </br>
+Most of the donations goes back to development and hosting costing. 
 ## Nightbot Command:
 
 ```markdown
@@ -9,8 +12,8 @@ The primary goal of Clip_Nightbot is to streamline the clipping process, address
 ```
 Just adding this command will get you started. but if you want to have a discord message. or customization then read below.
 
-If you want to send a discord message. then I would need to add a webhook URL alongside the youtube channel ID. for that contact me here.
-![Discord Badge](https://dcbadge.vercel.app/api/shield/408994955147870208)
+If you want to send a discord message. then I would need to add a webhook URL alongside the youtube channel ID. for that contact me here.<br>
+![Discord Badge](https://dcbadge.vercel.app/api/shield/408994955147870208) </br>
 [![Server Badge](https://dcbadge.vercel.app/api/server/2XVBWK99Vy)](https://discord.gg/2XVBWK99Vy)
 
 
