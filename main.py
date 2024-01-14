@@ -270,8 +270,7 @@ def periodic_task():
             management_webhook.execute()
         except request.exceptions.MissingSchema:
             print("Invalid webhook url")
-            management_webhook_url = None
-            management_webhook = None
+            return
     else:
         print("No management webhook found")
         
@@ -688,4 +687,4 @@ if __name__ == "__main__":
     try:
         app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
     except FileNotFoundError:
-        print("SSL certs not found. running without ssl")
+        print("SSL certs not found. Can't run ")
