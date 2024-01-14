@@ -685,8 +685,7 @@ if __name__ == "__main__":
         ) = get_channel_name_image(ch_id[0])
 
     context = ("/root/certs/cert.pem", "/root/certs/key.pem")
-    use_ssl = False
-    if not all([os.path.exists(x) for x in context]) and use_ssl:
-        print("No ssl found")
-        exit()
-    app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
+    try:
+        app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
+    except FileNotFoundError:
+        print("SSL certs not found. running without ssl")
