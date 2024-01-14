@@ -52,7 +52,7 @@ If you want to send a discord message. then I would need to add a webhook URL al
 
 3. `!clips` or `!export` - gives link where you can see all the clips 
 ```markdown
-!addcom !export $(urlfetch http://surajbhari.info:5001/export/$(chatid))
+!addcom !export $(urlfetch http://surajbhari.info:5001/export/)
 ```
 ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/2be98062-d9f7-4e91-879f-e940ad0c1ffa) </br>
 
