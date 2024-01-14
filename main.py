@@ -266,7 +266,12 @@ def periodic_task():
         management_webhook = create_managment_webhook()
         management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")
         management_webhook.content = f"<t:{int(time.time())}:F>"
-        management_webhook.execute()
+        try:
+            management_webhook.execute()
+        except request.exceptions.MissingSchema:
+            print("Invalid webhook url")
+            management_webhook_url = None
+            management_webhook = None
     else:
         print("No management webhook found")
         
@@ -681,9 +686,7 @@ if __name__ == "__main__":
 
     context = ("/root/certs/cert.pem", "/root/certs/key.pem")
     use_ssl = False
-    if all([os.path.exists(x) for x in context]) and use_ssl:
-        print("Starting with ssl")
-        app.run(host="0.0.0.0", port=5001, ssl_context=context, debug=False)
-    else:
-        print("Starting without ssl")
-        app.run(host="0.0.0.0", port=5001, debug=False)
+    if not all([os.path.exists(x) for x in context]) and use_ssl:
+        print("No ssl found")
+        exit()
+    app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
