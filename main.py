@@ -276,7 +276,6 @@ def periodic_task():
         
 
 def run_scheduled_jobs():
-    schedule.run_all() # initially run all the jobs
     while True:
         schedule.run_pending()
         time.sleep(1)
