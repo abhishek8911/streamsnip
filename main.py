@@ -100,9 +100,13 @@ def get_channel_clips(channel_id: str):
         x["id"] = y[1][-3:] + str(int(y[4]))
         x["webhook"] = y[8]
         x["delay"] = y[9]
+        if request.is_secure:
+            htt = "https://"
+        else:
+            htt = "http://"
         x[
             "direct_download_link"
-        ] = f"http://{request.host}{url_for('video', clip_id=x['id'])}"
+        ] = f"{htt}{request.host}{url_for('video', clip_id=x['id'])}"
         l.append(x)
     l.reverse()
     return l
@@ -328,7 +332,11 @@ def slash():
             channel_info[ch_id[0]]["name"] = channel_name
             channel_info[ch_id[0]]["image"] = channel_image
         ch["id"] = ch_id[0]
-        ch["link"] = f"http://{request.host}{url_for('exports', channel_id=ch_id[0])}"
+        if request.is_secure:
+            htt = "https://"
+        else:
+            htt = "http://"
+        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[0])}"
         returning.append(ch)
     return render_template("home.html", data=returning)
 
@@ -345,7 +353,11 @@ def export():
     except KeyError:
         return "Not able to auth"
     channel_id = channel.get("providerId")[0]
-    return f"You can download the export from http://{request.host}{url_for('exports', channel_id=channel_id)}"
+    if request.is_secure:
+        htt = "https://"
+    else:
+        htt = "http://"
+    return f"You can download the export from {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
 
 @app.route("/exports/<channel_id>")
@@ -467,7 +479,11 @@ def clip(message_id, clip_desc=None):
         webhook_id = None
 
     if show_link:
-        message_to_return += f" See all clips at http://{request.host}{url_for('exports', channel_id=channel_id)}"
+        if request.is_secure:
+            htt = "https://"
+        else:
+            htt = "http://"
+        message_to_return += f" See all clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
     # insert the entry to database
     cur.execute(
