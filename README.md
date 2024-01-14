@@ -8,7 +8,7 @@ Most of the donations goes back to development and hosting costing.
 ## Nightbot Command:
 
 ```markdown
-!addcom !clip $(urlfetch http://surajbhari.info:5001/clip/$(chatid)/$(querystring))
+!addcom !clip $(urlfetch https://streamsnip.com/clip/$(chatid)/$(querystring))
 ```
 Just adding this command will get you started. but if you want to have a discord message. or customization then read below.
 
@@ -28,15 +28,15 @@ If you want to send a discord message. then I would need to add a webhook URL al
 
 ### Examples:
 
-- `http://surajbhari.info:5001/clip/$(chatid)/$(querystring)?showlink=false&screenshot=false` - No links, no screenshots.
-- `http://surajbhari.info:5001/clip/$(chatid)/$(querystring)?showlink=false` - No links, but with screenshots.
-- `http://surajbhari.info:5001/clip/$(chatid)/$(querystring)?screenshot=false` - Links provided, no screenshots.
-- `http://surajbhari.info:5001/clip/$(chatid)/$(querystring)?delay=-20` - Set a delay in the past by 20 seconds.
+- `https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=false` - No links, no screenshots.
+- `https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false` - No links, but with screenshots.
+- `https://streamsnip.com/clip/$(chatid)/$(querystring)?screenshot=false` - Links provided, no screenshots.
+- `https://streamsnip.com/clip/$(chatid)/$(querystring)?delay=-20` - Set a delay in the past by 20 seconds.
 
 ## Other Commands
 1. `!delete <clip_id>` - delete the given clip
 ```markdown
-!addcom !delete $(urlfetch http://surajbhari.info:5001/delete/$(query)) -ul=moderator
+!addcom !delete $(urlfetch https://streamsnip.com/delete/$(query)) -ul=moderator
 ```
 ⚠️ don't remove the `-ul=moderator` part, otherwise anyone can delete your clips. </br>
 ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/35d174c8-5f3f-4bb8-a6f7-15fc59ee0c43) </br>
@@ -44,7 +44,7 @@ If you want to send a discord message. then I would need to add a webhook URL al
 
 2. `!edit <clip_id> <new_title>` - edit the title of the given clip
 ```markdown
-!addcom !edit $(urlfetch http://surajbhari.info:5001/edit/$(querystring)) -ul=moderator
+!addcom !edit $(urlfetch https://streamsnip.com/edit/$(querystring)) -ul=moderator
 ```
 ⚠️ don't remove the `-ul=moderator` part, otherwise anyone can delete your clips. </br>
 ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f76e4bc6-dc20-4fa1-b58a-e237b4f7ba8f) </br>
@@ -52,33 +52,33 @@ If you want to send a discord message. then I would need to add a webhook URL al
 
 3. `!clips` or `!export` - gives link where you can see all the clips 
 ```markdown
-!addcom !export $(urlfetch http://surajbhari.info:5001/export/)
+!addcom !export $(urlfetch https://streamsnip.com/export)
 ```
 ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/2be98062-d9f7-4e91-879f-e940ad0c1ffa) </br>
 
 
 4. `!cliptest` - test if the clipper is working, basically checks if the website is reachable.
 ```markdown
-!addcom !cliptest $(urlfetch http://surajbhari.info:5001/)
+!addcom !cliptest $(urlfetch https://streamsnip.com/)
 ```
 
 #### Super Advanced, Proceed with caution here
 5. `!search` gives the last clip that had the query in in it
  ```markdown
- !addcom !search $(urlfetch http://surajbhari.info:5001/search/$(querystring))
+ !addcom !search $(urlfetch https://streamsnip.com/search/$(querystring))
 ```
 SUPER PRO MODE </br>
 Idea from [here](https://community.nightdev.com/t/clip-command-then-have-lastclip-automatically-update/35360), You can combine !search command to give out timestamp to particular events in the stream </br>
 A combo can look like this 
 ```
-!addcom !clipkill $(urlfetch http://surajbhari.info:5001/clip/$(chatid)/kill-automated)
-!addcom !lastkill $(urlfetch http://surajbhari.info:5001/search/kill-automated)
+!addcom !clipkill $(urlfetch https://streamsnip.com/clip/$(chatid)/kill-automated)
+!addcom !lastkill $(urlfetch https://streamsnip.com/search/kill-automated)
 ```
 Want more advanced ? here </br>
 There is one more endpoint named `/searchx/<clip-desc>` that returns JSON of the clip with that clip-desc.</br>
 THIS IS JUST 1 EXAMPLE. SKY IS THE LIMIT HERE
 ```
-!addcom !lastkilltime $(eval clip=$(urlfetch json http://surajbhari.info:5001/searchx/kill-automated); clip['hms'])
+!addcom !lastkilltime $(eval clip=$(urlfetch json https://streamsnip.com/searchx/kill-automated); clip['hms'])
 ```
 You can see example of `clip` from Raw-Data on site.
 ### Additional Customization:
