@@ -20,6 +20,7 @@ from chat_downloader.sites import YouTubeChatDownloader
 
 app = Flask(__name__)
 
+global download_lock
 download_lock = False
 db = sqlite3.connect("queries.db", check_same_thread=False)
 cur = db.cursor()
@@ -655,6 +656,7 @@ def searchx(clip_desc=None):
 def video(clip_id):
     if not id:
         return redirect(url_for("slash"))
+    global download_lock
     while download_lock:
         pass
     download_lock = True
@@ -708,4 +710,5 @@ if __name__ == "__main__":
     try:
         app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
     except FileNotFoundError:
-        print("SSL certs not found. Can't run ")
+        print("No certs found. running without ssl")
+        app.run(host="0.0.0.0", port=80, debug=False)
