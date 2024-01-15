@@ -20,6 +20,7 @@ from chat_downloader.sites import YouTubeChatDownloader
 
 app = Flask(__name__)
 
+download_lock = False
 db = sqlite3.connect("queries.db", check_same_thread=False)
 cur = db.cursor()
 owner_icon = "👑"
@@ -654,8 +655,12 @@ def searchx(clip_desc=None):
 def video(clip_id):
     if not id:
         return redirect(url_for("slash"))
+    while download_lock:
+        pass
+    download_lock = True
     clip = download_and_store(clip_id)
     if not clip:
+        download_lock = False
         return "Seems like you are trying to download a clip that is currently live. we currently doesn't support that."
     if ".part" in clip:
         # rename to mp4
@@ -675,6 +680,7 @@ def video(clip_id):
             except:
                 pass
         clip += ".mp4"
+    download_lock = False
     return send_file(clip, as_attachment=True)
 
 
