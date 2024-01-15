@@ -21,7 +21,7 @@ from chat_downloader.sites import YouTubeChatDownloader
 app = Flask(__name__)
 
 global download_lock
-download_lock = False
+download_lock = True
 db = sqlite3.connect("queries.db", check_same_thread=False)
 cur = db.cursor()
 owner_icon = "👑"
@@ -657,8 +657,8 @@ def video(clip_id):
     if not id:
         return redirect(url_for("slash"))
     global download_lock
-    while download_lock:
-        pass
+    if download_lock:
+        return "Disabled for now. We don't have enough resources to serve you at the moment."
     download_lock = True
     clip = download_and_store(clip_id)
     if not clip:
