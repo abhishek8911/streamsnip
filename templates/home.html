@@ -8,10 +8,10 @@
 <!-- meta data -->
 <meta property="og:title" content="StreamSnip" />
 {% set channel_names = [] %}
-{% for channel in data %}
+{% for channel in data[:10] %}
     {% set _ = channel_names.append(channel['name']) %}
 {% endfor %}
-{% set channel_names_str = channel_names|join('\n') %}
+{% set channel_names_str = channel_names|join(', ') %}
 <meta property="og:image" content="/static/favicon.ico" />
 
 <meta property="og:description" content="A way for streamers to clip stuff with single nightbot command. used mainly in IGC 
