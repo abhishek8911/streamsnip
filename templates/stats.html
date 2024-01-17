@@ -1,0 +1,112 @@
+{% extends 'layout.html' %}
+
+
+{% block head_content%}
+<title> StreamSnip </title>
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- meta data -->
+<meta property="og:title" content="StreamSnip" />
+<meta property="og:image" content="/static/favicon.ico" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+{% endblock %}
+
+{% block content %}
+<center>
+    <div class="container">
+        <div class="row">
+            <h1>{{user_count}} Unique Clippers </h1>
+                <h1> {{clip_count}} clips on </h1>
+                <h1> {{channel_count}} channels till now.</h1>
+        </div>
+
+        <div class="row">
+            <h1>Clip User Piechart</h1>
+            <canvas id="pieChart" width="700" height="700"></canvas>
+        </div>
+    </br></br></br></br></br>
+        <div class="row">
+            <canvas id="myChart" width="1000" height="800"></canvas>
+        </div>
+        {% if clip_users %}
+        <div class="row">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Clips</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in top_clippers %}
+                    <tr>
+                        <td>{{user[0]}}</td>
+                        <td>{{user[1]}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </br></br></br></br></br>
+        {% endif %}
+    </div>
+</center>
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var times = {{times|safe}};
+    var counts = {{counts|safe}};
+    // Convert datetime strings to Date objects
+    var dateObjects = times.map(function (time) {
+        return new Date(time);
+    });
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dateObjects.map(function (date) {
+                // Format date as needed (this example uses default toString)
+                return date.toLocaleDateString('en-GB');
+            }),
+            datasets: [{
+                label: 'Clips on each day',
+                data: counts,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust the color as needed
+                borderColor: 'rgba(75, 192, 192, 1)', // Adjust the color as needed
+                borderWidth: 1,
+                fill: false // Do not fill area under the line
+            }]
+        },
+        options: {}
+    });
+    // set chart size to 800 x 800
+    myChart.canvas.parentNode.style.height = '650px';
+    myChart.canvas.parentNode.style.width = '900px';
+    
+    var ctx = document.getElementById('pieChart').getContext('2d');
+    var users = {{clip_users|tojson}};
+    
+    var pieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: users.map(subarray => subarray[1])
+            }],
+            labels: users.map(subarray => subarray[0])
+        },
+        options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: ''
+              }
+            }
+        },
+    });
+    // set chart size to 800 x 800
+    pieChart.canvas.parentNode.style.height = '600px';
+    pieChart.canvas.parentNode.style.width = '600px';
+</script>
+{% endblock %}

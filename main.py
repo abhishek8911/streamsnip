@@ -390,6 +390,74 @@ def exports(channel_id=None):
         subscriber_icon=subscriber_icon,
     )
 
+@app.route("/stats")
+def stats():
+    # get clips
+    cur.execute("SELECT * FROM QUERIES")
+    data = cur.fetchall()
+    clip_count = len(data)
+    user_count = len(set([x[5] for x in data]))
+    # "Name": no of clips
+    user_clips = {}
+    for x in data:
+        if x[0] not in user_clips:
+            user_clips[x[0]] = 0
+        user_clips[x[0]] += 1
+    # sort
+    user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    # replace dict_keys with actual channel
+    new_dict = {}   
+    for k, v in user_clips.items():
+        if k in channel_info:
+            new_dict[channel_info[k]["name"]] = v
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new_dict[channel_name] = v
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+    user_clips = new_dict
+
+    top_clippers = {}
+    for x in data:
+        if x[5] not in top_clippers:
+            top_clippers[x[5]] = 0
+        top_clippers[x[5]] += 1
+    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
+    new_dict = {}
+    count = 0
+    for k, v in top_clippers.items():
+        count += 1
+        if count > 10:
+            break
+        if k in channel_info:
+            new_dict[channel_info[k]["name"]] = v
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new_dict[channel_name] = v
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+    top_clippers = new_dict
+    new_dict = {}
+    # time trend 
+    # day : no_of_clips
+    for clip in data:
+        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+        if day not in new_dict:
+            new_dict[day] = 0
+        new_dict[day] += 1
+    time_trend = new_dict
+    return render_template("stats.html", 
+                           clip_count=clip_count, 
+                           user_count=user_count, 
+                           clip_users=[(k, v) for k, v in user_clips.items()],
+                           top_clippers=[(k, v) for k, v in top_clippers.items()],
+                           channel_count = len(user_clips),
+                           times= list(time_trend.keys()),
+                           counts= list(    time_trend.values()),
+                           )
+
 
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10
 @app.route("/clip/<message_id>/")
@@ -700,6 +768,7 @@ if __name__ == "__main__":
     for ch_id in data:
         if ch_id[0] in channel_info:
             continue
+        continue
         channel_info[ch_id[0]] = {}
         (
             channel_info[ch_id[0]]["name"],
@@ -711,4 +780,4 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
     except FileNotFoundError:
         print("No certs found. running without ssl")
-        app.run(host="0.0.0.0", port=80, debug=False)
+        app.run(host="0.0.0.0", port=80, debug=True)

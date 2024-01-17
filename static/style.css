@@ -75,6 +75,20 @@ a:link {
 	color:black;
 }
 
+.table{
+	background-color:white;
+	color:black;
+}
+.tr{
+	background-color:white;
+	color:black;
+
+}
+.td{
+	background-color:white;
+	color:black;
+}
+
 /* Dark theme styles */
 body.dark-theme {
 	background-color: rgba(33, 37, 41, 1);
@@ -93,6 +107,19 @@ body.dark-theme {
 }
 
 .form-control.dark-theme{
+	background-color:rgba(33, 37, 41, 1);
+	color:white;
+}
+
+.table.dark-theme{
+	background-color:rgba(33, 37, 41, 1);
+	color:white;
+}
+.tr.dark-theme{
+	background-color:rgba(33, 37, 41, 1);
+	color:white;
+}
+.td.dark-theme{
 	background-color:rgba(33, 37, 41, 1);
 	color:white;
 }
