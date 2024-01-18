@@ -448,6 +448,32 @@ def stats():
             new_dict[day] = 0
         new_dict[day] += 1
     time_trend = new_dict
+
+    streamer_trend_data = {}
+    # streamer: {day: no_of_clips}
+    streamers_trend_days = []
+    for clip in data:
+        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+        if clip[0] not in streamer_trend_data:
+            streamer_trend_data[clip[0]] = {}
+        if day not in streamer_trend_data[clip[0]]:
+            streamer_trend_data[clip[0]][day] = 0
+        streamer_trend_data[clip[0]][day] += 1
+        if day not in streamers_trend_days:
+            streamers_trend_days.append(day)
+    streamers_trend_days.sort()
+    # replace channel id with channel name
+    new_dict = {}
+    for k, v in streamer_trend_data.items():
+        if k in channel_info:
+            new_dict[channel_info[k]["name"]] = v
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new_dict[channel_name] = v
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+    streamer_trend_data = new_dict
     return render_template("stats.html", 
                            clip_count=clip_count, 
                            user_count=user_count, 
@@ -455,7 +481,10 @@ def stats():
                            top_clippers=[(k, v) for k, v in top_clippers.items()],
                            channel_count = len(user_clips),
                            times= list(time_trend.keys()),
-                           counts= list(    time_trend.values()),
+                           counts= list(time_trend.values()),
+                            streamer_trend_data=streamer_trend_data,
+                            streamers_trend_days=streamers_trend_days,
+                            streamers_labels = list(streamer_trend_data.keys())
                            )
 
 
@@ -768,7 +797,6 @@ if __name__ == "__main__":
     for ch_id in data:
         if ch_id[0] in channel_info:
             continue
-        continue
         channel_info[ch_id[0]] = {}
         (
             channel_info[ch_id[0]]["name"],
