@@ -28,23 +28,23 @@
             <canvas id="speedChart" width="1600px" height="1200px"></canvas>
         </div>
         {% if clip_users %}
+        <h1>
+            Top Clippers
+        </h1>
         <div class="row">
-            <table>
-                <thead>
-                    <tr>
-                        <th scope="col">User</th>
-                        <th scope="col">Clips</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in top_clippers %}
-                    <tr>
-                        <td>{{user[0]}}</td>
-                        <td>{{user[1]}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% for user in top_clippers %}
+            <div class="col-md-4 col-lg-3">
+                <a href="{{ user['link'] }}">
+                    <div class="card" style="width: 100%;">
+                        <img class="card-img-top" src="{{user['image']}}" alt="User Profile Picture">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ user['name'] }}</h5>
+                            <p class="card-text">{{ user['count'] }} Times</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
         </br></br></br></br></br>
         {% endif %}
     </div>

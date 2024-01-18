@@ -424,21 +424,31 @@ def stats():
             top_clippers[x[5]] = 0
         top_clippers[x[5]] += 1
     top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
-    new_dict = {}
+    new = []
     count = 0
     for k, v in top_clippers.items():
         count += 1
-        if count > 10:
+        if count > 12:
             break
         if k in channel_info:
-            new_dict[channel_info[k]["name"]] = v
+            new.append({
+                "name": channel_info[k]["name"],
+                "image": channel_info[k]["image"],
+                "count": v,
+                "link": f"https://youtube.com/channel/{k}"
+            })
         else:
             channel_name, image = get_channel_name_image(k)
-            new_dict[channel_name] = v
+            new.append({
+                "name": channel_name,
+                "image": image,
+                "count": v,
+                "link": f"https://youtube.com/channel/{k}"
+            })
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
-    top_clippers = new_dict
+    top_clippers = new
     new_dict = {}
     # time trend 
     # day : no_of_clips
@@ -478,7 +488,7 @@ def stats():
                            clip_count=clip_count, 
                            user_count=user_count, 
                            clip_users=[(k, v) for k, v in user_clips.items()],
-                           top_clippers=[(k, v) for k, v in top_clippers.items()],
+                           top_clippers=top_clippers,
                            channel_count = len(user_clips),
                            times= list(time_trend.keys()),
                            counts= list(time_trend.values()),
