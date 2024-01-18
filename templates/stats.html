@@ -113,7 +113,6 @@
     var rawData = {{streamer_trend_data|tojson}};
     var oglabels = {{streamers_labels|tojson}};
     var dates = {{streamers_trend_days|tojson}};
-    console.log(oglabels);
     var datasets = [];
     for (var i = 1; i < Object.keys(rawData).length; i++) {
         var key = Object.keys(rawData)[i];
@@ -137,12 +136,6 @@
             intersect: false,
           },
           stacked: false,
-          plugins: {
-            title: {
-              display: true,
-              text: 'Chart.js Line Chart - Multi Axis'
-            }
-          },
           scales: {
             y: {
               type: 'linear',
