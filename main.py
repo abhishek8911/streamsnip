@@ -652,6 +652,9 @@ def clip(message_id, clip_desc=None):
         webhook.execute()
         ss_id = webhook.id
         ss_link = webhook.attachments[0]['url']
+        # remove attribute from ss_link
+        ss_link = ss_link.split("?")[0]
+        
     else:
         ss_id = None
         ss_link = None
