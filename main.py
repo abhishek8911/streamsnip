@@ -52,6 +52,11 @@ if "userlevel" not in colums:
     db.commit()
     print("Added userlevel column to QUERIES table")
 
+if "ss_id" not in colums:
+    cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_id VARCHAR(40)")
+    db.commit()
+    print("Added ss_id column to QUERIES table")
+
 # if there is no folder named clips then make one
 if not os.path.exists("clips"):
     os.makedirs("clips")
@@ -624,24 +629,6 @@ def clip(message_id, clip_desc=None):
             htt = "http://"
         message_to_return += f" See all clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
-    # insert the entry to database
-    cur.execute(
-        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (
-            channel_id,
-            message_id,
-            clip_desc,
-            request_time,
-            clip_time,
-            user_id,
-            user_name,
-            url,
-            webhook_id,
-            delay,
-            user_level,
-        ),
-    )
-    db.commit()
     if screenshot and webhook_url:
         webhook = DiscordWebhook(
             url=webhook_url,
@@ -656,6 +643,28 @@ def clip(message_id, clip_desc=None):
             f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}"
         )
         webhook.execute()
+        ss_id = webhook.id
+    else:
+        ss_id = None
+    # insert the entry to database
+    cur.execute(
+        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            channel_id,
+            message_id,
+            clip_desc,
+            request_time,
+            clip_time,
+            user_id,
+            user_name,
+            url,
+            webhook_id,
+            delay,
+            user_level,
+            ss_id
+        ),
+    )
+    db.commit()
     if silent == 2:
         return message_to_return
     elif silent == 1:
@@ -702,6 +711,17 @@ def delete(clip_id=None):
             webhook.delete()
         except:
             pass
+        if data[0][11]: # if there is a screenshot then delete that too
+            webhook = DiscordWebhook(
+                url=webhook_url,
+                id=data[0][11],
+                allowed_mentions={"role": [], "user": [], "everyone": False},
+            )
+            try:
+                webhook.delete()
+            except:
+                pass
+
     return f"Deleted clip ID {clip_id}."
 
 
