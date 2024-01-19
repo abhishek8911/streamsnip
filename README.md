@@ -81,12 +81,12 @@ THIS IS JUST 1 EXAMPLE. SKY IS THE LIMIT HERE
 !addcom !lastkilltime $(eval clip=$(urlfetch json https://streamsnip.com/searchx/kill-automated); clip['hms'])
 ```
 returning data looks something like this </br>
-![carbon (2)](https://github.com/SurajBhari/clip_nightbot/assets/45149585/993df37b-4ddb-4e44-9a7e-57d6dbde67f4)
+![carbon (3)](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f7709890-6959-4a25-8a6d-292c9d20e10b)
 
 
 6. `!uptime` gives uptime of the latest stream of the channel that called this command
    ```markdown
-   !addcom !uptime $(https://streamsnip.com/uptime)
+   !addcom !uptime $(urlfetch https://streamsnip.com/uptime)
    ```
 
 7. `!streaminfo` ADVANCED - this gives streaminfo in JSON format that you can use to do some other stuff.
