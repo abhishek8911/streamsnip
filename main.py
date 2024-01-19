@@ -30,7 +30,7 @@ regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
 allowed_ip = []  # store the nightbot ips here. or your own ip for testing purpose
 cur.execute(
-    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40))"
+    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40), ss_id VARCHAR(40))"
 )
 db.commit()
 # check if there is a column named webhook in QUERIES table, if not then add it
@@ -114,6 +114,7 @@ def get_channel_clips(channel_id: str):
         x[
             "direct_download_link"
         ] = f"{htt}{request.host}{url_for('video', clip_id=x['id'])}"
+        x["ss_id"] = y[11]
         l.append(x)
     l.reverse()
     return l
@@ -294,7 +295,7 @@ def run_scheduled_jobs():
 
 @app.before_request
 def before_request():
-    # if request is for /clip or /delete or /edit then check if its from real account
+    # if request is for /clip or /delete or /edit then check if its from real 
     if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
         ip = request.remote_addr
         if ip in allowed_ip:
@@ -857,6 +858,7 @@ if __name__ == "__main__":
     for ch_id in data:
         if ch_id[0] in channel_info:
             continue
+        continue
         channel_info[ch_id[0]] = {}
         (
             channel_info[ch_id[0]]["name"],
