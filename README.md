@@ -22,7 +22,7 @@ If you want to send a discord message. then I would need to add a webhook URL al
 - `showlink` (default: true) - Display the link where all clips can be viewed.
 - `screenshot` (default: false) - Enable or disable screenshot capture. If enabled the nightbot may not get response in given time and will say "Timed out" message. but it will still clip.
 - `delay` (default: 0) - Introduce an artificial delay to the command. Useful for scheduling links in the future or past.
-- `silent` (default: 2||Highest) - Level of the clipping message. see example below. 
+- `silent` (default: 2||Highest) - Level of the clipping message. see example below. </br> 
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/1010c32e-ad75-4a75-b732-9e3b2ddc6d44)
 
 
@@ -46,7 +46,7 @@ If you want to send a discord message. then I would need to add a webhook URL al
 ```markdown
 !addcom !edit $(urlfetch https://streamsnip.com/edit/$(querystring)) -ul=moderator
 ```
-⚠️ don't remove the `-ul=moderator` part, otherwise anyone can delete your clips. </br>
+⚠️ don't remove the `-ul=moderator` part, otherwise anyone can edit your clips. </br>
 ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f76e4bc6-dc20-4fa1-b58a-e237b4f7ba8f) </br>
 
 
@@ -80,7 +80,20 @@ THIS IS JUST 1 EXAMPLE. SKY IS THE LIMIT HERE
 ```
 !addcom !lastkilltime $(eval clip=$(urlfetch json https://streamsnip.com/searchx/kill-automated); clip['hms'])
 ```
-You can see example of `clip` from Raw-Data on site.
+returning data looks something like this </br>
+![carbon (2)](https://github.com/SurajBhari/clip_nightbot/assets/45149585/993df37b-4ddb-4e44-9a7e-57d6dbde67f4)
+
+
+6. `!uptime` gives uptime of the latest stream of the channel that called this command
+   ```markdown
+   !addcom !uptime $(https://streamsnip.com/uptime)
+   ```
+
+7. `!streaminfo` ADVANCED - this gives streaminfo in JSON format that you can use to do some other stuff.
+   data looks something like this.
+   ![carbon](https://github.com/SurajBhari/clip_nightbot/assets/45149585/811ec86a-9d69-4cc3-bde5-2d2cc66bd5ac)
+
+
 ### Additional Customization:
 
 You can use `-ul=userlevel` to limit clipping to specific user levels (e.g., mods). Find user levels [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to reduce spam and grant clipping access to specific individuals.  </br>
