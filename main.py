@@ -996,7 +996,6 @@ if __name__ == "__main__":
     for ch_id in data:
         if ch_id[0] in channel_info:
             continue
-        continue
         channel_info[ch_id[0]] = {}
         (
             channel_info[ch_id[0]]["name"],
