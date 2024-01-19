@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, send_file
+from flask import Flask, request, render_template, redirect, url_for, send_file, session
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import subprocess
@@ -511,6 +511,130 @@ def stats():
                             streamers_labels = list(streamer_trend_data.keys())
                            )
 
+@app.route("/admin")
+def admin():
+    clip_ids = []
+    cur.execute("SELECT * FROM QUERIES")
+    data = cur.fetchall()
+    for clip in data:
+        clip_id = clip[1][-3:] + str(int(clip[4]))
+        clip_ids.append(clip_id)
+    clip_ids.sort()
+    clip_ids.reverse()
+    return render_template("admin.html", ids=clip_ids)
+
+@app.route("/ed", methods=["POST"])
+def edit_delete():
+    actual_password = get_webhook_url("password") # i know this is not a good way to store password. but i am too lazy to implement a proper login system
+    if not actual_password:
+        return "Password not set"
+    password = request.form.get("password")
+    if password != actual_password:
+        return "Invalid password"
+    # get the clip id
+    print(request.form)
+    clip_id = request.form.get("clip")
+    # get the action
+    if request.form.get("rename") == "Rename":
+        if not request.form.get("clip", None):
+            return "No Clip selected"
+        # edit the clip
+        if not request.form.get("new_name", None):
+            return "No new name provided"
+        new_name = request.form.get("new_name").strip()
+        data = cur.execute(
+            "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+        )
+        data = cur.fetchall()
+        if not data:
+            return "Clip not found"
+        old_name = data[0][2]
+        cur.execute(
+            "UPDATE QUERIES SET clip_desc=? WHERE message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (
+                new_name,
+                f"%{clip_id[:3]}",
+                int(clip_id[3:]) - 1,
+                int(clip_id[3:]) + 1,
+            ),
+        )
+        db.commit()
+        webhook_url = get_webhook_url(data[0][0])
+        if webhook_url:
+            hms = time_to_hms(int(data[0][4]))
+            new_message = f"{clip_id} | **{new_name}** \n\n{hms}\n<{data[0][7]}>"
+            if data[0][9]:
+                new_message += f"\nDelayed by {data[0][9]} seconds."
+            webhook = DiscordWebhook(
+                url=webhook_url,
+                id=data[0][8],
+                allowed_mentions={"role": [], "user": [], "everyone": False},
+                content=new_message,
+            )
+            try:
+                webhook.edit()
+            except Exception as e:
+                print(e)
+                pass
+        return f"Edited clip ID {clip_id} from '{old_name}' to '{new_name}'."
+    elif request.form.get("delete") == "Delete":
+        if not request.form.get("clip", None):
+            return "No Clip selected"
+        # delete the clip
+        data = cur.execute(
+            "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+        )
+        data = cur.fetchall()
+        if not data:
+            return "Clip not found"
+        cur.execute(
+            "DELETE FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+        )
+        db.commit()
+        webhook_url = get_webhook_url(data[0][0])
+        if webhook_url:
+            webhook = DiscordWebhook(
+                url=webhook_url,
+                id=data[0][8],
+                allowed_mentions={"role": [], "user": [], "everyone": False},
+            )
+            try:
+                webhook.delete()
+            except:
+                pass
+            if data[0][11]: # if there is a screenshot then delete that too
+                webhook = DiscordWebhook(
+                    url=webhook_url,
+                    id=data[0][11],
+                    allowed_mentions={"role": [], "user": [], "everyone": False},
+                )
+                try:
+                    webhook.delete()
+                except:
+                    pass
+        return "Deleted"
+    elif request.form.get("new") == "Submit":
+        if not request.form.get("key", None):
+            return "No key provided"
+        if not request.form.get("value", None):
+            return "No value provided"
+        key = request.form.get("key").strip()
+        value = request.form.get("value").strip()
+
+        with open("creds.json", "r") as f:
+            creds = load(f)
+        creds[key] = value
+        with open("creds.json", "w") as f:
+            dump(creds, f, indent=4)
+        return "Added"
+    else:
+        return "what ?"
+    
+    
+
 def get_latest_live(channel_id):
     vids = scrapetube.get_channel(channel_id, content_type="streams", limit=2, sleep=0)
     live_found_flag = False
@@ -872,6 +996,7 @@ if __name__ == "__main__":
     for ch_id in data:
         if ch_id[0] in channel_info:
             continue
+        continue
         channel_info[ch_id[0]] = {}
         (
             channel_info[ch_id[0]]["name"],
