@@ -30,7 +30,7 @@ regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
 allowed_ip = []  # store the nightbot ips here. or your own ip for testing purpose
 cur.execute(
-    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40), ss_id VARCHAR(40))"
+    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40), ss_id VARCHAR(40) ss_link VARCHAR(40))"
 )
 db.commit()
 # check if there is a column named webhook in QUERIES table, if not then add it
@@ -56,6 +56,11 @@ if "ss_id" not in colums:
     cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_id VARCHAR(40)")
     db.commit()
     print("Added ss_id column to QUERIES table")
+
+if "ss_link" not in colums:
+    cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_link VARCHAR(40)")
+    db.commit()
+    print("Added ss_link column to QUERIES table")
 
 # if there is no folder named clips then make one
 if not os.path.exists("clips"):
@@ -88,7 +93,7 @@ def get_channel_clips(channel_id: str):
         return {}
     cur.execute(f"select * from QUERIES where channel_id=?", (channel_id,))
     data = cur.fetchall()
-    l = []
+    l = []    
     for y in data:
         x = {}
         level = y[10]
@@ -115,6 +120,7 @@ def get_channel_clips(channel_id: str):
             "direct_download_link"
         ] = f"{htt}{request.host}{url_for('video', clip_id=x['id'])}"
         x["ss_id"] = y[11]
+        x["ss_link"] = y[12]
         l.append(x)
     l.reverse()
     return l
@@ -645,11 +651,13 @@ def clip(message_id, clip_desc=None):
         )
         webhook.execute()
         ss_id = webhook.id
+        ss_link = webhook.attachments[0]['url']
     else:
         ss_id = None
+        ss_link = None
     # insert the entry to database
     cur.execute(
-        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             channel_id,
             message_id,
@@ -662,7 +670,8 @@ def clip(message_id, clip_desc=None):
             webhook_id,
             delay,
             user_level,
-            ss_id
+            ss_id,
+            ss_link
         ),
     )
     db.commit()
