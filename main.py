@@ -497,8 +497,51 @@ def stats():
                             streamers_labels = list(streamer_trend_data.keys())
                            )
 
+def get_latest_live(channel_id):
+    vids = scrapetube.get_channel(channel_id, content_type="streams", limit=2, sleep=0)
+    live_found_flag = False
+    for vid in vids:
+        if (
+            vid["thumbnailOverlays"][0]["thumbnailOverlayTimeStatusRenderer"]["style"]
+            == "LIVE"
+        ):
+            live_found_flag = True
+            break
+    if not live_found_flag:
+        return None
+    vid = YouTubeChatDownloader().get_video_data(video_id=vid["videoId"])
+    return vid
 
-# /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10
+@app.route("/uptime")
+def uptime():
+    # returns the uptime of the bot
+    # takes 1 argument seconds
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+        user = parse_qs(request.headers["Nightbot-User"])
+    except KeyError:
+        return "Not able to auth"
+    channel_id = channel.get("providerId")[0]
+    latest_live = get_latest_live(channel_id)
+    if not latest_live:
+        return "No live stream found"
+    start_time = latest_live["start_time"] / 1000000
+    current_time = time.time()
+    uptime = current_time - start_time
+    uptime = time_to_hms(uptime)
+    return f"Stream uptime is {uptime}"
+
+@app.route("/uptimex")
+def uptimex():
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+        user = parse_qs(request.headers["Nightbot-User"])
+    except KeyError:
+        return "Not able to auth"
+    channel_id = channel.get("providerId")[0]
+    return get_latest_live(channel_id)
+
+# /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10&silent=2
 @app.route("/clip/<message_id>/")
 @app.route("/clip/<message_id>/<clip_desc>")
 def clip(message_id, clip_desc=None):
@@ -533,21 +576,8 @@ def clip(message_id, clip_desc=None):
     user_level = user.get("userLevel")[0]
     user_id = user.get("providerId")[0]
     user_name = user.get("displayName")[0]
-    vids = scrapetube.get_channel(channel_id, content_type="streams", limit=2, sleep=0)
-    live_found_flag = False
-
-    for vid in vids:
-        if (
-            vid["thumbnailOverlays"][0]["thumbnailOverlayTimeStatusRenderer"]["style"]
-            == "LIVE"
-        ):
-            live_found_flag = True
-            break
-    if not live_found_flag:
-        return "No live stream found"
-    # only get the previous chat and don't wait for new one
-    vid = YouTubeChatDownloader().get_video_data(video_id=vid["videoId"])
-    clip_time = request_time - vid["start_time"] / 1000000 + 5
+    vid = get_latest_live(channel_id)
+    clip_time = request_time - vid["start_time"] / 1000000 + 5 
     clip_time += delay
     url = "https://youtu.be/" + vid["original_video_id"] + "?t=" + str(int(clip_time))
     clip_id = message_id[-3:] + str(int(clip_time))
@@ -807,6 +837,7 @@ if __name__ == "__main__":
     for ch_id in data:
         if ch_id[0] in channel_info:
             continue
+        continue
         channel_info[ch_id[0]] = {}
         (
             channel_info[ch_id[0]]["name"],
