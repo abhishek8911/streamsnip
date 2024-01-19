@@ -531,8 +531,8 @@ def uptime():
     uptime = time_to_hms(uptime)
     return f"Stream uptime is {uptime}"
 
-@app.route("/uptimex")
-def uptimex():
+@app.route("/stream_info")
+def stream_info():
     try:
         channel = parse_qs(request.headers["Nightbot-Channel"])
         user = parse_qs(request.headers["Nightbot-User"])
