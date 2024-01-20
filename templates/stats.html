@@ -2,7 +2,11 @@
 
 
 {% block head_content%}
-<title> StreamSnip </title>
+<title> {{channel_name}} - stats </title>
+<link rel="icon" href={{ channel_image }} type="image/x-icon">
+<meta property="og:title" content="{{ channel_name }} - Stats ({{ data|length }})" />
+<meta property="og:description" content="Stats for {{ channel_name }}" />
+<meta property="og:image" content="{{ channel_image }}" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 {% endblock %}
@@ -11,9 +15,7 @@
 <center>
     <div class="container">
         <div class="row">
-            <h1>{{user_count}} Unique Clippers </h1>
-                <h1> {{clip_count}} clips on </h1>
-                <h1> {{channel_count}} channels till now.</h1>
+            <h1> {{message}} </h1>
         </div>
 
         <div class="row">
@@ -25,7 +27,7 @@
             <canvas id="myChart" width="1000" height="800"></canvas>
         </div>
         <div class="row">
-            <canvas id="speedChart" width="1600px" height="1200px"></canvas>
+            <canvas id="speedChart" width="1000" height="800"></canvas>
         </div>
         {% if clip_users %}
         <h1>
@@ -57,25 +59,30 @@
     var dateObjects = times.map(function (time) {
         return new Date(time);
     });
+    function randomColor(){
+        var r = Math.floor(Math.random()*255);
+        var g = Math.floor(Math.random()*255);
+        var b = Math.floor(Math.random()*255);
+        var a = 0.5;
+        return "rgba("+r+","+g+","+b+" ,"+a+")";
+    }
     var myChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: dateObjects.map(function (date) {
-                // Format date as needed (this example uses default toString)
                 return date.toLocaleDateString('en-GB');
             }),
             datasets: [{
-                label: 'Clips on each day',
+                label: 'Clips on that day',
                 data: counts,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust the color as needed
-                borderColor: 'rgba(75, 192, 192, 1)', // Adjust the color as needed
-                borderWidth: 1,
-                fill: false // Do not fill area under the line
+                backgroundColor: randomColor(), 
+                borderColor: randomColor(), 
+                borderWidth: 3,
+                fill: true
             }]
         },
         options: {}
     });
-    // set chart size to 800 x 800
     myChart.canvas.parentNode.style.height = '850px';
     myChart.canvas.parentNode.style.width = '1200px';
     
@@ -127,28 +134,30 @@
         datasets: datasets
     };
     const config = {
-        type: 'line',
+        type: 'bar',
         data: data,
         options: {
-          responsive: true,
-          interaction: {
-            mode: 'index',
-            intersect: false,
-          },
-          stacked: false,
-          scales: {
-            y: {
-              type: 'linear',
-              display: true,
-              position: 'left',
+            plugins: {
+              title: {
+                display: false,
+                text: ''
+              },
             },
-          }
-        },
-      };
+            responsive: true,
+            scales: {
+              x: {
+                stacked: true,
+              },
+              y: {
+                stacked: true
+              }
+            }
+        }
+    };
     var speedData = new Chart(speedCanvas, config);
     // set chart size to 800 x 800
-    speedData.canvas.parentNode.style.height = '1200px';
-    speedData.canvas.parentNode.style.width = '1600px';
+    speedData.canvas.parentNode.style.height = '850px';
+    speedData.canvas.parentNode.style.width = '1200px';
 
 </script>
 {% endblock %}

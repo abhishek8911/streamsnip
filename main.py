@@ -402,7 +402,146 @@ def exports(channel_id=None):
         mod_icon=mod_icon,
         regular_icon=regular_icon,
         subscriber_icon=subscriber_icon,
+        channel_id=channel_id
     )
+
+@app.route("/channelstats/<channel_id>")
+@app.route("/cs/<channel_id>")
+@app.route("/channelstats")
+def channel_stats(channel_id=None):
+    if not channel_id:
+        return redirect(url_for("slash"))
+    cur.execute("SELECT * FROM QUERIES WHERE channel_id=?", (channel_id,))
+    data = cur.fetchall()
+    if not data:
+        return redirect(url_for("slash"))
+    clip_count = len(data)
+    user_count = len(set([x[5] for x in data]))
+    # "Name": no of clips
+    user_clips = {}
+    for x in data:
+        if x[5] not in user_clips:
+            user_clips[x[5]] = 0
+        user_clips[x[5]] += 1
+    # sort
+    user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    new_dict = {}
+    # replace dict_keys with actual channel
+    max_count = 0
+    try:
+        streamer_name, streamer_image = channel_info[channel_id]["name"], channel_info[channel_id]["image"]
+    except KeyError:
+        streamer_name, streamer_image = get_channel_name_image(channel_id)
+        channel_info[channel_id] = {}
+        channel_info[channel_id]["name"] = streamer_name
+        channel_info[channel_id]["image"] = streamer_image
+
+    for k, v in user_clips.items():
+        max_count += 1
+        if max_count > 12:
+            break
+        if k in channel_info:
+            new_dict[channel_info[k]["name"]] = v
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new_dict[channel_name] = v
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+    new_dict['Others'] = sum(list(user_clips.values())[max_count:])
+    user_clips = new_dict
+
+    top_clippers = {}
+    for x in data:
+        if x[5] not in top_clippers:
+            top_clippers[x[5]] = 0
+        top_clippers[x[5]] += 1
+    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
+    new = []
+    count = 0
+    for k, v in top_clippers.items():
+        count += 1
+        if count > 12:
+            break
+        if k in channel_info:
+            new.append({
+                "name": channel_info[k]["name"],
+                "image": channel_info[k]["image"],
+                "count": v,
+                "link": f"https://youtube.com/channel/{k}"
+            })
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new.append({
+                "name": channel_name,
+                "image": image,
+                "count": v,
+                "link": f"https://youtube.com/channel/{k}"
+            })
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+    top_clippers = new
+    new_dict = {}
+    # time trend
+    # day : no_of_clips
+    for clip in data:
+        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+        if day not in new_dict:
+            new_dict[day] = 0
+        new_dict[day] += 1
+    time_trend = new_dict
+
+    streamer_trend_data = {}
+    # "clipper" : {day: no_of_clips}
+    streamers_trend_days = []
+    max_count = 0
+    for clip in data:
+        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+        if clip[5] not in streamer_trend_data:
+            streamer_trend_data[clip[5]] = {}
+        if day not in streamer_trend_data[clip[5]]:
+            streamer_trend_data[clip[5]][day] = 0
+        streamer_trend_data[clip[5]][day] += 1
+        if day not in streamers_trend_days:
+            streamers_trend_days.append(day)
+    streamers_trend_days.sort()
+    # replace channel id with channel name
+    new_dict = {}
+    for k, v in streamer_trend_data.items():
+        if k in channel_info:
+            new_dict[channel_info[k]["name"]] = v
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new_dict[channel_name] = v
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+    new_dict['Others'] = {}
+    for k, v in streamer_trend_data.items():
+        if k in new_dict:
+            continue
+        for day, count in v.items():
+            if day not in new_dict['Others']:
+                new_dict['Others'][day] = 0
+            new_dict['Others'][day] += count
+    streamer_trend_data = new_dict
+    message = f"Stats for {streamer_name}\n.{user_count} users clipped\n{clip_count} clips till now. \nand counting."
+    return render_template("stats.html",
+                           message = message,
+                            clip_count=clip_count,
+                            user_count=user_count,
+                            clip_users=[(k, v) for k, v in user_clips.items()],
+                            top_clippers=top_clippers,
+                            channel_count = len(user_clips),
+                            times= list(time_trend.keys()),
+                            counts= list(time_trend.values()),
+                            streamer_trend_data=streamer_trend_data,
+                            streamers_trend_days=streamers_trend_days,
+                            streamers_labels = list(streamer_trend_data.keys()),
+                            channel_name=streamer_name,
+                            channel_image=streamer_image
+                            )
 
 @app.route("/stats")
 def stats():
@@ -498,7 +637,9 @@ def stats():
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
     streamer_trend_data = new_dict
+    message = f"{user_count} users clipped\n{clip_count} clips on \n{len(user_clips)} channels till now. \nand counting."
     return render_template("stats.html", 
+                           message = message,
                            clip_count=clip_count, 
                            user_count=user_count, 
                            clip_users=[(k, v) for k, v in user_clips.items()],
@@ -508,7 +649,9 @@ def stats():
                            counts= list(time_trend.values()),
                             streamer_trend_data=streamer_trend_data,
                             streamers_trend_days=streamers_trend_days,
-                            streamers_labels = list(streamer_trend_data.keys())
+                            streamers_labels = list(streamer_trend_data.keys()),
+                            channel_name="All channels",
+                            channel_image="/static/logo.svg"
                            )
 
 @app.route("/admin")
