@@ -511,7 +511,11 @@ def channel_stats(channel_id=None):
     # replace channel id with channel name
     new_dict = {}
     known_k = []
+    max_count = 0
     for k, v in streamer_trend_data.items():
+        max_count += 1
+        if max_count > 12:
+            break
         if k in channel_info:
             new_dict[channel_info[k]["name"]] = v
         else:
