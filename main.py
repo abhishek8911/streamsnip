@@ -436,6 +436,8 @@ def channel_stats(channel_id=None):
         channel_info[channel_id]["name"] = streamer_name
         channel_info[channel_id]["image"] = streamer_image
 
+    # sort and get k top clippers
+    user_clips={k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
     for k, v in user_clips.items():
         max_count += 1
         if max_count > 12:
@@ -508,6 +510,7 @@ def channel_stats(channel_id=None):
     streamers_trend_days.sort()
     # replace channel id with channel name
     new_dict = {}
+    known_k = []
     for k, v in streamer_trend_data.items():
         if k in channel_info:
             new_dict[channel_info[k]["name"]] = v
@@ -517,9 +520,10 @@ def channel_stats(channel_id=None):
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
+        known_k.append(k)
     new_dict['Others'] = {}
     for k, v in streamer_trend_data.items():
-        if k in new_dict:
+        if k in known_k:
             continue
         for day, count in v.items():
             if day not in new_dict['Others']:
