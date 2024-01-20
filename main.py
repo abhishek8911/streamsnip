@@ -512,6 +512,8 @@ def channel_stats(channel_id=None):
     new_dict = {}
     known_k = []
     max_count = 0
+    # sort
+    streamer_trend_data={k: v for k, v in sorted(streamer_trend_data.items(), key=lambda item: sum(item[1].values()), reverse=True)}
     for k, v in streamer_trend_data.items():
         max_count += 1
         if max_count > 12:
