@@ -20,6 +20,7 @@
             var isDarkTheme = localStorage.getItem("darkTheme") === "true";
             const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
             var form_control = document.getElementsByClassName("form-control");
+            var a = document.getElementsByTagName("a");
             if (!localStorage.getItem("darkTheme")) {
                 if (darkThemeMq.matches) {
                     isDarkTheme = true;
@@ -34,6 +35,9 @@
                 body.classList.add("dark-theme");
                 for (var i = 0; i < form_control.length; i++) {
                     form_control[i].classList.add("dark-theme");
+                }
+                for (var i = 0; i < a.length; i++) {
+                    a[i].classList.toggle("dark-theme");
                 }
             }
         });
