@@ -41,9 +41,13 @@
             var body = document.body;
             body.classList.toggle("dark-theme");
             var form_control = document.getElementsByClassName("form-control");
+            var a = document.getElementsByTagName("a");
             var isDarkTheme = body.classList.contains("dark-theme");
             for (var i = 0; i < form_control.length; i++) {
                 form_control[i].classList.toggle("dark-theme");
+            }
+            for (var i = 0; i < a.length; i++) {
+                a[i].classList.toggle("dark-theme");
             }
             localStorage.setItem("darkTheme", isDarkTheme);
         }

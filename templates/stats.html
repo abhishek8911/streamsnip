@@ -37,13 +37,14 @@
             {% for user in top_clippers %}
             <div class="col-md-4 col-lg-3">
                 <a href="{{ user['link'] }}">
-                    <div class="card" style="width: 100%;">
-                        <img class="card-img-top" src="{{user['image']}}" alt="User Profile Picture">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ user['name'] }}</h5>
-                            <p class="card-text">{{ user['count'] }} Times</p>
+                        <div class="card" style="width: 100%;">
+                            <img class="card-img-top" src="{{user['image']}}" alt="User Profile Picture">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ user['name'] }}</h5>
+                                <p class="card-text">{{ user['count'] }} Clips</p>
+                                <a href="{{ user['otherlink'] }}" class="btn btn-primary">Stats</a>
+                            </div>
                         </div>
-                    </div>
                 </a>
             </div>
         {% endfor %}
@@ -52,112 +53,141 @@
     </div>
 </center>
 <script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var times = {{times|safe}};
-    var counts = {{counts|safe}};
-    // Convert datetime strings to Date objects
-    var dateObjects = times.map(function (time) {
-        return new Date(time);
-    });
-    function randomColor(){
-        var r = Math.floor(Math.random()*255);
-        var g = Math.floor(Math.random()*255);
-        var b = Math.floor(Math.random()*255);
-        var a = 0.5;
-        return "rgba("+r+","+g+","+b+" ,"+a+")";
-    }
-    var myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dateObjects.map(function (date) {
-                return date.toLocaleDateString('en-GB');
-            }),
-            datasets: [{
-                label: 'Clips on that day',
-                data: counts,
-                backgroundColor: randomColor(), 
-                borderColor: randomColor(), 
-                borderWidth: 3,
-                fill: true
-            }]
-        },
-        options: {}
-    });
-    myChart.canvas.parentNode.style.height = '850px';
-    myChart.canvas.parentNode.style.width = '1200px';
-    
-    var ctx = document.getElementById('pieChart').getContext('2d');
-    var users = {{clip_users|tojson}};
-    
-    var pieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            datasets: [{
-                data: users.map(subarray => subarray[1])
-            }],
-            labels: users.map(subarray => subarray[0])
-        },
-        options: {
-            responsive: true,
-            plugins: {
-              legend: {
-                position: 'top',
-              },
-              title: {
-                display: true,
-                text: ''
-              }
-            }
-        },
-    });
-    // set chart size to 800 x 800
-    pieChart.canvas.parentNode.style.height = '800px';
-    pieChart.canvas.parentNode.style.width = '800px';
-
-
-    // multi line chart
-    var speedCanvas = document.getElementById("speedChart");
-    var rawData = {{streamer_trend_data|tojson}};
-    var oglabels = {{streamers_labels|tojson}};
-    var dates = {{streamers_trend_days|tojson}};
-    var datasets = [];
-    for (var i = 1; i < Object.keys(rawData).length; i++) {
-        var key = Object.keys(rawData)[i];
-        var dataset = {
-            label: key,
-            data: rawData[key],
-        };
-        datasets.push(dataset);
-    }
-    const data = {
-        labels: dates,
-        datasets: datasets
-    };
-    const config = {
-        type: 'bar',
-        data: data,
-        options: {
-            plugins: {
-              title: {
-                display: false,
-                text: ''
-              },
-            },
-            responsive: true,
-            scales: {
-              x: {
-                stacked: true,
-              },
-              y: {
-                stacked: true
-              }
-            }
+    graphs = [];
+    function drawCharts(){
+        // wait for page to load fully
+        // isDark 
+        var isDark = document.body.classList.contains("dark-theme");
+        console.log(isDark);
+        var fontcolor = isDark == true ? 'white' : 'black';
+        Chart.defaults.color = fontcolor;
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var times = {{times|safe}};
+        var counts = {{counts|safe}};
+        // Convert datetime strings to Date objects
+        var dateObjects = times.map(function (time) {
+            return new Date(time);
+        });
+        function randomColor(){
+            var r = Math.floor(Math.random()*255);
+            var g = Math.floor(Math.random()*255);
+            var b = Math.floor(Math.random()*255);
+            var a = 0.5;
+            return "rgba("+r+","+g+","+b+" ,"+a+")";
         }
-    };
-    var speedData = new Chart(speedCanvas, config);
-    // set chart size to 800 x 800
-    speedData.canvas.parentNode.style.height = '850px';
-    speedData.canvas.parentNode.style.width = '1200px';
+        // check if there was already a chart. if yes. destroy it 
+        for(var i=0;i<graphs.length;i++){
+            graphs[i].destroy();
+        }
 
+
+        var lineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dateObjects.map(function (date) {
+                    return date.toLocaleDateString('en-GB');
+                }),
+                datasets: [{
+                    label: 'Clips on that day',
+                    data: counts,
+                    backgroundColor: randomColor(), 
+                    borderColor: randomColor(), 
+                    borderWidth: 3,
+                    fill: true
+                }]
+            },
+            options: {}
+        });
+        lineChart.canvas.parentNode.style.height = '850px';
+        lineChart.canvas.parentNode.style.width = '1200px';
+
+
+        var ctx = document.getElementById('pieChart').getContext('2d');
+        var users = {{clip_users|tojson}};
+        if (pieChart != null) {
+            pieChart.destroy();
+        }
+        var pieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: users.map(subarray => subarray[1])
+                }],
+                labels: users.map(subarray => subarray[0])
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: ''
+                    }
+                }
+            },
+        });
+        // set chart size to 800 x 800
+        pieChart.canvas.parentNode.style.height = '800px';
+        pieChart.canvas.parentNode.style.width = '800px';
+
+
+        // multi line chart
+        var speedCanvas = document.getElementById("speedChart");
+        var rawData = {{streamer_trend_data|tojson}};
+        var oglabels = {{streamers_labels|tojson}};
+        var dates = {{streamers_trend_days|tojson}};
+        var datasets = [];
+        for (var i = 1; i < Object.keys(rawData).length; i++) {
+            var key = Object.keys(rawData)[i];
+            var dataset = {
+                label: key,
+                data: rawData[key],
+            };
+            datasets.push(dataset);
+        }
+        const data = {
+            labels: dates,
+            datasets: datasets
+        };
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                plugins: {
+                title: {
+                    display: false,
+                    text: ''
+                },
+                },
+                responsive: true,
+                scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true
+                }
+                }
+            }
+        };
+        if (speedData != null) {
+            speedData.destroy();
+        }
+        var speedData = new Chart(speedCanvas, config);
+        // set chart size to 800 x 800
+        speedData.canvas.parentNode.style.height = '850px';
+        speedData.canvas.parentNode.style.width = '1200px';
+        
+
+        graphs = [lineChart, pieChart, speedData];
+    }
+    document.addEventListener("DOMContentLoaded" , function(){
+        drawCharts();
+    });
+    document.getElementById("theme_button").addEventListener("click", function(){
+        drawCharts();
+    });
 </script>
 {% endblock %}
