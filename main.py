@@ -538,22 +538,32 @@ def channel_stats(channel_id=None):
                 new_dict['Others'][day] = 0
             new_dict['Others'][day] += count
     streamer_trend_data = new_dict
+    time_distribution = {}
+    for x in range(24):
+        time_distribution[str(x)] = 0
+    for clip in data:
+        hm = time.strftime("%H", time.localtime(clip[3]))
+        if hm not in time_distribution:
+            time_distribution[hm] = 0
+        time_distribution[hm] += 1
     message = f"Channel Stats for {streamer_name}. {user_count} users clipped\n{clip_count} clips till now. \nand counting."
-    return render_template("stats.html",
-                           message = message,
-                            clip_count=clip_count,
-                            user_count=user_count,
-                            clip_users=[(k, v) for k, v in user_clips.items()],
-                            top_clippers=top_clippers,
-                            channel_count = len(user_clips),
-                            times= list(time_trend.keys()),
-                            counts= list(time_trend.values()),
-                            streamer_trend_data=streamer_trend_data,
-                            streamers_trend_days=streamers_trend_days,
-                            streamers_labels = list(streamer_trend_data.keys()),
-                            channel_name=streamer_name,
-                            channel_image=streamer_image
-                            )
+    return render_template(
+        "stats.html",
+        message = message,
+        clip_count=clip_count,
+        user_count=user_count,
+        clip_users=[(k, v) for k, v in user_clips.items()],
+        top_clippers=top_clippers,
+        channel_count = len(user_clips),
+        times= list(time_trend.keys()),
+        counts= list(time_trend.values()),
+        streamer_trend_data=streamer_trend_data,
+        streamers_trend_days=streamers_trend_days,
+        streamers_labels = list(streamer_trend_data.keys()),
+        time_distribution = time_distribution,
+        channel_name=streamer_name,
+        channel_image=streamer_image
+        )
 
 
 @app.route("/userstats/<channel_id>")
@@ -689,22 +699,32 @@ def user_stats(channel_id=None):
                 new_dict['Others'][day] = 0
             new_dict['Others'][day] += count
     streamer_trend_data = new_dict
+    time_distribution = {}
+    for x in range(24):
+        time_distribution[str(x)] = 0
+    for clip in data:
+        hm = time.strftime("%H", time.localtime(clip[3]))
+        if hm not in time_distribution:
+            time_distribution[hm] = 0
+        time_distribution[hm] += 1
     message = f"User Stats for {streamer_name}. Clipped\n{clip_count} clips in {user_count} channels till now. and counting."
-    return render_template("stats.html",
-                           message = message,
-                            clip_count=clip_count,
-                            user_count=user_count,
-                            clip_users=[(k, v) for k, v in user_clips.items()],
-                            top_clippers=top_clippers,
-                            channel_count = len(user_clips),
-                            times= list(time_trend.keys()),
-                            counts= list(time_trend.values()),
-                            streamer_trend_data=streamer_trend_data,
-                            streamers_trend_days=streamers_trend_days,
-                            streamers_labels = list(streamer_trend_data.keys()),
-                            channel_name=streamer_name,
-                            channel_image=streamer_image
-                            )
+    return render_template(
+        "stats.html",
+        message = message,
+        clip_count=clip_count,
+        user_count=user_count,
+        clip_users=[(k, v) for k, v in user_clips.items()],
+        top_clippers=top_clippers,
+        channel_count = len(user_clips),
+        times= list(time_trend.keys()),
+        counts= list(time_trend.values()),
+        streamer_trend_data=streamer_trend_data,
+        streamers_trend_days=streamers_trend_days,
+        streamers_labels = list(streamer_trend_data.keys()),
+        time_distribution = time_distribution,
+        channel_name=streamer_name,
+        channel_image=streamer_image
+        )
 @app.route("/stats")
 def stats():
     # get clips
@@ -801,22 +821,32 @@ def stats():
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
     streamer_trend_data = new_dict
+    time_distribution = {}
+    for x in range(24):
+        time_distribution[str(x)] = 0
+    for clip in data:
+        hm = time.strftime("%H", time.localtime(clip[3]))
+        if hm not in time_distribution:
+            time_distribution[hm] = 0
+        time_distribution[hm] += 1
     message = f"{user_count} users clipped\n{clip_count} clips on \n{len(user_clips)} channels till now. \nand counting."
-    return render_template("stats.html", 
-                           message = message,
-                           clip_count=clip_count, 
-                           user_count=user_count, 
-                           clip_users=[(k, v) for k, v in user_clips.items()],
-                           top_clippers=top_clippers,
-                           channel_count = len(user_clips),
-                           times= list(time_trend.keys()),
-                           counts= list(time_trend.values()),
-                            streamer_trend_data=streamer_trend_data,
-                            streamers_trend_days=streamers_trend_days,
-                            streamers_labels = list(streamer_trend_data.keys()),
-                            channel_name="All channels",
-                            channel_image="/static/logo.svg"
-                           )
+    return render_template(
+        "stats.html", 
+        message = message,
+        clip_count=clip_count, 
+        user_count=user_count, 
+        clip_users=[(k, v) for k, v in user_clips.items()],
+        top_clippers=top_clippers,
+        channel_count = len(user_clips),
+        times= list(time_trend.keys()),
+        counts= list(time_trend.values()),
+        streamer_trend_data=streamer_trend_data,
+        streamers_trend_days=streamers_trend_days,
+        streamers_labels = list(streamer_trend_data.keys()),
+        time_distribution = time_distribution,
+        channel_name="All channels",
+        channel_image="/static/logo.svg"
+        )
 
 @app.route("/admin")
 def admin():

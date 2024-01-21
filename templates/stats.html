@@ -29,13 +29,16 @@
         <div class="row">
             <canvas id="speedChart" width="1000" height="800"></canvas>
         </div>
+        <div class="row">
+            <canvas id="timedistribution" width="1000" height="800"></canvas>
+        </div>
         {% if clip_users %}
         <h1>
             Top Clippers
         </h1>
         <div class="row">
             {% for user in top_clippers %}
-            <div class="col-md-4 col-lg-3">
+            <div class="col-md-3 col-lg-3">
                 <a href="{{ user['link'] }}">
                         <div class="card" style="width: 100%;">
                             <img class="card-img-top" src="{{user['image']}}" alt="User Profile Picture">
@@ -64,10 +67,6 @@
         var ctx = document.getElementById('myChart').getContext('2d');
         var times = {{times|safe}};
         var counts = {{counts|safe}};
-        // Convert datetime strings to Date objects
-        var dateObjects = times.map(function (time) {
-            return new Date(time);
-        });
         function randomColor(){
             var r = Math.floor(Math.random()*255);
             var g = Math.floor(Math.random()*255);
@@ -84,9 +83,7 @@
         var lineChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: dateObjects.map(function (date) {
-                    return date.toLocaleDateString('en-GB');
-                }),
+                labels: times,
                 datasets: [{
                     label: 'Clips on that day',
                     data: counts,
@@ -180,8 +177,26 @@
         speedData.canvas.parentNode.style.height = '850px';
         speedData.canvas.parentNode.style.width = '1200px';
         
-
-        graphs = [lineChart, pieChart, speedData];
+        var ctx = document.getElementById('timedistribution').getContext('2d');
+        var timedata = {{time_distribution|tojson}};
+        var timedistribution = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(timedata),
+                datasets: [{
+                    label: 'Clips on that day',
+                    data: Object.values(timedata),
+                    backgroundColor: randomColor(), 
+                    borderColor: randomColor(), 
+                    borderWidth: 3,
+                    fill: true
+                }]
+            },
+            options: {}
+        });
+        timedistribution.canvas.parentNode.style.height = '850px';
+        timedistribution.canvas.parentNode.style.width = '1200px';
+        graphs = [lineChart, pieChart, speedData, timedistribution];
     }
     document.addEventListener("DOMContentLoaded" , function(){
         drawCharts();
