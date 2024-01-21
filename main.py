@@ -567,7 +567,7 @@ def user_stats(channel_id=None):
     if not data:
         return redirect(url_for("slash"))
     clip_count = len(data)
-    user_count = len(set([x[5] for x in data]))
+    user_count = len(set([x[0] for x in data]))
     # "Name": no of clips
     user_clips = {}
     for x in data:
