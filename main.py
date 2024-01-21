@@ -470,7 +470,8 @@ def channel_stats(channel_id=None):
                 "name": channel_info[k]["name"],
                 "image": channel_info[k]["image"],
                 "count": v,
-                "link": f"https://youtube.com/channel/{k}"
+                "link": f"https://youtube.com/channel/{k}",
+                "otherlink": url_for("user_stats", channel_id=k)
             })
         else:
             channel_name, image = get_channel_name_image(k)
@@ -478,7 +479,8 @@ def channel_stats(channel_id=None):
                 "name": channel_name,
                 "image": image,
                 "count": v,
-                "link": f"https://youtube.com/channel/{k}"
+                "link": f"https://youtube.com/channel/{k}",
+                "otherlink": url_for("user_stats", channel_id=k)
             })
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
@@ -536,7 +538,7 @@ def channel_stats(channel_id=None):
                 new_dict['Others'][day] = 0
             new_dict['Others'][day] += count
     streamer_trend_data = new_dict
-    message = f"Stats for {streamer_name}\n.{user_count} users clipped\n{clip_count} clips till now. \nand counting."
+    message = f"Channel Stats for {streamer_name}. {user_count} users clipped\n{clip_count} clips till now. \nand counting."
     return render_template("stats.html",
                            message = message,
                             clip_count=clip_count,
@@ -553,6 +555,156 @@ def channel_stats(channel_id=None):
                             channel_image=streamer_image
                             )
 
+
+@app.route("/userstats/<channel_id>")
+@app.route("/us/<channel_id>")
+@app.route("/userstats")
+def user_stats(channel_id=None):
+    if not channel_id:
+        return redirect(url_for("slash"))
+    cur.execute("SELECT * FROM QUERIES WHERE user_id=?", (channel_id,))
+    data = cur.fetchall()
+    if not data:
+        return redirect(url_for("slash"))
+    clip_count = len(data)
+    user_count = len(set([x[5] for x in data]))
+    # "Name": no of clips
+    user_clips = {}
+    for x in data:
+        if x[0] not in user_clips:
+            user_clips[x[0]] = 0
+        user_clips[x[0]] += 1
+    # sort
+    user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    new_dict = {}
+    # replace dict_keys with actual channel
+    max_count = 0
+    try:
+        streamer_name, streamer_image = channel_info[channel_id]["name"], channel_info[channel_id]["image"]
+    except KeyError:
+        streamer_name, streamer_image = get_channel_name_image(channel_id)
+        channel_info[channel_id] = {}
+        channel_info[channel_id]["name"] = streamer_name
+        channel_info[channel_id]["image"] = streamer_image
+
+    # sort and get k top clippers
+    user_clips={k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    for k, v in user_clips.items():
+        max_count += 1
+        if max_count > 12:
+            break
+        if k in channel_info:
+            new_dict[channel_info[k]["name"]] = v
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new_dict[channel_name] = v
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+    new_dict['Others'] = sum(list(user_clips.values())[max_count:])
+    user_clips = new_dict
+
+    top_clippers = {}
+    for x in data:
+        if x[0] not in top_clippers:
+            top_clippers[x[0]] = 0
+        top_clippers[x[0]] += 1
+    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
+    new = []
+    count = 0
+    for k, v in top_clippers.items():
+        count += 1
+        if count > 12:
+            break
+        if k in channel_info:
+            new.append({
+                "name": channel_info[k]["name"],
+                "image": channel_info[k]["image"],
+                "count": v,
+                "link": f"https://youtube.com/channel/{k}",
+                "otherlink": url_for("channel_stats", channel_id=k)
+            })
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new.append({
+                "name": channel_name,
+                "image": image,
+                "count": v,
+                "link": f"https://youtube.com/channel/{k}",
+                "otherlink": url_for("channel_stats", channel_id=k)
+            })
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+    top_clippers = new
+    new_dict = {}
+    # time trend
+    # day : no_of_clips
+    for clip in data:
+        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+        if day not in new_dict:
+            new_dict[day] = 0
+        new_dict[day] += 1
+    time_trend = new_dict
+
+    streamer_trend_data = {}
+    # "clipper" : {day: no_of_clips}
+    streamers_trend_days = []
+    max_count = 0
+    for clip in data:
+        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+        if clip[0] not in streamer_trend_data:
+            streamer_trend_data[clip[0]] = {}
+        if day not in streamer_trend_data[clip[0]]:
+            streamer_trend_data[clip[0]][day] = 0
+        streamer_trend_data[clip[0]][day] += 1
+        if day not in streamers_trend_days:
+            streamers_trend_days.append(day)
+    streamers_trend_days.sort()
+    # replace channel id with channel name
+    new_dict = {}
+    known_k = []
+    max_count = 0
+    # sort
+    streamer_trend_data={k: v for k, v in sorted(streamer_trend_data.items(), key=lambda item: sum(item[1].values()), reverse=True)}
+    for k, v in streamer_trend_data.items():
+        max_count += 1
+        if max_count > 12:
+            break
+        if k in channel_info:
+            new_dict[channel_info[k]["name"]] = v
+        else:
+            channel_name, image = get_channel_name_image(k)
+            new_dict[channel_name] = v
+            channel_info[k] = {}
+            channel_info[k]["name"] = channel_name
+            channel_info[k]["image"] = image
+        known_k.append(k)
+    new_dict['Others'] = {}
+    for k, v in streamer_trend_data.items():
+        if k in known_k:
+            continue
+        for day, count in v.items():
+            if day not in new_dict['Others']:
+                new_dict['Others'][day] = 0
+            new_dict['Others'][day] += count
+    streamer_trend_data = new_dict
+    message = f"User Stats for {streamer_name}. Clipped\n{clip_count} clips in {user_count} channels till now. and counting."
+    return render_template("stats.html",
+                           message = message,
+                            clip_count=clip_count,
+                            user_count=user_count,
+                            clip_users=[(k, v) for k, v in user_clips.items()],
+                            top_clippers=top_clippers,
+                            channel_count = len(user_clips),
+                            times= list(time_trend.keys()),
+                            counts= list(time_trend.values()),
+                            streamer_trend_data=streamer_trend_data,
+                            streamers_trend_days=streamers_trend_days,
+                            streamers_labels = list(streamer_trend_data.keys()),
+                            channel_name=streamer_name,
+                            channel_image=streamer_image
+                            )
 @app.route("/stats")
 def stats():
     # get clips
@@ -598,7 +750,8 @@ def stats():
                 "name": channel_info[k]["name"],
                 "image": channel_info[k]["image"],
                 "count": v,
-                "link": f"https://youtube.com/channel/{k}"
+                "link": f"https://youtube.com/channel/{k}",
+                "otherlink": url_for("user_stats", channel_id=k)
             })
         else:
             channel_name, image = get_channel_name_image(k)
@@ -606,7 +759,8 @@ def stats():
                 "name": channel_name,
                 "image": image,
                 "count": v,
-                "link": f"https://youtube.com/channel/{k}"
+                "link": f"https://youtube.com/channel/{k}",
+                "otherlink": url_for("user_stats", channel_id=k)
             })
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
