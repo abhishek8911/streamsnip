@@ -354,8 +354,11 @@ def slash():
             htt = "http://"
         ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[0])}"
         returning.append(ch)
+    """
     for ch in returning:
         ch["clips"] = get_channel_clips(ch["id"])
+    NOT A GOOD IDEA. THIS WILL MAKE THE PAGE LOAD SLOWLY. rather show that on admin page.
+    """
     return render_template("home.html", data=returning)
 
 
@@ -860,7 +863,16 @@ def admin():
         clip_ids.append(clip_id)
     clip_ids.sort()
     clip_ids.reverse()
-    return render_template("admin.html", ids=clip_ids)
+    channels = []
+    cur.execute("SELECT channel_id FROM QUERIES")
+    data = cur.fetchall()
+    for x in data:
+        if x[0] not in channels:
+            channels.append(x[0])
+    data = {}
+    for channel in channels:
+        data[channel] = get_channel_clips(channel)
+    return render_template("admin.html", ids=clip_ids, data=data)
 
 @app.route("/ed", methods=["POST"])
 def edit_delete():
