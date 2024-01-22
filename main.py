@@ -354,6 +354,8 @@ def slash():
             htt = "http://"
         ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[0])}"
         returning.append(ch)
+    for ch in returning:
+        ch["clips"] = get_channel_clips(ch["id"])
     return render_template("home.html", data=returning)
 
 
