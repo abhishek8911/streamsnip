@@ -17,6 +17,14 @@ from typing import Optional, Tuple
 from urllib.parse import parse_qs
 import scrapetube
 from chat_downloader.sites import YouTubeChatDownloader
+import logging
+ 
+logging.basicConfig(
+    filename='record.log', 
+    level=logging.DEBUG, 
+    format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+)
+
 
 app = Flask(__name__)
 
@@ -285,6 +293,7 @@ def periodic_task():
     if management_webhook_url:
         management_webhook = create_managment_webhook()
         management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")
+        management_webhook.add_file(file=open("record.log", "rb"), filename="record.log")
         management_webhook.content = f"<t:{int(time.time())}:F>"
         try:
             management_webhook.execute()
