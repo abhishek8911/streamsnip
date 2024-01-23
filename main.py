@@ -1354,11 +1354,10 @@ def video(clip_id):
     download_lock = False
     return send_file(clip, as_attachment=True)
 
-"""
 schedule.every(10).minutes.do(periodic_task)
 scheduler_thread = threading.Thread(target=run_scheduled_jobs)
 scheduler_thread.start()
-"""
+
 
 channel_info = {}
 cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
@@ -1376,10 +1375,10 @@ for ch_id in data:
     """
     context = ("/root/certs/cert.pem", "/root/certs/key.pem")
     try:
-    app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
+        app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
     except FileNotFoundError:
-    print("No certs found. running without ssl")
+        print("No certs found. running without ssl")
     app.run(host="0.0.0.0", port=80, debug=True)
     """
 
-    app.run()
+app.run()
