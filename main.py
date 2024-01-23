@@ -726,11 +726,9 @@ def user_stats(channel_id=None):
     streamer_trend_data = new_dict
     time_distribution = {}
     for x in range(24):
-        time_distribution[str(x)] = 0
+        time_distribution[x] = 0
     for clip in data:
-        hm = time.strftime("%H", time.localtime(clip[3]))
-        if hm not in time_distribution:
-            time_distribution[hm] = 0
+        hm = int(time.strftime("%H", time.localtime(clip[3])))
         time_distribution[hm] += 1
     message = f"User Stats for {streamer_name}. Clipped\n{clip_count} clips in {user_count} channels till now. and counting."
     return render_template(
@@ -848,12 +846,11 @@ def stats():
     streamer_trend_data = new_dict
     time_distribution = {}
     for x in range(24):
-        time_distribution[str(x)] = 0
+        time_distribution[x] = 0
     for clip in data:
-        hm = time.strftime("%H", time.localtime(clip[3]))
-        if hm not in time_distribution:
-            time_distribution[hm] = 0
+        hm = int(time.strftime("%H", time.localtime(clip[3])))
         time_distribution[hm] += 1
+
     message = f"{user_count} users clipped\n{clip_count} clips on \n{len(user_clips)} channels till now. \nand counting."
     return render_template(
         "stats.html", 
@@ -1378,3 +1375,4 @@ for ch_id in data:
         print("No certs found. running without ssl")
     app.run(host="0.0.0.0", port=80, debug=True)
     """
+app.run()
