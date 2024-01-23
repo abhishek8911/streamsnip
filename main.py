@@ -24,7 +24,7 @@ import sys
 sys.path.append("/var/www/clip_nightbot")
 
 logging.basicConfig(
-    filename='./record.log', 
+    filename='record.log', 
     level=logging.DEBUG, 
     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
 )
