@@ -94,7 +94,12 @@ def create_managment_webhook():
     return wh
 if management_webhook_url:
     management_webhook = create_managment_webhook() # we implement this function because we have to recreate this wh again and again to use.
-
+    management_webhook.content = "Bot started"
+    try:
+        management_webhook.execute()
+    except request.exceptions.MissingSchema:
+        pass
+    management_webhook = create_managment_webhook()
 
 def get_channel_clips(channel_id: str):
     if not channel_id:
@@ -1361,10 +1366,11 @@ if __name__ == "__main__":
             channel_info[ch_id[0]]["name"],
             channel_info[ch_id[0]]["image"],
         ) = get_channel_name_image(ch_id[0])
-
+    """
     context = ("/root/certs/cert.pem", "/root/certs/key.pem")
     try:
         app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
     except FileNotFoundError:
         print("No certs found. running without ssl")
         app.run(host="0.0.0.0", port=80, debug=True)
+    """
