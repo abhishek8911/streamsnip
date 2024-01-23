@@ -20,11 +20,15 @@ from chat_downloader.sites import YouTubeChatDownloader
 import logging
 
 # we are in /var/www/clip_nighbot
-import sys
-sys.path.append("/var/www/clip_nightbot")
+import os
+try:
+    os.chdir("/var/www/clip_nightbot")
+except FileNotFoundError:
+    # we are working locally
+    pass
 
 logging.basicConfig(
-    filename='record.log', 
+    filename='./record.log', 
     level=logging.DEBUG, 
     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
 )
