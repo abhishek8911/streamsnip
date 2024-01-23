@@ -18,9 +18,13 @@ from urllib.parse import parse_qs
 import scrapetube
 from chat_downloader.sites import YouTubeChatDownloader
 import logging
- 
+
+# we are in /var/www/clip_nighbot
+import sys
+sys.path.append("/var/www/clip_nightbot")
+
 logging.basicConfig(
-    filename='record.log', 
+    filename='./record.log', 
     level=logging.DEBUG, 
     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
 )
@@ -1346,11 +1350,11 @@ def video(clip_id):
     download_lock = False
     return send_file(clip, as_attachment=True)
 
-
+"""
 schedule.every(10).minutes.do(periodic_task)
 scheduler_thread = threading.Thread(target=run_scheduled_jobs)
 scheduler_thread.start()
-
+"""
 
 channel_info = {}
 cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
@@ -1365,13 +1369,13 @@ for ch_id in data:
         channel_info[ch_id[0]]["name"],
         channel_info[ch_id[0]]["image"],
     ) = get_channel_name_image(ch_id[0])
-"""
-context = ("/root/certs/cert.pem", "/root/certs/key.pem")
-try:
+    """
+    context = ("/root/certs/cert.pem", "/root/certs/key.pem")
+    try:
     app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
-except FileNotFoundError:
+    except FileNotFoundError:
     print("No certs found. running without ssl")
     app.run(host="0.0.0.0", port=80, debug=True)
-"""
+    """
 
-app.run(debug=True)
+    app.run()
