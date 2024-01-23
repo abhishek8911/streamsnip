@@ -1380,5 +1380,3 @@ for ch_id in data:
         print("No certs found. running without ssl")
     app.run(host="0.0.0.0", port=80, debug=True)
     """
-
-app.run()
