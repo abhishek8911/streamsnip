@@ -38,44 +38,58 @@ app = Flask(__name__)
 
 global download_lock
 download_lock = True
-db = sqlite3.connect("queries.db", check_same_thread=False)
-cur = db.cursor()
+conn = sqlite3.connect("queries.db", check_same_thread=False)
+# cur = db.cursor() # this is not thread safe. we will create a new cursor for each thread
 owner_icon = "👑"
 mod_icon = "🔧"
 regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
 allowed_ip = []  # store the nightbot ips here. or your own ip for testing purpose
-cur.execute(
-    "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40), ss_id VARCHAR(40), ss_link VARCHAR(40))"
-)
-db.commit()
+with conn:
+    cur = conn.cursor()
+    cur.execute(
+        "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40), ss_id VARCHAR(40), ss_link VARCHAR(40))"
+    )
+conn.commit()
 # check if there is a column named webhook in QUERIES table, if not then add it
-cur.execute("PRAGMA table_info(QUERIES)")
-data = cur.fetchall()
+with conn:
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(QUERIES)")
+    data = cur.fetchall()
 colums = [xp[1] for xp in data]
 if "webhook" not in colums:
-    cur.execute("ALTER TABLE QUERIES ADD COLUMN webhook VARCHAR(40)")
-    db.commit()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE QUERIES ADD COLUMN webhook VARCHAR(40)")
+        conn.commit()
     print("Added webhook column to QUERIES table")
 
 if "delay" not in colums:
-    cur.execute("ALTER TABLE QUERIES ADD COLUMN delay INT")
-    db.commit()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE QUERIES ADD COLUMN delay INT")
+        conn.commit()
     print("Added delay column to QUERIES table")
 
 if "userlevel" not in colums:
-    cur.execute("ALTER TABLE QUERIES ADD COLUMN userlevel VARCHAR(40)")
-    db.commit()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE QUERIES ADD COLUMN userlevel VARCHAR(40)")
+        conn.commit()
     print("Added userlevel column to QUERIES table")
 
 if "ss_id" not in colums:
-    cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_id VARCHAR(40)")
-    db.commit()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_id VARCHAR(40)")
+        conn.commit()
     print("Added ss_id column to QUERIES table")
 
 if "ss_link" not in colums:
-    cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_link VARCHAR(40)")
-    db.commit()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_link VARCHAR(40)")
+        conn.commit()
     print("Added ss_link column to QUERIES table")
 
 # if there is no folder named clips then make one
@@ -112,8 +126,10 @@ if management_webhook_url:
 def get_channel_clips(channel_id: str):
     if not channel_id:
         return {}
-    cur.execute(f"select * from QUERIES where channel_id=?", (channel_id,))
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        cur.execute(f"select * from QUERIES where channel_id=?", (channel_id,))
+        data = cur.fetchall()
     l = []    
     for y in data:
         x = {}
@@ -249,11 +265,13 @@ def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[dict]:
 
 
 def download_and_store(clip_id):
-    data = cur.execute(
-        "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-        (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-    )
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        data = cur.execute(
+            "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+        )
+        data = cur.fetchall()
     if not data:
         return None
     video_url = data[0][7]
@@ -350,8 +368,10 @@ def before_request():
 @app.route("/")
 def slash():
     # this offload the load from every slash request to only the time when the script is initially ran
-    cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
+        data = cur.fetchall()
     returning = []
     known_channels = []
     for ch_id in data:
@@ -438,8 +458,10 @@ def exports(channel_id=None):
 def channel_stats(channel_id=None):
     if not channel_id:
         return redirect(url_for("slash"))
-    cur.execute("SELECT * FROM QUERIES WHERE channel_id=?", (channel_id,))
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM QUERIES WHERE channel_id=?", (channel_id,))
+        data = cur.fetchall()
     if not data:
         return redirect(url_for("slash"))
     clip_count = len(data)
@@ -597,8 +619,10 @@ def channel_stats(channel_id=None):
 def user_stats(channel_id=None):
     if not channel_id:
         return redirect(url_for("slash"))
-    cur.execute("SELECT * FROM QUERIES WHERE user_id=?", (channel_id,))
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM QUERIES WHERE user_id=?", (channel_id,))
+        data = cur.fetchall()
     if not data:
         return redirect(url_for("slash"))
     clip_count = len(data)
@@ -751,8 +775,10 @@ def user_stats(channel_id=None):
 @app.route("/stats")
 def stats():
     # get clips
-    cur.execute("SELECT * FROM QUERIES")
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM QUERIES")
+        data = cur.fetchall()
     clip_count = len(data)
     user_count = len(set([x[5] for x in data]))
     # "Name": no of clips
@@ -873,16 +899,20 @@ def stats():
 @app.route("/admin")
 def admin():
     clip_ids = []
-    cur.execute("SELECT * FROM QUERIES")
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM QUERIES")
+        data = cur.fetchall()
     for clip in data:
         clip_id = clip[1][-3:] + str(int(clip[4]))
         clip_ids.append(clip_id)
     clip_ids.sort()
     clip_ids.reverse()
     channels = []
-    cur.execute("SELECT channel_id FROM QUERIES")
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT channel_id FROM QUERIES")
+        data = cur.fetchall()
     for x in data:
         if x[0] not in channels:
             channels.append(x[0])
@@ -910,24 +940,28 @@ def edit_delete():
         if not request.form.get("new_name", None):
             return "No new name provided"
         new_name = request.form.get("new_name").strip()
-        data = cur.execute(
-            "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-        )
-        data = cur.fetchall()
+        with conn:
+            cur = conn.cursor()
+            data = cur.execute(
+                "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+                (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+            )
+            data = cur.fetchall()
         if not data:
             return "Clip not found"
         old_name = data[0][2]
-        cur.execute(
-            "UPDATE QUERIES SET clip_desc=? WHERE message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (
-                new_name,
-                f"%{clip_id[:3]}",
-                int(clip_id[3:]) - 1,
-                int(clip_id[3:]) + 1,
-            ),
-        )
-        db.commit()
+        with conn:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE QUERIES SET clip_desc=? WHERE message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+                (
+                    new_name,
+                    f"%{clip_id[:3]}",
+                    int(clip_id[3:]) - 1,
+                    int(clip_id[3:]) + 1,
+                ),
+            )
+            conn.commit()
         webhook_url = get_webhook_url(data[0][0])
         if webhook_url:
             hms = time_to_hms(int(data[0][4]))
@@ -950,18 +984,22 @@ def edit_delete():
         if not request.form.get("clip", None):
             return "No Clip selected"
         # delete the clip
-        data = cur.execute(
-            "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-        )
-        data = cur.fetchall()
+        with conn:
+            cur = conn.cursor()
+            data = cur.execute(
+                "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+                (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+            )
+            data = cur.fetchall()
         if not data:
             return "Clip not found"
-        cur.execute(
-            "DELETE FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-        )
-        db.commit()
+        with conn:
+            cur = conn.cursor()
+            cur.execute(
+                "DELETE FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+                (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+            )
+            conn.commit()
         webhook_url = get_webhook_url(data[0][0])
         if webhook_url:
             webhook = DiscordWebhook(
@@ -1153,25 +1191,27 @@ def clip(message_id, clip_desc=None):
         ss_id = None
         ss_link = None
     # insert the entry to database
-    cur.execute(
-        "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (
-            channel_id,
-            message_id,
-            clip_desc,
-            request_time,
-            clip_time,
-            user_id,
-            user_name,
-            url,
-            webhook_id,
-            delay,
-            user_level,
-            ss_id,
-            ss_link
-        ),
-    )
-    db.commit()
+    with conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                channel_id,
+                message_id,
+                clip_desc,
+                request_time,
+                clip_time,
+                user_id,
+                user_name,
+                url,
+                webhook_id,
+                delay,
+                user_level,
+                ss_id,
+                ss_link
+            ),
+        )
+        conn.commit()
     if silent == 2:
         return message_to_return
     elif silent == 1:
@@ -1195,18 +1235,22 @@ def delete(clip_id=None):
     channel_id = channel.get("providerId")[0]
     # an id is last 3 characters of message_id + time_in_seconds
     # get previous description
-    cur.execute(
-        "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-        (channel_id, f"%{clip_id[:3]}", tis - 1, tis + 1),
-    )
-    data = cur.fetchall()
+    with conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (channel_id, f"%{clip_id[:3]}", tis - 1, tis + 1),
+        )
+        data = cur.fetchall()
     if not data:
         return "Clip ID not found"
-    cur.execute(
-        "DELETE FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-        (channel_id, f"%{clip_id[:3]}", tis - 1, tis + 1),
-    )
-    db.commit()
+    with conn:
+        cur = conn.cursor()
+        cur.execute(
+            "DELETE FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (channel_id, f"%{clip_id[:3]}", tis - 1, tis + 1),
+        )
+        conn.commit()
     webhook_url = get_webhook_url(channel_id)
     if webhook_url:
         webhook = DiscordWebhook(
@@ -1249,27 +1293,31 @@ def edit(xxx=None):
     # an id is last 3 characters of message_id + time_in_seconds
     # get previous description
     try:
-        cur.execute(
-            "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (channel_id, f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+                (channel_id, f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+            )
     except ValueError:
         return "Clip ID should be in format of 3 characters + time in seconds"
     data = cur.fetchall()
     if not data:
         return "Clip ID not found"
     old_desc = data[0][2]
-    cur.execute(
-        "UPDATE QUERIES SET clip_desc=? WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-        (
-            new_desc,
-            channel_id,
-            f"%{clip_id[:3]}",
-            int(clip_id[3:]) - 1,
-            int(clip_id[3:]) + 1,
-        ),
-    )
-    db.commit()
+    with conn:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE QUERIES SET clip_desc=? WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+            (
+                new_desc,
+                channel_id,
+                f"%{clip_id[:3]}",
+                int(clip_id[3:]) - 1,
+                int(clip_id[3:]) + 1,
+            ),
+        )
+        conn.commit()
     webhook_url = get_webhook_url(channel_id)
     if webhook_url:
         hms = time_to_hms(int(data[0][4]))
@@ -1355,8 +1403,10 @@ scheduler_thread.start()
 
 
 channel_info = {}
-cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
-data = cur.fetchall()
+with conn:
+    cur = conn.cursor()
+    cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
+    data = cur.fetchall()
 
 
 for ch_id in data:
