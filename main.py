@@ -151,13 +151,6 @@ def get_channel_clips(channel_id: str):
         x["hms"] = time_to_hms(y[4])
         x["id"] = y[1][-3:] + str(int(y[4]))
         x["delay"] = y[9]
-        if request.is_secure:
-            htt = "https://"
-        else:
-            htt = "http://"
-        x[
-            "direct_download_link"
-        ] = f"{htt}{request.host}{url_for('video', clip_id=x['id'])}"
         x["discord"] ={
             "webhook": y[8],
             "ss_id": y[11],
