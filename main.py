@@ -24,12 +24,15 @@ import os
 try:
     os.chdir("/var/www/clip_nightbot")
 except FileNotFoundError:
+    local = True
     # we are working locally
     pass
+else:
+    local = False
 
 logging.basicConfig(
     filename='./record.log', 
-    level=logging.DEBUG, 
+    level=logging.INFO, 
     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
 )
 
@@ -1397,9 +1400,11 @@ def video(clip_id):
     download_lock = False
     return send_file(clip, as_attachment=True)
 
-schedule.every(10).minutes.do(periodic_task)
-scheduler_thread = threading.Thread(target=run_scheduled_jobs)
-scheduler_thread.start()
+if not local:
+    schedule.every(10).minutes.do(periodic_task)
+    scheduler_thread = threading.Thread(target=run_scheduled_jobs)
+    scheduler_thread.start()
+    # we don't need to send logs and backup to discord if we are running locally
 
 
 channel_info = {}
@@ -1412,16 +1417,13 @@ with conn:
 for ch_id in data:
     if ch_id[0] in channel_info:
         continue
+    if local:
+        break # don't build cache on locally running. 
     channel_info[ch_id[0]] = {}
     (
         channel_info[ch_id[0]]["name"],
         channel_info[ch_id[0]]["image"],
     ) = get_channel_name_image(ch_id[0])
-    """
-    context = ("/root/certs/cert.pem", "/root/certs/key.pem")
-    try:
-        app.run(host="0.0.0.0", port=443, ssl_context=context, debug=False)
-    except FileNotFoundError:
-        print("No certs found. running without ssl")
+
+if local:
     app.run(host="0.0.0.0", port=80, debug=True)
-    """
