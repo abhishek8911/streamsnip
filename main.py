@@ -36,7 +36,7 @@ else:
 
 logging.basicConfig(
     filename='./record.log', 
-    level=logging.INFO, 
+    level=logging.DEBUG, 
     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
 )
 
@@ -1129,9 +1129,10 @@ def delete(clip_id=None):
     clip = get_clip(clip_id, channel_id)
     if not clip:
         return "Clip ID not found"
-    clip.delete(conn)
-
-    return f"Deleted clip ID {clip_id}."
+    if clip.delete(conn):
+        return f"Deleted clip ID {clip_id}."
+    else:
+        return "ERROR, Please contact Developers."
 
 
 @app.route("/edit/<xxx>")
@@ -1153,8 +1154,10 @@ def edit(xxx=None):
     clip = get_clip(clip_id, channel_id)
     if not clip:
         return "Clip ID not found"
-    clip.edit(new_desc, conn)
-    return "Edited clip from title '" + clip.desc + "' to '" + new_desc + "'."
+    if clip.edit(new_desc, conn):
+        return "Edited clip from title '" + clip.desc + "' to '" + new_desc + "'."
+    else:
+        return "ERROR, Please contact Developers."
 
 
 @app.route("/search/<clip_desc>")
