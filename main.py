@@ -19,6 +19,10 @@ import scrapetube
 from chat_downloader.sites import YouTubeChatDownloader
 import logging
 
+
+from util import *
+from Clip import Clip
+
 # we are in /var/www/clip_nighbot
 import os
 try:
@@ -53,47 +57,34 @@ with conn:
     cur.execute(
         "CREATE TABLE IF NOT EXISTS QUERIES(channel_id VARCHAR(40), message_id VARCHAR(40), clip_desc VARCHAR(40), time int, time_in_seconds int, user_id VARCHAR(40), user_name VARCHAR(40), stream_link VARCHAR(40), webhook VARCHAR(40), delay int, userlevel VARCHAR(40), ss_id VARCHAR(40), ss_link VARCHAR(40))"
     )
-conn.commit()
-# check if there is a column named webhook in QUERIES table, if not then add it
-with conn:
-    cur = conn.cursor()
+    conn.commit()
     cur.execute("PRAGMA table_info(QUERIES)")
     data = cur.fetchall()
-colums = [xp[1] for xp in data]
-if "webhook" not in colums:
-    with conn:
-        cur = conn.cursor()
+    colums = [xp[1] for xp in data]
+    if "webhook" not in colums:
         cur.execute("ALTER TABLE QUERIES ADD COLUMN webhook VARCHAR(40)")
         conn.commit()
-    print("Added webhook column to QUERIES table")
+        print("Added webhook column to QUERIES table")
 
-if "delay" not in colums:
-    with conn:
-        cur = conn.cursor()
+    if "delay" not in colums:
         cur.execute("ALTER TABLE QUERIES ADD COLUMN delay INT")
         conn.commit()
-    print("Added delay column to QUERIES table")
+        print("Added delay column to QUERIES table")
 
-if "userlevel" not in colums:
-    with conn:
-        cur = conn.cursor()
+    if "userlevel" not in colums:
         cur.execute("ALTER TABLE QUERIES ADD COLUMN userlevel VARCHAR(40)")
         conn.commit()
-    print("Added userlevel column to QUERIES table")
+        print("Added userlevel column to QUERIES table")
 
-if "ss_id" not in colums:
-    with conn:
-        cur = conn.cursor()
+    if "ss_id" not in colums:
         cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_id VARCHAR(40)")
         conn.commit()
-    print("Added ss_id column to QUERIES table")
+        print("Added ss_id column to QUERIES table")
 
-if "ss_link" not in colums:
-    with conn:
-        cur = conn.cursor()
+    if "ss_link" not in colums:
         cur.execute("ALTER TABLE QUERIES ADD COLUMN ss_link VARCHAR(40)")
         conn.commit()
-    print("Added ss_link column to QUERIES table")
+        print("Added ss_link column to QUERIES table")
 
 # if there is no folder named clips then make one
 if not os.path.exists("clips"):
@@ -126,7 +117,27 @@ if management_webhook_url:
         pass
     management_webhook = create_managment_webhook()
 
-def get_channel_clips(channel_id: str):
+
+def get_clip(clip_id, channel=None) -> Optional[Clip]:
+    with conn:
+        cur = conn.cursor()
+        if channel:
+            cur.execute(
+                "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+                (channel, f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+            )
+        else:
+            cur.execute(
+                "SELECT * FROM QUERIES WHERE message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
+                (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+            )
+        data = cur.fetchall()
+    if not data:
+        return None
+    x = Clip(data[0])
+    return x
+    
+def get_channel_clips(channel_id: str) -> [Clip]:
     if not channel_id:
         return {}
     with conn:
@@ -135,47 +146,10 @@ def get_channel_clips(channel_id: str):
         data = cur.fetchall()
     l = []    
     for y in data:
-        x = {}
-        level = y[10]
-        if not level:
-            level = "everyone"
-        x["link"] = y[7]
-        x["author"] = {"name": y[6], "id": y[5], "level": level}
-        x["clip_time"] = y[
-            4
-        ]  # time in stream when clip was made. if stream starts at 0
-        x["time"] = y[3]  # real life time when clip was made
-        x["message"] = y[2]
-        x["stream_id"] = y[7].replace("https://youtu.be/", "").split("?")[0]
-        x["dt"] = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.localtime(y[3]))
-        x["hms"] = time_to_hms(y[4])
-        x["id"] = y[1][-3:] + str(int(y[4]))
-        x["delay"] = y[9]
-        x["discord"] ={
-            "webhook": y[8],
-            "ss_id": y[11],
-            "ss_link": y[12]
-        }
-        l.append(x)
+        x = Clip(y)
+        l.append(x.json())
     l.reverse()
     return l
-
-
-def time_to_hms(seconds: int):
-    hour = int(seconds / 3600)
-    minute = int(seconds / 60) % 60
-    second = int(seconds) % 60
-    if hour < 10:
-        hour = f"0{hour}"
-    if minute < 10:
-        minute = f"0{minute}"
-    if second < 10:
-        second = f"0{second}"
-    if int(hour):
-        hour_minute_second = f"{hour}:{minute}:{second}"
-    else:
-        hour_minute_second = f"{minute}:{second}"
-    return hour_minute_second
 
 
 def create_simplified(clips: list) -> str:
@@ -199,7 +173,7 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     return channel_name, channel_image
 
 
-def take_screenshot(video_url: str, seconds: int):
+def take_screenshot(video_url: str, seconds: int) -> str:
     # Get the video URL using yt-dlp
     try:
         video_info = subprocess.check_output(
@@ -241,26 +215,17 @@ def take_screenshot(video_url: str, seconds: int):
     return file_name
 
 
-def get_webhook_url(channel_id):
-    with open("creds.json", "r") as f:
-        creds = load(f)
-
-    try:
-        webhook_url = creds[channel_id]
-    except KeyError:
-        return None
-    return webhook_url
 
 
-def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[dict]:
+def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[Clip]:
     clips = get_channel_clips(channel_id)
     for clip in clips:
-        if clip_desc.lower() in clip["message"].lower():
+        if clip_desc.lower() in clip['message'].lower():
             return clip
     return None
 
 
-def download_and_store(clip_id):
+def download_and_store(clip_id) -> str:
     with conn:
         cur = conn.cursor()
         data = cur.execute(
@@ -270,8 +235,9 @@ def download_and_store(clip_id):
         data = cur.fetchall()
     if not data:
         return None
-    video_url = data[0][7]
-    timestamp = data[0][4]
+    clip = Clip(data[0])
+    video_url = clip.stream_link
+    timestamp = clip.time_in_seconds
     output_filename = f"./clips/{clip_id}"
     # if there is a file that start with that clip in current directory then don't download it
     files = [
@@ -280,7 +246,7 @@ def download_and_store(clip_id):
     if files:
         return files[0]
     # real thing happened at 50. but we stored timestamp with delay. take back that delay
-    delay = data[0][9]
+    delay = clip.delay
     timestamp += -1 * delay
     if not delay:
         delay = -60
@@ -926,7 +892,6 @@ def edit_delete():
     if password != actual_password:
         return "Invalid password"
     # get the clip id
-    print(request.form)
     clip_id = request.form.get("clip")
     # get the action
     if request.form.get("rename") == "Rename":
@@ -936,88 +901,20 @@ def edit_delete():
         if not request.form.get("new_name", None):
             return "No new name provided"
         new_name = request.form.get("new_name").strip()
-        with conn:
-            cur = conn.cursor()
-            data = cur.execute(
-                "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-                (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-            )
-            data = cur.fetchall()
-        if not data:
-            return "Clip not found"
-        old_name = data[0][2]
-        with conn:
-            cur = conn.cursor()
-            cur.execute(
-                "UPDATE QUERIES SET clip_desc=? WHERE message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-                (
-                    new_name,
-                    f"%{clip_id[:3]}",
-                    int(clip_id[3:]) - 1,
-                    int(clip_id[3:]) + 1,
-                ),
-            )
-            conn.commit()
-        webhook_url = get_webhook_url(data[0][0])
-        if webhook_url:
-            hms = time_to_hms(int(data[0][4]))
-            new_message = f"{clip_id} | **{new_name}** \n\n{hms}\n<{data[0][7]}>"
-            if data[0][9]:
-                new_message += f"\nDelayed by {data[0][9]} seconds."
-            webhook = DiscordWebhook(
-                url=webhook_url,
-                id=data[0][8],
-                allowed_mentions={"role": [], "user": [], "everyone": False},
-                content=new_message,
-            )
-            try:
-                webhook.edit()
-            except Exception as e:
-                print(e)
-                pass
-        return f"Edited clip ID {clip_id} from '{old_name}' to '{new_name}'."
+        clip = get_clip(clip_id)
+        clip.edit(new_name, conn)
+        return "Edited"
+    
     elif request.form.get("delete") == "Delete":
         if not request.form.get("clip", None):
             return "No Clip selected"
         # delete the clip
-        with conn:
-            cur = conn.cursor()
-            data = cur.execute(
-                "SELECT * FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-                (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-            )
-            data = cur.fetchall()
-        if not data:
+        clip = get_clip(clip_id)
+        if not clip:
             return "Clip not found"
-        with conn:
-            cur = conn.cursor()
-            cur.execute(
-                "DELETE FROM QUERIES WHERE  message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-                (f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-            )
-            conn.commit()
-        webhook_url = get_webhook_url(data[0][0])
-        if webhook_url:
-            webhook = DiscordWebhook(
-                url=webhook_url,
-                id=data[0][8],
-                allowed_mentions={"role": [], "user": [], "everyone": False},
-            )
-            try:
-                webhook.delete()
-            except:
-                pass
-            if data[0][11]: # if there is a screenshot then delete that too
-                webhook = DiscordWebhook(
-                    url=webhook_url,
-                    id=data[0][11],
-                    allowed_mentions={"role": [], "user": [], "everyone": False},
-                )
-                try:
-                    webhook.delete()
-                except:
-                    pass
+        clip.delete(conn)
         return "Deleted"
+    
     elif request.form.get("new") == "Submit":
         if not request.form.get("key", None):
             return "No key provided"
@@ -1229,45 +1126,10 @@ def delete(clip_id=None):
     except ValueError:
         return "Clip ID should be in format of 3 characters + time in seconds"
     channel_id = channel.get("providerId")[0]
-    # an id is last 3 characters of message_id + time_in_seconds
-    # get previous description
-    with conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (channel_id, f"%{clip_id[:3]}", tis - 1, tis + 1),
-        )
-        data = cur.fetchall()
-    if not data:
+    clip = get_clip(clip_id, channel_id)
+    if not clip:
         return "Clip ID not found"
-    with conn:
-        cur = conn.cursor()
-        cur.execute(
-            "DELETE FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (channel_id, f"%{clip_id[:3]}", tis - 1, tis + 1),
-        )
-        conn.commit()
-    webhook_url = get_webhook_url(channel_id)
-    if webhook_url:
-        webhook = DiscordWebhook(
-            url=webhook_url,
-            id=data[0][8],
-            allowed_mentions={"role": [], "user": [], "everyone": False},
-        )
-        try:
-            webhook.delete()
-        except:
-            pass
-        if data[0][11]: # if there is a screenshot then delete that too
-            webhook = DiscordWebhook(
-                url=webhook_url,
-                id=data[0][11],
-                allowed_mentions={"role": [], "user": [], "everyone": False},
-            )
-            try:
-                webhook.delete()
-            except:
-                pass
+    clip.delete(conn)
 
     return f"Deleted clip ID {clip_id}."
 
@@ -1288,50 +1150,11 @@ def edit(xxx=None):
     channel_id = channel.get("providerId")[0]
     # an id is last 3 characters of message_id + time_in_seconds
     # get previous description
-    try:
-        with conn:
-            cur = conn.cursor()
-            cur.execute(
-                "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-                (channel_id, f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
-            )
-    except ValueError:
-        return "Clip ID should be in format of 3 characters + time in seconds"
-    data = cur.fetchall()
-    if not data:
+    clip = get_clip(clip_id, channel_id)
+    if not clip:
         return "Clip ID not found"
-    old_desc = data[0][2]
-    with conn:
-        cur = conn.cursor()
-        cur.execute(
-            "UPDATE QUERIES SET clip_desc=? WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-            (
-                new_desc,
-                channel_id,
-                f"%{clip_id[:3]}",
-                int(clip_id[3:]) - 1,
-                int(clip_id[3:]) + 1,
-            ),
-        )
-        conn.commit()
-    webhook_url = get_webhook_url(channel_id)
-    if webhook_url:
-        hms = time_to_hms(int(data[0][4]))
-        new_message = f"{clip_id} | **{new_desc}** \n\n{hms}\n<{data[0][7]}>"
-        if data[0][9]:
-            new_message += f"\nDelayed by {data[0][9]} seconds."
-        webhook = DiscordWebhook(
-            url=webhook_url,
-            id=data[0][8],
-            allowed_mentions={"role": [], "user": [], "everyone": False},
-            content=new_message,
-        )
-        try:
-            webhook.edit()
-        except Exception as e:
-            print(e)
-            pass
-    return f"Edited clip ID {clip_id} from '{old_desc}' to '{new_desc}'."
+    clip.edit(new_desc, conn)
+    return "Edited clip from title '" + clip.desc + "' to '" + new_desc + "'."
 
 
 @app.route("/search/<clip_desc>")
@@ -1343,7 +1166,7 @@ def search(clip_desc=None):
         return "Not able to auth"
     clip = get_clip_with_desc(clip_desc, channel.get("providerId")[0])
     if clip:
-        return clip["link"]
+        return clip['link']
     return "Clip not found"
 
 
@@ -1356,7 +1179,7 @@ def searchx(clip_desc=None):
         return "Not able to auth"
     clip = get_clip_with_desc(clip_desc, channel.get("providerId")[0])
     if clip:
-        return clip
+        return clip.json()
     return "{}"
 
 
@@ -1419,4 +1242,4 @@ for ch_id in data:
     ) = get_channel_name_image(ch_id[0])
 
 if local:
-    app.run(host="0.0.0.0", port=80, debug=True)
+    app.run(host="0.0.0.0", port=5003, debug=True)
