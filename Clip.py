@@ -97,6 +97,7 @@ class Clip:
                 print(e)
                 pass
         self.desc = new_desc
+        return True
     
     def delete(self, conn:sqlite3.Connection):
         with conn:
