@@ -1,5 +1,5 @@
-# Clip_Nightbot: Stream Clipping Simplified
-
+# Clip_Nightbot/Streamsnip: Stream Clipping Simplified
+![StreamSnip](https://cronitor.io/badges/J2Vp0S/production/c2wUoNTyJ_0ELhruqjGccNFbyyc.svg)![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=Flat&logo=sqlite&logoColor=white)![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=Flat&logo=chart.js&logoColor=white)![Flask](https://img.shields.io/badge/flask-%23000.svg?style=Flat&logo=flask&logoColor=white)![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=Flat&logo=amazon-aws&logoColor=white)![Python](https://img.shields.io/badge/python-3670A0?style=Flat&logo=python&logoColor=ffdd54)![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=Flat&logo=javascript&logoColor=%23F7DF1E)![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=Flat&logo=css3&logoColor=white)![Apache](https://img.shields.io/badge/apache-%23D42029.svg?style=Flat&logo=apache&logoColor=white)![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=Flat&logo=YouTube&logoColor=white)![Youtube Gaming](https://img.shields.io/badge/Youtube%20Gaming-FF0000?style=Flat&logo=Youtubegaming&logoColor=white)</br>
 The primary goal of Clip_Nightbot is to streamline the clipping process, addressing challenges faced by one of my favorite streamers. Here's how you can make the most of it:
 ## Monetization
 This program is a free for small streamers (have less than 40 viewers) and for selected people. </br>
