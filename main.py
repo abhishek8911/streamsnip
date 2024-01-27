@@ -137,12 +137,13 @@ def get_clip(clip_id, channel=None) -> Optional[Clip]:
     x = Clip(data[0])
     return x
     
-def get_channel_clips(channel_id: str) -> [Clip]:
-    if not channel_id:
-        return {}
+def get_channel_clips(channel_id=None) -> [Clip]:
     with conn:
         cur = conn.cursor()
-        cur.execute(f"select * from QUERIES where channel_id=?", (channel_id,))
+        if channel_id:
+            cur.execute(f"select * from QUERIES where channel_id=?", (channel_id,))
+        else:
+            cur.execute(f"select * from QUERIES GROUP BY message_id ORDER BY time ASC")
         data = cur.fetchall()
     l = []    
     for y in data:
@@ -384,13 +385,34 @@ def export():
         htt = "http://"
     return f"You can download the export from {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
+@app.route("/e")
+@app.route("/exports")
+@app.route("/c")
+@app.route("/clips")
+@app.route("/e/")
+@app.route("/exports/")
+@app.route("/c/")
+@app.route("/clips/")
+def clips():
+    data = get_channel_clips()
+    return render_template(
+        "export.html", 
+        data=data,
+        clips_string=create_simplified(data),
+        channel_name="All channels",
+        channel_image="/static/logo.svg",
+        owner_icon=owner_icon,
+        mod_icon=mod_icon,
+        regular_icon=regular_icon,
+        subscriber_icon=subscriber_icon,
+        channel_id="all"
+        )
 
+@app.route("/clips/<channel_id>")
+@app.route("/c/<channel_id>")
 @app.route("/exports/<channel_id>")
 @app.route("/e/<channel_id>")
 def exports(channel_id=None):
-    if not channel_id:
-        return redirect(url_for("slash"))
-
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
     soup = BeautifulSoup(html_data, "html.parser")
@@ -420,6 +442,8 @@ def exports(channel_id=None):
 def channel_stats(channel_id=None):
     if not channel_id:
         return redirect(url_for("slash"))
+    if channel_id == "all":
+        return redirect(url_for("stats"))
     with conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM QUERIES WHERE channel_id=?", (channel_id,))

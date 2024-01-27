@@ -137,7 +137,7 @@
         var container = document.getElementById("clips-container");
         var search = document.getElementById("search").value.toLowerCase();
         var filteredData = data.filter(function (clip) {
-            return clip['message'].toLowerCase().includes(search) || clip['author']['name'].toLowerCase().includes(search);
+            return clip['message'].toLowerCase().includes(search) || clip['author']['name'].toLowerCase().includes(search) || clip['id'].toLowerCase().includes(search);
         });
         container.innerHTML = "";
         var startIndex = (currentPage - 1) * clipsPerPage;
