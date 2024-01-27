@@ -387,12 +387,8 @@ def export():
 
 @app.route("/e")
 @app.route("/exports")
-@app.route("/c")
-@app.route("/clips")
 @app.route("/e/")
 @app.route("/exports/")
-@app.route("/c/")
-@app.route("/clips/")
 def clips():
     data = get_channel_clips()
     return render_template(
@@ -408,8 +404,6 @@ def clips():
         channel_id="all"
         )
 
-@app.route("/clips/<channel_id>")
-@app.route("/c/<channel_id>")
 @app.route("/exports/<channel_id>")
 @app.route("/e/<channel_id>")
 def exports(channel_id=None):
