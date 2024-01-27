@@ -143,7 +143,7 @@ def get_channel_clips(channel_id=None) -> [Clip]:
         if channel_id:
             cur.execute(f"select * from QUERIES where channel_id=?", (channel_id,))
         else:
-            cur.execute(f"select * from QUERIES GROUP BY message_id ORDER BY time ASC")
+            cur.execute(f"select * from QUERIES ORDER BY time ASC")
         data = cur.fetchall()
     l = []    
     for y in data:
