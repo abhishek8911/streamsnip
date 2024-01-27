@@ -108,7 +108,7 @@ def create_managment_webhook():
         allowed_mentions={"role": [], "user": [], "everyone": False},
     )
     return wh
-if management_webhook_url:
+if management_webhook_url and not local:
     management_webhook = create_managment_webhook() # we implement this function because we have to recreate this wh again and again to use.
     management_webhook.content = "Bot started"
     try:
