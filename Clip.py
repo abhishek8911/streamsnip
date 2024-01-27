@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from util import *
 from discord_webhook import DiscordWebhook
 
@@ -33,7 +33,7 @@ class Clip:
         self.id = data[1][-3:] + str(int(data[4]))
         self.message_id = data[1]
         self.desc = data[2]
-        self.time = datetime.fromtimestamp(int(data[3]))
+        self.time = datetime.fromtimestamp(int(data[3]), tz=timezone.utc)
         self.time_in_seconds = data[4]
         self.user_id = data[5]
         self.user_name = data[6]
