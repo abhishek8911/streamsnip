@@ -26,12 +26,15 @@
         <div class="row">
             <canvas id="myChart" width="1000" height="800"></canvas>
         </div>
+    </br></br></br></br></br>
         <div class="row">
             <canvas id="speedChart" width="1000" height="800"></canvas>
         </div>
+    </br></br></br></br></br>
         <div class="row">
             <canvas id="timedistribution" width="1000" height="800"></canvas>
         </div>
+    </br></br></br></br></br>
         {% if clip_users %}
         <h1>
             Top Clippers
@@ -93,10 +96,13 @@
                     fill: true
                 }]
             },
-            options: {}
+            options: {
+                responsive: true,
+                maintainAspectiatio: false
+            }
         });
-        lineChart.canvas.parentNode.style.height = '850px';
-        lineChart.canvas.parentNode.style.width = '1200px';
+        //lineChart.canvas.parentNode.style.height = '850px';
+        //lineChart.canvas.parentNode.style.width = '1200px';
 
 
         var ctx = document.getElementById('pieChart').getContext('2d');
@@ -113,6 +119,7 @@
                 labels: users.map(subarray => subarray[0])
             },
             options: {
+                maintainAspectiation: false,
                 responsive: true,
                 plugins: {
                     legend: {
@@ -126,8 +133,8 @@
             },
         });
         // set chart size to 800 x 800
-        pieChart.canvas.parentNode.style.height = '800px';
-        pieChart.canvas.parentNode.style.width = '800px';
+        //pieChart.canvas.parentNode.style.height = '800px';
+        //pieChart.canvas.parentNode.style.width = '800px';
 
 
         // multi line chart
@@ -152,6 +159,8 @@
             type: 'bar',
             data: data,
             options: {
+                maintainAspectiation: false,
+                responsive: true,
                 plugins: {
                 title: {
                     display: false,
@@ -174,8 +183,8 @@
         }
         var speedData = new Chart(speedCanvas, config);
         // set chart size to 800 x 800
-        speedData.canvas.parentNode.style.height = '850px';
-        speedData.canvas.parentNode.style.width = '1200px';
+        //speedData.canvas.parentNode.style.height = '850px';
+        //speedData.canvas.parentNode.style.width = '1200px';
         
         var ctx = document.getElementById('timedistribution').getContext('2d');
         var timedata = {{time_distribution|tojson}};
@@ -192,7 +201,15 @@
                     fill: true
                 }]
             },
-            options: {},
+            options: {
+                maintainAspectiation: false,
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            },
             plugins:{
                 title: {
                     display: true,
@@ -200,8 +217,8 @@
                 }
             }
         });
-        timedistribution.canvas.parentNode.style.height = '850px';
-        timedistribution.canvas.parentNode.style.width = '1200px';
+        //timedistribution.canvas.parentNode.style.height = '850px';
+        //timedistribution.canvas.parentNode.style.width = '1200px';
         graphs = [lineChart, pieChart, speedData, timedistribution];
     }
     document.addEventListener("DOMContentLoaded" , function(){
