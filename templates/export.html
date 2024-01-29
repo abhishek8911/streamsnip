@@ -9,8 +9,8 @@
 {% endblock %}
 
 {% block content %}
-<center>
-    <div class="container">
+<div class="container">
+    <center>
         <div class="row">
             <div class="col-md-12">
                 <h1>{{ channel_name }} - Clips ({{ data|length }})</h1>
@@ -43,10 +43,11 @@
                 <h2>Filter by Level:</h2>
                 <select id="filter" class="form-control">
                     <option value="all">All Levels</option>
-                    <option value="owner">Owner</option>
+                    <option value="everyone">Everyone</option>
                     <option value="moderator">Moderator</option>
-                    <option value="subscriber">Subscriber</option>
+                    <option value="owner">Owner</option>
                     <option value="regular">Regular</option>
+                    <option value="subscriber">Subscriber</option>
                 </select>
             </div>
         </div>
@@ -80,11 +81,14 @@
                 <input type="text" id="search" class="form-control" placeholder="Search for clips...">
             </div>
         </div>
-
+    </center>
         <div class="row" id="clips-container">
             <!-- Clips will be dynamically added here using JavaScript -->
         </div>
     </div>
+    </div>
+</center>
+</div>
 </center>
 <script>
     var data = {{ data|tojson }};
@@ -169,15 +173,15 @@
                 cardHtml += `<a href="${clip['link']}" target="_blank">`;
                 cardHtml += `<img class="card-img-top" src="${thumbnail}"" alt="Card image cap">`;
                 cardHtml += `</a>`;
+                cardHtml += `<center>${clip['id']}</center>`;
                 cardHtml += `<div class="card-body">`;
                 cardHtml += `<a href="${getUserChannelLink(clip['author']['id'])}" target="_blank">`;
-                cardHtml += `<h5 class="card-title">${getAuthorTitle(clip['author']['level'])} ${clip['author']['name']}</h5>`;
+                cardHtml += `<h5 class="card-title"><i class="fa-solid fa-user"></i>${getAuthorTitle(clip['author']['level'])} ${clip['author']['name']}</h5>`;
                 cardHtml += `</a>`;
-                cardHtml += `<p class="card-text">${clip['id']}</p>`;
                 cardHtml += `<a href="${clip['link']}" target="_blank">`;
-                cardHtml += `<p class="card-text">${clip['message']}</p>`;
-                cardHtml += `<p class="card-text">At ${clip['hms']}</p>`;
-                cardHtml += `<p class="card-text">${timeSince(new Date(clip['time']))}</p>`;
+                cardHtml += `<p class="card-text"><i class="fa-solid fa-clipboard-list"></i> ${clip['message']} </br>`;
+                cardHtml += `<i class="fa-solid fa-clock"></i> At ${clip['hms']} </br>`;
+                cardHtml += `<i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))}</p>`;
                 cardHtml += `</a>`;
                 cardHtml += `</div>`;
                 cardHtml += `</div>`;
