@@ -18,6 +18,7 @@ from urllib.parse import parse_qs
 import scrapetube
 from chat_downloader.sites import YouTubeChatDownloader
 import logging
+from datetime import datetime
 
 
 from util import *
@@ -303,6 +304,24 @@ def run_scheduled_jobs():
         schedule.run_pending()
         time.sleep(1)
 
+@app.context_processor
+def inject_mini_stats():
+    # todays count 
+    today = datetime.strptime(datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d").timestamp()
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM QUERIES WHERE time >= ?", (today,))
+        data = cur.fetchall()
+    today_count = data[0][0]
+    with conn:
+        # last clip
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM QUERIES ORDER BY time DESC LIMIT 1")
+        data = cur.fetchall()
+    if data:
+        last_clip = Clip(data[0])
+        last_clip = last_clip.json()
+    return dict(today_count=today_count, last_clip=last_clip)
 
 @app.before_request
 def before_request():
@@ -1263,4 +1282,4 @@ for ch_id in data:
     ) = get_channel_name_image(ch_id[0])
 
 if local:
-    app.run(host="0.0.0.0", port=5003, debug=True)
+    app.run(host="0.0.0.0", port=80, debug=True)

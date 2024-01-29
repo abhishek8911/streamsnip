@@ -89,7 +89,14 @@
             }
             localStorage.setItem("darkTheme", isDarkTheme);
         }
-        
+        document.addEventListener("DOMContentLoaded", function () {
+            var last_clip = {{last_clip|tojson}};
+            var last_clip_time = document.getElementById("last_clip_time");
+            last_clip_time.innerHTML = `   Last Clip - ${timeSince(new Date(last_clip["time"]))}`;
+            var today_count = {{today_count}};
+            var today_count_element = document.getElementById("today_count");
+            today_count_element.innerHTML = today_count + " Clips Today";
+        });
     </script>
     {% block head_content %}
     {% endblock %}
@@ -104,6 +111,16 @@
                     <h2>StreamSnip</h2>
                 </a>
                 <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+                    <li>
+                        <a href="#" class="nav-link text-white">
+                            <i class="fa-solid fa-clipboard-list"></i> <i id="today_count"> </i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link text-white">
+                            <i id="last_clip_time"> </i>
+                        </a>
+                    </li>
                     <li>
                         <a href="{{ url_for('slash') }}" class="nav-link text-white">
                             <i class="fa-solid fa-house"></i>  Home
