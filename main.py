@@ -463,14 +463,22 @@ def channel_stats(channel_id=None):
         data = cur.fetchall()
     if not data:
         return redirect(url_for("slash"))
-    clip_count = len(data)
-    user_count = len(set([x[5] for x in data]))
+    clips = []
+    for x in data:
+        clips.append(Clip(x))
+
+    clip_count = len(clips)
+    user_count = len(set([clip.user_id for clip in clips]))
     # "Name": no of clips
     user_clips = {}
-    for x in data:
-        if x[5] not in user_clips:
-            user_clips[x[5]] = 0
-        user_clips[x[5]] += 1
+    top_clippers = {}
+    for clip in clips:
+        if clip.user_id not in user_clips:
+            user_clips[clip.user_id] = 0
+        user_clips[clip.user_id] += 1
+        if clip.user_id not in top_clippers:
+            top_clippers[clip.user_id] = 0
+        top_clippers[clip.user_id] += 1
     # sort
     user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
     new_dict = {}
@@ -500,12 +508,6 @@ def channel_stats(channel_id=None):
             channel_info[k]["image"] = image
     new_dict['Others'] = sum(list(user_clips.values())[max_count:])
     user_clips = new_dict
-
-    top_clippers = {}
-    for x in data:
-        if x[5] not in top_clippers:
-            top_clippers[x[5]] = 0
-        top_clippers[x[5]] += 1
     top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
     new = []
     count = 0
@@ -537,8 +539,8 @@ def channel_stats(channel_id=None):
     new_dict = {}
     # time trend
     # day : no_of_clips
-    for clip in data:
-        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+    for clip in clips:
+        day = clip.time.strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -548,13 +550,13 @@ def channel_stats(channel_id=None):
     # "clipper" : {day: no_of_clips}
     streamers_trend_days = []
     max_count = 0
-    for clip in data:
-        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
-        if clip[5] not in streamer_trend_data:
-            streamer_trend_data[clip[5]] = {}
-        if day not in streamer_trend_data[clip[5]]:
-            streamer_trend_data[clip[5]][day] = 0
-        streamer_trend_data[clip[5]][day] += 1
+    for clip in clips:
+        day = clip.time.strftime("%Y-%m-%d")
+        if clip.user_id not in streamer_trend_data:
+            streamer_trend_data[clip.user_id] = {}
+        if day not in streamer_trend_data[clip.user_id]:
+            streamer_trend_data[clip.user_id][day] = 0
+        streamer_trend_data[clip.user_id][day] += 1
         if day not in streamers_trend_days:
             streamers_trend_days.append(day)
     streamers_trend_days.sort()
@@ -589,8 +591,8 @@ def channel_stats(channel_id=None):
     time_distribution = {}
     for x in range(24):
         time_distribution[x] = 0
-    for clip in data:
-        hm = int(time.strftime("%H", time.localtime(clip[3])))
+    for clip in clips:
+        hm = int(clip.time.strftime("%H"))
         time_distribution[hm] += 1
     message = f"Channel Stats for {streamer_name}. {user_count} users clipped\n{clip_count} clips till now. \nand counting."
     return render_template(
@@ -624,16 +626,24 @@ def user_stats(channel_id=None):
         data = cur.fetchall()
     if not data:
         return redirect(url_for("slash"))
-    clip_count = len(data)
-    user_count = len(set([x[0] for x in data]))
+    clips = []
+    for x in data:
+        clips.append(Clip(x))
+    clip_count = len(clips)
+    user_count = len(set([clip.channel for clip in clips]))
     # "Name": no of clips
     user_clips = {}
-    for x in data:
-        if x[0] not in user_clips:
-            user_clips[x[0]] = 0
-        user_clips[x[0]] += 1
+    top_clippers = {}
+    for clip in clips:
+        if clip.channel not in user_clips:
+            user_clips[clip.channel] = 0
+        user_clips[clip.channel] += 1
+        if clip.channel not in top_clippers:
+            top_clippers[clip.channel] = 0
+        top_clippers[clip.channel] += 1
     # sort
     user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
     new_dict = {}
     # replace dict_keys with actual channel
     max_count = 0
@@ -660,14 +670,7 @@ def user_stats(channel_id=None):
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
     new_dict['Others'] = sum(list(user_clips.values())[max_count:])
-    user_clips = new_dict
-
-    top_clippers = {}
-    for x in data:
-        if x[0] not in top_clippers:
-            top_clippers[x[0]] = 0
-        top_clippers[x[0]] += 1
-    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
+    user_clips = new_dict        
     new = []
     count = 0
     for k, v in top_clippers.items():
@@ -698,8 +701,8 @@ def user_stats(channel_id=None):
     new_dict = {}
     # time trend
     # day : no_of_clips
-    for clip in data:
-        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+    for clip in clips:
+        day = clip.time.strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -709,13 +712,13 @@ def user_stats(channel_id=None):
     # "clipper" : {day: no_of_clips}
     streamers_trend_days = []
     max_count = 0
-    for clip in data:
-        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
-        if clip[0] not in streamer_trend_data:
-            streamer_trend_data[clip[0]] = {}
-        if day not in streamer_trend_data[clip[0]]:
-            streamer_trend_data[clip[0]][day] = 0
-        streamer_trend_data[clip[0]][day] += 1
+    for clip in clips:
+        day = clip.time.strftime("%Y-%m-%d")
+        if clip.channel not in streamer_trend_data:
+            streamer_trend_data[clip.channel] = {}
+        if day not in streamer_trend_data[clip.channel]:
+            streamer_trend_data[clip.channel][day] = 0
+        streamer_trend_data[clip.channel][day] += 1
         if day not in streamers_trend_days:
             streamers_trend_days.append(day)
     streamers_trend_days.sort()
@@ -750,8 +753,8 @@ def user_stats(channel_id=None):
     time_distribution = {}
     for x in range(24):
         time_distribution[x] = 0
-    for clip in data:
-        hm = int(time.strftime("%H", time.localtime(clip[3])))
+    for clip in clips:
+        hm = int(clip.time.strftime("%H"))
         time_distribution[hm] += 1
     message = f"User Stats for {streamer_name}. Clipped\n{clip_count} clips in {user_count} channels till now. and counting."
     return render_template(
@@ -778,16 +781,26 @@ def stats():
         cur = conn.cursor()
         cur.execute("SELECT * FROM QUERIES")
         data = cur.fetchall()
-    clip_count = len(data)
-    user_count = len(set([x[5] for x in data]))
+    clips = []
+    for x in data:
+        clips.append(Clip(x))
+    clip_count = len(clips)
+    user_count = len(set([clip.user_id for clip in clips]))
     # "Name": no of clips
     user_clips = {}
-    for x in data:
-        if x[0] not in user_clips:
-            user_clips[x[0]] = 0
-        user_clips[x[0]] += 1
+    top_clippers = {}
+    for clip in clips:
+        if clip.channel not in user_clips:
+            user_clips[clip.channel] = 0
+        user_clips[clip.channel] += 1
+        if clip.user_id not in top_clippers:
+            top_clippers[clip.user_id] = 0
+        top_clippers[clip.user_id] += 1
+
     # sort
     user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
+
     # replace dict_keys with actual channel
     new_dict = {}   
     for k, v in user_clips.items():
@@ -799,14 +812,7 @@ def stats():
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
-    user_clips = new_dict
-
-    top_clippers = {}
-    for x in data:
-        if x[5] not in top_clippers:
-            top_clippers[x[5]] = 0
-        top_clippers[x[5]] += 1
-    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
+    user_clips = new_dict    
     new = []
     count = 0
     for k, v in top_clippers.items():
@@ -837,8 +843,8 @@ def stats():
     new_dict = {}
     # time trend 
     # day : no_of_clips
-    for clip in data:
-        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
+    for clip in clips:
+        day = clip.time.strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -847,13 +853,13 @@ def stats():
     streamer_trend_data = {}
     # streamer: {day: no_of_clips}
     streamers_trend_days = []
-    for clip in data:
-        day = time.strftime("%Y-%m-%d", time.localtime(clip[3]))
-        if clip[0] not in streamer_trend_data:
-            streamer_trend_data[clip[0]] = {}
-        if day not in streamer_trend_data[clip[0]]:
-            streamer_trend_data[clip[0]][day] = 0
-        streamer_trend_data[clip[0]][day] += 1
+    for clip in clips:
+        day = clip.time.strftime("%Y-%m-%d")
+        if clip.channel not in streamer_trend_data:
+            streamer_trend_data[clip.channel] = {}
+        if day not in streamer_trend_data[clip.channel]:
+            streamer_trend_data[clip.channel][day] = 0
+        streamer_trend_data[clip.channel][day] += 1
         if day not in streamers_trend_days:
             streamers_trend_days.append(day)
     streamers_trend_days.sort()
@@ -872,8 +878,8 @@ def stats():
     time_distribution = {}
     for x in range(24):
         time_distribution[x] = 0
-    for clip in data:
-        hm = int(time.strftime("%H", time.localtime(clip[3])))
+    for clip in clips:
+        hm = int(clip.time.strftime("%H"))
         time_distribution[hm] += 1
 
     message = f"{user_count} users clipped\n{clip_count} clips on \n{len(user_clips)} channels till now. \nand counting."
