@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors"></script>
-</head>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-deferred/dist/chartjs-plugin-deferred.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -64,7 +64,12 @@
 <script>
     graphs = [];
     const autocolors = window['chartjs-plugin-autocolors'];
+    Chart.register(ChartDeferred);
     Chart.register(autocolors);
+    Chart.defaults.plugins.deferred.delay = 250;
+    Chart.defaults.plugins.deferred.xOffset = 150;
+    Chart.defaults.plugins.deferred.yOffset = 150;
+    
     function drawCharts(){
         // destroy old chart
         for(var i=0;i<graphs.length;i++){
