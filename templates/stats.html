@@ -9,6 +9,7 @@
 <meta property="og:image" content="{{ channel_image }}" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors"></script>
 </head>
 {% endblock %}
 
@@ -23,24 +24,20 @@
             <div id="div-wordcloud" style="width: 100%; height: 100%;">
                 <canvas id="wordcloud" width="700" height="700"></canvas>
             </div>
-            </div>
+        </div>
         <div class="row">
             <h1>Clip User Piechart</h1>
             <canvas id="pieChart" width="700" height="700"></canvas>
         </div>
-    </br></br></br></br></br>
         <div class="row">
             <canvas id="myChart" width="1000" height="800"></canvas>
         </div>
-    </br></br></br></br></br>
         <div class="row">
             <canvas id="speedChart" width="1000" height="800"></canvas>
         </div>
-    </br></br></br></br></br>
         <div class="row">
             <canvas id="timedistribution" width="1000" height="800"></canvas>
         </div>
-    </br></br></br></br></br>
         {% if clip_users %}
         <h1>
             Top Clippers
@@ -66,6 +63,8 @@
 </center>
 <script>
     graphs = [];
+    const autocolors = window['chartjs-plugin-autocolors'];
+    Chart.register(autocolors);
     function drawCharts(){
         // destroy old chart
         for(var i=0;i<graphs.length;i++){
@@ -150,6 +149,9 @@
                     title: {
                         display: true,
                         text: ''
+                    },
+                    autocolors: {
+                        mode: 'data'
                     }
                 }
             },
