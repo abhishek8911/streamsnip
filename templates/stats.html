@@ -65,11 +65,17 @@
     graphs = [];
     const autocolors = window['chartjs-plugin-autocolors'];
     Chart.register(ChartDeferred);
-    Chart.register(autocolors);
+    //Chart.register(autocolors);
     Chart.defaults.plugins.deferred.delay = 250;
     Chart.defaults.plugins.deferred.xOffset = 150;
     Chart.defaults.plugins.deferred.yOffset = 150;
-    
+    function randomColor(){
+        var r = Math.floor(Math.random()*255);
+        var g = Math.floor(Math.random()*255);
+        var b = Math.floor(Math.random()*255);
+        var a = 0.5;
+        return "rgba("+r+","+g+","+b+" ,"+a+")";
+    }
     function drawCharts(){
         // destroy old chart
         for(var i=0;i<graphs.length;i++){
@@ -113,16 +119,14 @@
                     label: 'Clips on that day',
                     data: counts,
                     borderWidth: 3,
-                    fill: true
+                    fill: true,
+                    backgroundColor: randomColor(), 
+                    borderColor: randomColor(), 
                 }]
             },
             options: {
                 responsive: true,
-                plugins:{
-                    autocolors: {
-                        offset: 5
-                    }   
-                },
+                plugins:{}
             }
         });
         //lineChart.canvas.parentNode.style.height = '850px';
@@ -212,7 +216,9 @@
                     label: 'Clips on that Hour',
                     data: Object.values(timedata),
                     borderWidth: 3,
-                    fill: true
+                    fill: true,
+                    backgroundColor: randomColor(), 
+                    borderColor: randomColor(), 
                 }]
             },
             options: {
