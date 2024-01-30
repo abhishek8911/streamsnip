@@ -91,6 +91,7 @@
 </div>
 </center>
 <script>
+    var maxPage = 0;
     var data = {{ data|tojson }};
     var channel_name = "{{ channel_name }}";
     var channel_image = "{{ channel_image }}";
@@ -132,7 +133,9 @@
 
     document.getElementById("next-page").addEventListener("click", function (e) {
         e.preventDefault();
-        var maxPage = Math.ceil(data.length / clipsPerPage);
+        if(maxPage==0){
+            maxPage = Math.ceil(data.length / clipsPerPage);
+        }
         if (currentPage < maxPage) {
             currentPage++;
             updateClips();
@@ -151,7 +154,12 @@
         var startIndex = (currentPage - 1) * clipsPerPage;
         var endIndex = startIndex + clipsPerPage;
         var displayedClips = filteredData.slice(startIndex, endIndex);
-        var last_id = displayedClips[0]['stream_id'];
+        if(displayedClips[0]){
+            var last_id = displayedClips[0]['stream_id'];
+        }
+        else{
+            var last_id= null;
+        }
         displayedClips.forEach(function (clip) {
             if (filter == 'all' || clip['author']['level'] == filter) {
                 if(clip['stream_id'] != last_id && iview == true) {
@@ -189,8 +197,9 @@
                 container.innerHTML += cardHtml;
             }
         });
+        maxPage = Math.ceil(filteredData.length / clipsPerPage);
         document.getElementById("current-page").innerHTML = currentPage;
-        document.getElementById("total-page").innerHTML = Math.ceil(filteredData.length / clipsPerPage);
+        document.getElementById("total-page").innerHTML = maxPage;
     }
     function getUserChannelLink(authorId) {
         return `https://www.youtube.com/channel/${authorId}`;
