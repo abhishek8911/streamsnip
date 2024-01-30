@@ -472,15 +472,23 @@ def channel_stats(channel_id=None):
     # "Name": no of clips
     user_clips = {}
     top_clippers = {}
+    notes = {}
     for clip in clips:
         if clip.user_id not in user_clips:
             user_clips[clip.user_id] = 0
         user_clips[clip.user_id] += 1
+        if clip.desc and clip.desc != "None":
+            for word in clip.desc.lower().split():
+                if word not in notes:
+                    notes[word] = 0
+                notes[word] += 1
         if clip.user_id not in top_clippers:
             top_clippers[clip.user_id] = 0
         top_clippers[clip.user_id] += 1
     # sort
     user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    notes = {k: 5+5*v for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
+    notes = dict(list(notes.items())[:200])
     new_dict = {}
     # replace dict_keys with actual channel
     max_count = 0
@@ -598,6 +606,7 @@ def channel_stats(channel_id=None):
     return render_template(
         "stats.html",
         message = message,
+        notes=notes,
         clip_count=clip_count,
         user_count=user_count,
         clip_users=[(k, v) for k, v in user_clips.items()],
@@ -634,14 +643,22 @@ def user_stats(channel_id=None):
     # "Name": no of clips
     user_clips = {}
     top_clippers = {}
+    notes = {}
     for clip in clips:
         if clip.channel not in user_clips:
             user_clips[clip.channel] = 0
         user_clips[clip.channel] += 1
+        if clip.desc and clip.desc != "None":
+            for word in clip.desc.lower().split():
+                if word not in notes:
+                    notes[word] = 0
+                notes[word] += 1
         if clip.channel not in top_clippers:
             top_clippers[clip.channel] = 0
         top_clippers[clip.channel] += 1
     # sort
+    notes = {k: 5+5*v for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
+    notes = dict(list(notes.items())[:200])
     user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
     top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
     new_dict = {}
@@ -760,6 +777,7 @@ def user_stats(channel_id=None):
     return render_template(
         "stats.html",
         message = message,
+        notes=notes,
         clip_count=clip_count,
         user_count=user_count,
         clip_users=[(k, v) for k, v in user_clips.items()],
@@ -789,10 +807,16 @@ def stats():
     # "Name": no of clips
     user_clips = {}
     top_clippers = {}
+    notes = {}
     for clip in clips:
         if clip.channel not in user_clips:
             user_clips[clip.channel] = 0
         user_clips[clip.channel] += 1
+        if clip.desc and clip.desc != "None":
+            for word in clip.desc.lower().split():
+                if word not in notes:
+                    notes[word] = 0
+                notes[word] += 1
         if clip.user_id not in top_clippers:
             top_clippers[clip.user_id] = 0
         top_clippers[clip.user_id] += 1
@@ -800,7 +824,8 @@ def stats():
     # sort
     user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
     top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
-
+    notes = {k: 2+v*2 for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
+    notes = dict(list(notes.items())[:200])
     # replace dict_keys with actual channel
     new_dict = {}   
     for k, v in user_clips.items():
@@ -886,6 +911,7 @@ def stats():
     return render_template(
         "stats.html", 
         message = message,
+        notes=notes,
         clip_count=clip_count, 
         user_count=user_count, 
         clip_users=[(k, v) for k, v in user_clips.items()],

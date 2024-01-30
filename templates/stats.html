@@ -8,6 +8,7 @@
 <meta property="og:description" content="Stats for {{ channel_name }}" />
 <meta property="og:image" content="{{ channel_image }}" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud"></script>
 </head>
 {% endblock %}
 
@@ -17,7 +18,12 @@
         <div class="row">
             <h1> {{message}} </h1>
         </div>
-
+        <div class="row">
+            <h1>WordCloud</h1>
+            <div id="div-wordcloud" style="width: 100%; height: 100%;">
+                <canvas id="wordcloud" width="700" height="700"></canvas>
+            </div>
+            </div>
         <div class="row">
             <h1>Clip User Piechart</h1>
             <canvas id="pieChart" width="700" height="700"></canvas>
@@ -61,12 +67,37 @@
 <script>
     graphs = [];
     function drawCharts(){
-        // wait for page to load fully
-        // isDark 
+        // destroy old chart
+        for(var i=0;i<graphs.length;i++){
+            graphs[i].destroy();
+        }
         var isDark = document.body.classList.contains("dark-theme");
-        console.log(isDark);
         var fontcolor = isDark == true ? 'white' : 'black';
         Chart.defaults.color = fontcolor;
+        var wordcloud_data = {{notes|tojson}};
+        var ctx = document.getElementById('wordcloud').getContext('2d');
+        var wordcloud = new Chart(ctx, {
+            type: "wordCloud",
+            data: {
+              labels: Object.keys(wordcloud_data),
+              datasets: [
+                {
+                  label: "",
+                  data: Object.values(wordcloud_data)
+                }
+              ]
+            },
+            options: {
+              plugins: {
+                legend: {
+                  display: false
+                },
+                labels: {
+                    display: false
+                }
+              }
+            }
+          });
         var ctx = document.getElementById('myChart').getContext('2d');
         var times = {{times|safe}};
         var counts = {{counts|safe}};
@@ -76,10 +107,6 @@
             var b = Math.floor(Math.random()*255);
             var a = 0.5;
             return "rgba("+r+","+g+","+b+" ,"+a+")";
-        }
-        // check if there was already a chart. if yes. destroy it 
-        for(var i=0;i<graphs.length;i++){
-            graphs[i].destroy();
         }
 
 
@@ -106,9 +133,6 @@
 
         var ctx = document.getElementById('pieChart').getContext('2d');
         var users = {{clip_users|tojson}};
-        if (pieChart != null) {
-            pieChart.destroy();
-        }
         var pieChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -175,9 +199,6 @@
                 }
             }
         };
-        if (speedData != null) {
-            speedData.destroy();
-        }
         var speedData = new Chart(speedCanvas, config);
         // set chart size to 800 x 800
         //speedData.canvas.parentNode.style.height = '850px';
@@ -215,7 +236,7 @@
         });
         //timedistribution.canvas.parentNode.style.height = '850px';
         //timedistribution.canvas.parentNode.style.width = '1200px';
-        graphs = [lineChart, pieChart, speedData, timedistribution];
+        graphs = [lineChart, pieChart, speedData, timedistribution, wordcloud];
     }
     document.addEventListener("DOMContentLoaded" , function(){
         drawCharts();
