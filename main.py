@@ -2,8 +2,6 @@ from flask import Flask, request, render_template, redirect, url_for, send_file,
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import subprocess
-import schedule
-import threading
 import os
 from json import load, dump
 import time
@@ -300,11 +298,6 @@ def periodic_task():
     else:
         print("No management webhook found")
         
-
-def run_scheduled_jobs():
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
 
 @app.context_processor
 def inject_mini_stats():
@@ -1298,13 +1291,6 @@ def video(clip_id):
         clip += ".mp4"
     download_lock = False
     return send_file(clip, as_attachment=True)
-
-if not local:
-    schedule.every(10).minutes.do(periodic_task)
-    scheduler_thread = threading.Thread(target=run_scheduled_jobs)
-    scheduler_thread.start()
-    # we don't need to send logs and backup to discord if we are running locally
-
 
 channel_info = {}
 with conn:
