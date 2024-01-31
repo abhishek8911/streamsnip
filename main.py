@@ -1307,6 +1307,8 @@ if not local:
     schedule.every(10).minutes.do(periodic_task)
     scheduler_thread = threading.Thread(target=run_scheduled_jobs)
     scheduler_thread.start()
+    scheduler_thread.setName("Scheduler Thread")
+    schedule.run_all()
     # we don't need to send logs and backup to discord if we are running locally
 
 
