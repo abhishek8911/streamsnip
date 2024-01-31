@@ -292,10 +292,6 @@ def periodic_task():
         management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")
         management_webhook.add_file(file=open("record.log", "rb"), filename="record.log")
         management_webhook.content = f"<t:{int(time.time())}:F>"
-        if not requested_myself:
-            os.system(f"curl {base_domain}")
-            requested_myself = True
-            management_webhook.content += "\nRequested myself"
         try:
             management_webhook.execute()
         except request.exceptions.MissingSchema:
