@@ -284,20 +284,6 @@ def download_and_store(clip_id) -> str:
     if files:
         return files[0]
 
-def periodic_task():
-    if management_webhook_url:
-        management_webhook = create_managment_webhook()
-        management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")
-        management_webhook.add_file(file=open("record.log", "rb"), filename="record.log")
-        management_webhook.content = f"<t:{int(time.time())}:F>"
-        try:
-            management_webhook.execute()
-        except request.exceptions.MissingSchema:
-            print("Invalid webhook url")
-            return
-    else:
-        print("No management webhook found")
-        
 
 @app.context_processor
 def inject_mini_stats():
