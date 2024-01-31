@@ -1195,13 +1195,23 @@ def delete(clip_id=None):
     except ValueError:
         return "Clip ID should be in format of 3 characters + time in seconds"
     channel_id = channel.get("providerId")[0]
-    clip = get_clip(clip_id, channel_id)
-    if not clip:
-        return "Clip ID not found"
-    if clip.delete(conn):
-        return f"Deleted clip ID {clip_id}."
-    else:
-        return "ERROR, Please contact Developers."
+    returning_str = ""
+    errored_str = ""
+    for c in clip_id.split(" "):
+        clip = get_clip(c, channel_id)
+        if not clip:
+            errored_str += f" {c}"
+            continue
+        if clip.delete(conn):
+            returning_str += f" {c}"
+        else:
+            errored_str += f" {c}"
+    if returning_str:
+        returning_str = "Deleted clips with id" + returning_str
+    if errored_str:
+        errored_str = "Couldn't delete clips with id" + errored_str
+    return returning_str + errored_str
+
 
 
 @app.route("/edit/<xxx>")
