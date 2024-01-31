@@ -52,7 +52,7 @@ owner_icon = "👑"
 mod_icon = "🔧"
 regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
-allowed_ip = []  # store the nightbot ips here. or your own ip for testing purpose
+allowed_ip = ["127.0.0.1"]  # store the nightbot ips here. or your own ip for testing purpose
 with conn:
     cur = conn.cursor()
     cur.execute(
@@ -1194,7 +1194,10 @@ def delete(clip_id=None):
     returning_str = ""
     errored_str = ""
     for c in clip_id.split(" "):
-        clip = get_clip(c, channel_id)
+        try:
+            clip = get_clip(c, channel_id)
+        except ValueError:
+            clip = None
         if not clip:
             errored_str += f" {c}"
             continue
