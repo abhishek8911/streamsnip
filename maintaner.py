@@ -8,7 +8,7 @@ management_webhook_url = json.load(open("creds.json", "r")).get('management_webh
 if not management_webhook_url:
     exit("No management webhook found")
 
-
+DiscordWebhook(url=management_webhook_url, content="Maintainer started").execute()
 def periodic_task():
     management_webhook = DiscordWebhook(url=management_webhook_url)
     management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")

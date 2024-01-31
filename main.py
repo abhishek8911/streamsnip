@@ -101,22 +101,13 @@ except FileNotFoundError:
         creds = {}
 management_webhook_url = creds.get("management_webhook", None)
 management_webhook = None
-def create_managment_webhook():
-    if not management_webhook_url:
-        return None
-    wh = DiscordWebhook(
-        url=management_webhook_url,
-        allowed_mentions={"role": [], "user": [], "everyone": False},
-    )
-    return wh
 if management_webhook_url and not local:
-    management_webhook = create_managment_webhook() # we implement this function because we have to recreate this wh again and again to use.
+    management_webhook = DiscordWebhook(management_webhook_url) # we implement this function because we have to recreate this wh again and again to use.
     management_webhook.content = "Bot started"
     try:
         management_webhook.execute()
     except request.exceptions.MissingSchema:
         pass
-    management_webhook = create_managment_webhook()
 
 
 def get_clip(clip_id, channel=None) -> Optional[Clip]:
