@@ -1190,10 +1190,6 @@ def delete(clip_id=None):
         channel = parse_qs(request.headers["Nightbot-Channel"])
     except KeyError:
         return "Not able to auth"
-    try:
-        tis = int(clip_id[3:])
-    except ValueError:
-        return "Clip ID should be in format of 3 characters + time in seconds"
     channel_id = channel.get("providerId")[0]
     returning_str = ""
     errored_str = ""
