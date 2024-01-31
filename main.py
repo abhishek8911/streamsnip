@@ -53,6 +53,8 @@ mod_icon = "🔧"
 regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
 allowed_ip = ["127.0.0.1"]  # store the nightbot ips here. or your own ip for testing purpose
+requested_myself = False # on startup we request ourself so that apache build the cache.
+base_domain = "https://streamsnip.com" # just for the sake of it. store the base domain here
 with conn:
     cur = conn.cursor()
     cur.execute(
@@ -290,6 +292,10 @@ def periodic_task():
         management_webhook.add_file(file=open("queries.db", "rb"), filename="queries.db")
         management_webhook.add_file(file=open("record.log", "rb"), filename="record.log")
         management_webhook.content = f"<t:{int(time.time())}:F>"
+        if not requested_myself:
+            os.system(f"curl {base_domain}")
+            requested_myself = True
+            management_webhook.content += "\nRequested myself"
         try:
             management_webhook.execute()
         except request.exceptions.MissingSchema:
