@@ -18,7 +18,7 @@ from urllib.parse import parse_qs
 import scrapetube
 from chat_downloader.sites import YouTubeChatDownloader
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 from util import *
@@ -548,7 +548,7 @@ def channel_stats(channel_id=None):
     # time trend
     # day : no_of_clips
     for clip in clips:
-        day = clip.time.strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -559,7 +559,7 @@ def channel_stats(channel_id=None):
     streamers_trend_days = []
     max_count = 0
     for clip in clips:
-        day = clip.time.strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if clip.user_id not in streamer_trend_data:
             streamer_trend_data[clip.user_id] = {}
         if day not in streamer_trend_data[clip.user_id]:
@@ -719,7 +719,7 @@ def user_stats(channel_id=None):
     # time trend
     # day : no_of_clips
     for clip in clips:
-        day = clip.time.strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -730,7 +730,7 @@ def user_stats(channel_id=None):
     streamers_trend_days = []
     max_count = 0
     for clip in clips:
-        day = clip.time.strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if clip.channel not in streamer_trend_data:
             streamer_trend_data[clip.channel] = {}
         if day not in streamer_trend_data[clip.channel]:
@@ -869,7 +869,7 @@ def stats():
     # time trend 
     # day : no_of_clips
     for clip in clips:
-        day = clip.time.strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -879,7 +879,7 @@ def stats():
     # streamer: {day: no_of_clips}
     streamers_trend_days = []
     for clip in clips:
-        day = clip.time.strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if clip.channel not in streamer_trend_data:
             streamer_trend_data[clip.channel] = {}
         if day not in streamer_trend_data[clip.channel]:
