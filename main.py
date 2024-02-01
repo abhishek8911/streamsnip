@@ -300,7 +300,6 @@ def before_request():
     # if request is for /clip or /delete or /edit then check if its from real 
     if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
         ip = request.remote_addr
-        return
         if ip in allowed_ip:
             print(f"Request from {ip} is allowed, known ip")
             return
