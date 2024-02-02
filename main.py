@@ -53,6 +53,8 @@ subscriber_icon = "⭐"
 allowed_ip = ["127.0.0.1"]  # store the nightbot ips here. or your own ip for testing purpose
 requested_myself = False # on startup we request ourself so that apache build the cache.
 base_domain = "https://streamsnip.com" # just for the sake of it. store the base domain here
+chat_id_video = {} # store chat_id: vid. to optimize clip command
+
 with conn:
     cur = conn.cursor()
     cur.execute(
@@ -362,7 +364,7 @@ def slash():
 def get_ip():
     return request.remote_addr
 
-
+# this is for nightbot to give back export link
 @app.route("/export")
 def export():
     try:
@@ -376,6 +378,7 @@ def export():
         htt = "http://"
     return f"You can download the export from {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
+# this is for ALL CLIPS 
 @app.route("/e")
 @app.route("/exports")
 @app.route("/e/")
@@ -395,6 +398,7 @@ def clips():
         channel_id="all"
         )
 
+# this is for specific channel
 @app.route("/exports/<channel_id>")
 @app.route("/e/<channel_id>")
 def exports(channel_id=None):
@@ -1054,7 +1058,13 @@ def clip(message_id, clip_desc=None):
     user_level = user.get("userLevel")[0]
     user_id = user.get("providerId")[0]
     user_name = user.get("displayName")[0]
-    vid = get_latest_live(channel_id)
+    if message_id in chat_id_video:
+        vid = chat_id_video[message_id]
+    else:
+        vid = get_latest_live(channel_id)
+        chat_id_video[message_id] = vid
+    if not vid:
+        return "No LiveStream Found."
     clip_time = request_time - vid["start_time"] / 1000000 + 5 
     clip_time += delay
     url = "https://youtu.be/" + vid["original_video_id"] + "?t=" + str(int(clip_time))
