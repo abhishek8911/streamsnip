@@ -3,6 +3,7 @@ from discord_webhook import DiscordWebhook, DiscordEmbed
 import time
 import requests as request
 import os
+import psutil
 
 management_webhook_url = None
 management_webhook_url = json.load(open("creds.json", "r")).get('management_webhook', None)
@@ -25,6 +26,11 @@ def periodic_task():
         management_webhook.execute()
     except request.exceptions.MissingSchema:
         exit("Invalid webhook URL")
+    if psutil.virtual_memory().percent > 90:
+        management_webhook = DiscordWebhook(url=management_webhook_url, content="Memory usage is high")
+        management_webhook.execute()
+        # restart the system
+        os.system("reboot")
         
 while True:
     periodic_task()
