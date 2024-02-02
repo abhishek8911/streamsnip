@@ -21,7 +21,7 @@ def periodic_task():
     management_webhook.add_file(file=open("file.txt", "rb"), filename="processes.txt")
     management_webhook.add_file(file=open("/var/log/apache2/error.log", "rb"), filename="error.log")
     management_webhook.add_file(file=open("/var/log/apache2/access.log", "rb"), filename="access.log")
-    management_webhook.add_file(file=open("creds.json", "rb"), filename="creds.json")
+    #management_webhook.add_file(file=open("creds.json", "rb"), filename="creds.json")
     # consturct a string that contains most important vitals of system
     # and send it to the webhook
     system_vitals = f"CPU: {psutil.cpu_percent()}%\nMemory: {psutil.virtual_memory().percent}%\nDisk: {psutil.disk_usage('/').percent}%"
