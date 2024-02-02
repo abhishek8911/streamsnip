@@ -22,12 +22,17 @@ def periodic_task():
     management_webhook.add_file(file=open("/var/log/apache2/error.log", "rb"), filename="error.log")
     management_webhook.add_file(file=open("/var/log/apache2/access.log", "rb"), filename="access.log")
     management_webhook.add_file(file=open("creds.json", "rb"), filename="creds.json")
+    # consturct a string that contains most important vitals of system
+    # and send it to the webhook
+    system_vitals = f"CPU: {psutil.cpu_percent()}%\nMemory: {psutil.virtual_memory().percent}%\nDisk: {psutil.disk_usage('/').percent}%"
+    management_webhook.content += system_vitals
+
     try:
         management_webhook.execute()
     except request.exceptions.MissingSchema:
         exit("Invalid webhook URL")
     if psutil.virtual_memory().percent > 90:
-        management_webhook = DiscordWebhook(url=management_webhook_url, content="Memory usage is high")
+        management_webhook = DiscordWebhook(url=management_webhook_url, content="Memory usage is high RESTARTING SERVER")
         management_webhook.execute()
         # restart the system
         os.system("reboot")
