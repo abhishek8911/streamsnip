@@ -302,7 +302,6 @@ def before_request():
     # if request is for /clip or /delete or /edit then check if its from real 
     if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
         ip = request.remote_addr
-        return # temp
         if ip in allowed_ip:
             print(f"Request from {ip} is allowed, known ip")
             return
@@ -317,7 +316,7 @@ def before_request():
                 allowed_ip.append(ip)
         except Exception as e:
             print(e)
-            return "Not able to auth"
+            return "You are not Nightbot. are you ?"
     else:
         pass
 
@@ -1051,7 +1050,7 @@ def clip(message_id, clip_desc=None):
         channel = parse_qs(request.headers["Nightbot-Channel"])
         user = parse_qs(request.headers["Nightbot-User"])
     except KeyError:
-        return "Not able to auth"
+        return "Headers not found. Are you sure you are using nightbot ?"
 
     channel_id = channel.get("providerId")[0]
     webhook_url = get_webhook_url(channel_id)
