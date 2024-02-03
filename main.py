@@ -306,9 +306,12 @@ def before_request():
             #print(f"Request from {ip} is allowed, known ip")
             return
         addrs = dns.reversename.from_address(ip)
-        if not str(dns.resolver.resolve(addrs, "PTR")[0]).endswith(
-            ".nightbot.net."
-        ):
+        try:
+            if not str(dns.resolver.resolve(addrs, "PTR")[0]).endswith(
+                ".nightbot.net."
+            ):
+                raise ValueError("Not a nightbot request")
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, ValueError):
             return f"You are not Nightbot. are you ?, your ip {ip}"
         else:
             #print(f"Request from {ip} is allowed")
