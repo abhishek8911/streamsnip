@@ -303,20 +303,16 @@ def before_request():
     if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
         ip = request.remote_addr
         if ip in allowed_ip:
-            print(f"Request from {ip} is allowed, known ip")
+            #print(f"Request from {ip} is allowed, known ip")
             return
         addrs = dns.reversename.from_address(ip)
-        try:
-            if not str(dns.resolver.resolve(addrs, "PTR")[0]).endswith(
-                ".nightbot.net."
-            ):
-                raise ValueError("Not a nightbot request")
-            else:
-                print(f"Request from {ip} is allowed")
-                allowed_ip.append(ip)
-        except Exception as e:
-            print(e)
-            return "You are not Nightbot. are you ?"
+        if not str(dns.resolver.resolve(addrs, "PTR")[0]).endswith(
+            ".nightbot.net."
+        ):
+            return f"You are not Nightbot. are you ?, your ip {ip}"
+        else:
+            #print(f"Request from {ip} is allowed")
+            allowed_ip.append(ip)
     else:
         pass
 
