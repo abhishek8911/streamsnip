@@ -384,6 +384,7 @@ def export():
 @app.route("/exports/")
 def clips():
     data = get_channel_clips()
+    data = [x.json() for x in data]
     return render_template(
         "export.html", 
         data=data,
@@ -411,6 +412,7 @@ def exports(channel_id=None):
             url_for("slash")
         )  # if channel is not found then redirect to home page
     data = get_channel_clips(channel_id)
+    data = [x.json() for x in data]
     return render_template(
         "export.html",
         data=data,
