@@ -214,7 +214,6 @@ def take_screenshot(video_url: str, seconds: int) -> str:
 
 def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[Clip]:
     clips = get_channel_clips(channel_id)
-    print(clips[0])
     for clip in clips:
         if clip_desc.lower() in clip.desc.lower():
             return clip
@@ -1229,7 +1228,7 @@ def search(clip_desc=None):
         return "Not able to auth"
     clip = get_clip_with_desc(clip_desc, channel.get("providerId")[0])
     if clip:
-        return clip['link']
+        return clip.stream_link
     return "Clip not found"
 
 
