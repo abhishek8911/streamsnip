@@ -8,7 +8,7 @@ cronitor.api_key = config["api_key"]
 headers = {
     "Nightbot-Response-Url": "https://api.nightbot.tv/1/channel/send/",
     "Nightbot-User": "name=Suraj&displayName=Suraj&provider=youtube&providerId=UCbZZmB8L3IEHutGbvpWo9Ow&userLevel=owner",
-    "Nightbot-Channel": "name=Suraj&displayName=Suraj&provider=youtube&providerId=UCbZZmB8L3IEHutGbvpWo9Ow"
+    "Nightbot-Channel": "name=Lofi%20Girl&displayName=Lofi%20Girl&provider=youtube&providerId=UCSJ4gkVC6NrvII8umztf0Ow"
 }
 first_iteration = True
 monitor = cronitor.Monitor.put(

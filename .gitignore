@@ -2,3 +2,4 @@ creds.json
 queries.db
 record.log
 *.pyc
+testing_config.json
