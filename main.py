@@ -910,27 +910,8 @@ def stats():
 
 @app.route("/admin")
 def admin():
-    clip_ids = []
-    with conn:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM QUERIES")
-        data = cur.fetchall()
-    for clip in data:
-        clip_id = clip[1][-3:] + str(int(clip[4]))
-        clip_ids.append(clip_id)
-    clip_ids.sort()
-    clip_ids.reverse()
-    channels = []
-    with conn:
-        cur = conn.cursor()
-        cur.execute("SELECT channel_id FROM QUERIES")
-        data = cur.fetchall()
-    for x in data:
-        if x[0] not in channels:
-            channels.append(x[0])
-    data = {}
-    for channel in channels:
-        data[channel] = get_channel_clips(channel)
+    clips = get_channel_clips()
+    clip_ids = [x.id for x in clips]
     return render_template("admin.html", ids=clip_ids, data=data)
 
 @app.route("/ed", methods=["POST"])
