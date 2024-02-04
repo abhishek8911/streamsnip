@@ -912,7 +912,7 @@ def stats():
 def admin():
     clips = get_channel_clips()
     clip_ids = [x.id for x in clips]
-    return render_template("admin.html", ids=clip_ids, data=data)
+    return render_template("admin.html", ids=clip_ids)
 
 @app.route("/ed", methods=["POST"])
 def edit_delete():
