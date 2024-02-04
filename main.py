@@ -163,8 +163,12 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
     soup = BeautifulSoup(html_data, "html.parser")
-    channel_image = soup.find("meta", property="og:image")["content"]
-    channel_name = soup.find("meta", property="og:title")["content"]
+    try:
+        channel_image = soup.find("meta", property="og:image")["content"]
+        channel_name = soup.find("meta", property="og:title")["content"]
+    except TypeError: # in case the channel is deleted or not found
+        channel_image = "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
+        channel_name = "<deleted channel>"
     return channel_name, channel_image
 
 
