@@ -142,7 +142,7 @@ def get_channel_clips(channel_id=None) -> [Clip]:
     l = []    
     for y in data:
         x = Clip(y)
-        l.append(x.json())
+        l.append(x)
     l.reverse()
     return l
 
@@ -214,8 +214,9 @@ def take_screenshot(video_url: str, seconds: int) -> str:
 
 def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[Clip]:
     clips = get_channel_clips(channel_id)
+    print(clips[0])
     for clip in clips:
-        if clip_desc.lower() in clip['message'].lower():
+        if clip_desc.lower() in clip.desc.lower():
             return clip
     return None
 
