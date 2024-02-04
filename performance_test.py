@@ -24,8 +24,13 @@ while True:
     #Or, you can embed telemetry events directly in your code
     monitor.ping(state='run')
     
-    r = get("https://streamsnip.com/clip/PERFORMANCE-TEST/PERFORMANCE-TEST", headers=headers)
-    print(r.text)
+    while True:
+        r = get("https://streamsnip.com/clip/PERFORMANCE-TEST/PERFORMANCE-TEST", headers=headers)
+        if "no" not in r.text.lower():
+            break
+        if r.status_code != 200:
+            monitor.ping(state='fail')
+            continue
     if r.status_code != 200:
         monitor.ping(state='fail')
         continue
