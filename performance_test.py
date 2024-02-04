@@ -17,9 +17,8 @@ monitor = cronitor.Monitor.put(
     schedule='*/5 * * * *',
 )
 while True:
-    # sleep for 5 minutes
-    if not first_iteration:
-        time.sleep(300)
+    while int(time.time()) % 300 != 0:
+        continue
     first_iteration = False
     start_time = time.time() 
     #Or, you can embed telemetry events directly in your code
