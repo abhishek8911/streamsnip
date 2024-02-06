@@ -17,7 +17,7 @@ import scrapetube
 from chat_downloader.sites import YouTubeChatDownloader
 import logging
 from datetime import datetime, timedelta
-
+import cronitor
 
 from util import *
 from Clip import Clip
@@ -37,6 +37,11 @@ logging.basicConfig(
     filename='./record.log', 
     level=logging.DEBUG, 
     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+)
+
+monitor = cronitor.Monitor.put(
+    key='Streamsnip-Clips-Performance',
+    type='job'
 )
 
 
@@ -1028,6 +1033,7 @@ def clip(message_id, clip_desc=None):
     except ValueError:
         return "Delay should be an integer (plus or minus)"
     request_time = time.time()
+    monitor.ping(state='run')
     if not message_id:
         return "No message id provided, You have configured it wrong. please contact AG at https://discord.gg/2XVBWK99Vy"
     if not clip_desc:
@@ -1142,6 +1148,7 @@ def clip(message_id, clip_desc=None):
             ),
         )
         conn.commit()
+    monitor.ping(state='complete')
     if silent == 2:
         return message_to_return
     elif silent == 1:
