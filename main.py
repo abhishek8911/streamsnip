@@ -39,6 +39,9 @@ logging.basicConfig(
     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
 )
 
+testing = load(open('testing_config.json', "r"))
+cronitor.api_key = testing["api_key"]
+
 monitor = cronitor.Monitor.put(
     key='Streamsnip-Clips-Performance',
     type='job'
