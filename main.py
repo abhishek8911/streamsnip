@@ -12,9 +12,11 @@ from discord_webhook import DiscordWebhook
 import sqlite3
 from typing import Optional, Tuple
 
+from urllib import parse
 from urllib.parse import parse_qs
 import scrapetube
 from chat_downloader.sites import YouTubeChatDownloader
+from chat_downloader import ChatDownloader 
 import logging
 from datetime import datetime, timedelta
 import cronitor
@@ -35,17 +37,20 @@ else:
 
 logging.basicConfig(
     filename='./record.log', 
-    level=logging.DEBUG, 
+    level=logging.ERROR, 
     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
 )
 
 testing = load(open('testing_config.json', "r"))
 cronitor.api_key = testing["api_key"]
 
-monitor = cronitor.Monitor.put(
-    key='Streamsnip-Clips-Performance',
-    type='job'
-)
+if not local:
+    monitor = cronitor.Monitor.put(
+        key='Streamsnip-Clips-Performance',
+        type='job'
+    )
+else:
+    monitor = None
 
 
 app = Flask(__name__)
@@ -370,6 +375,15 @@ def slash():
     """
     return render_template("home.html", data=returning)
 
+
+def get_video_id(video_link):
+    x = parse.urlparse(video_link)
+    to_return = ""
+    if x.path =="/watch":
+        to_return = x.query.replace("v=","")
+    if "/live/" in x.path:
+        to_return = x.path.replace("/live/","")
+    return to_return.split("&")[0]   
 
 @app.route("/ip")
 def get_ip():
@@ -988,6 +1002,114 @@ def get_latest_live(channel_id):
     vid = YouTubeChatDownloader().get_video_data(video_id=vid["videoId"])
     return vid
 
+@app.route("/add", methods=["POST", "GET"])
+def add():
+    if request.method == "GET":
+        return render_template(
+            "add.html",
+            link = "enter link",
+            desc= "!clip",
+            password="password"
+            )
+    else:
+        data = request.form
+        if data.get("new") == "Submit":
+            link = data.get("link", None)
+            desc = data.get("command", None)
+            if not desc:
+                desc = "!clip"
+            password = data.get("password", None)
+            if not link or not password:
+                return "Link/command/password not found"
+            vid_id = get_video_id(link)
+            if not vid_id:
+                return "Invalid link"
+            vid = YouTubeChatDownloader().get_video_data(video_id=vid_id)
+            streamer_id = vid["author_id"]
+            if not password == get_webhook_url(streamer_id):
+                return "Invalid password"
+            right_chats = []
+            channel_clips = get_channel_clips(streamer_id)
+            # rasterize the chat from delay
+            xx = []
+            for clip in channel_clips:
+                if clip.delay:
+                    clip.time_in_seconds -= clip.delay
+                    clip.delay = 0
+                if vid_id != clip.stream_id:
+                    continue
+                d = {
+                    "id": clip.id,
+                    "desc": clip.desc,
+                }
+                xx.append(d)
+            with conn:
+                for chat in ChatDownloader().get_chat(vid_id):
+                    flag = False
+                    time = int(chat["time_in_seconds"])
+                    for x in xx:
+                        if chat["message"] == f"{desc} {x['desc']}":
+                            flag = True
+                            break
+                    if flag:
+                        continue
+                    if chat["message_type"] == "text_message":
+                        if chat["message"].startswith(desc):
+                            right_chats.append(chat)
+            return render_template(
+                "add.html", 
+                link= link,
+                desc= desc,
+                password = password,
+                chats=right_chats
+                )
+        else:
+            # second time
+            link = data.get("link", None)
+            vid_id = get_video_id(link)
+            delay = data.get("delay")
+            if not delay:
+                delay = 0
+            vid = YouTubeChatDownloader().get_video_data(video_id=vid_id)
+            password = data.get("password", None)
+            streamer_id = vid["author_id"]
+            if not password == get_webhook_url(streamer_id):
+                return "Invalid password"
+            right_chats = []
+            for chat in ChatDownloader().get_chat(vid_id):
+                if chat["message_id"] in data.keys():
+                    right_chats.append(chat)
+            response = ""
+            for chat in right_chats:
+                clip_message = " ".join(chat["message"].split(" ")[1:])
+                chat_id = vid_id
+                user_level = parse_user_badges(chat["author"]["badges"])
+                headers = {
+                    "Nightbot-Channel": f"providerId={streamer_id}",
+                    "Nightbot-User": f"providerId={chat['author']['id']}&displayName={chat['author']['name']}&userLevel={user_level}",
+                    "Nightbot-Response-Url": "https://api.nightbot.tv/1/channel/send/"
+                }
+                if local:
+                    link = f"http://localhost/clip/{chat_id}/{clip_message}"
+                else:
+                    link = f"https://localhost/clip/{chat_id}/{clip_message}"
+                r = get(link, headers=headers)
+                response += r.text + "\n"
+            return "Done" + "\n" + response
+
+def parse_user_badges(badges) -> str:
+   """owner - Channel Owner
+    moderator - Channel Moderator
+    subscriber - Paid Channel Subscriber
+    everyone"""
+   badges = [x['title'].split(" ")[0].lower() for x in badges]
+   if "owner" in badges:
+       return "owner"
+   if "moderator" in badges:
+        return "moderator"
+   if "member" in badges:
+       return "subscriber"
+   return "everyone"
 @app.route("/uptime")
 def uptime():
     # returns the uptime of the bot
@@ -1036,7 +1158,8 @@ def clip(message_id, clip_desc=None):
     except ValueError:
         return "Delay should be an integer (plus or minus)"
     request_time = time.time()
-    monitor.ping(state='run')
+    if not local:
+        monitor.ping(state='run')
     if not message_id:
         return "No message id provided, You have configured it wrong. please contact AG at https://discord.gg/2XVBWK99Vy"
     if not clip_desc:
@@ -1151,7 +1274,8 @@ def clip(message_id, clip_desc=None):
             ),
         )
         conn.commit()
-    monitor.ping(state='complete')
+    if not local:
+        monitor.ping(state='complete')
     if silent == 2:
         return message_to_return
     elif silent == 1:

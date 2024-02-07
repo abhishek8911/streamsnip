@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block head_content %}
+{% endblock %}
+
+{% block content %}
+<center>
+    <form action="/add" method="post">
+        <input type="text" name="link" value="{{link}}">
+        <input type="text" name="command" value="{{desc}}">
+        <input type="text" name="password" value="{{password}}">
+        <input type="submit" value="Submit" name="new">
+    <table border=5>
+        <tr>
+            <th>User</th>
+            <th>Chat</th>
+            <th>Time</th>
+            <th>Select</th>
+        </tr>
+    {% for chat in chats%}
+    <!-- a table with a tick to select it -->
+        <tr>
+            <td>{{chat.author.name}}</td>
+            <td>{{chat.message}}</td>
+            <td>{{chat.time_text}}</td>
+            <td>
+                <input type="checkbox" id="{{chat.message_id}}" name="{{chat.message_id}}" value="">
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    <label for="delay">Delay in seconds:</label>
+    <input type"text" name="delay" value="0">
+
+    <input type="submit" value="Submit" name="add">
+
+
+</center>
+{% endblock %}
