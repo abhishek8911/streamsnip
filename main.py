@@ -518,6 +518,8 @@ def channel_stats(channel_id=None):
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
     new_dict['Others'] = sum(list(user_clips.values())[max_count:])
+    if new_dict['Others'] == 0:
+        new_dict.pop('Others')
     user_clips = new_dict
     top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
     new = []
@@ -598,6 +600,8 @@ def channel_stats(channel_id=None):
             if day not in new_dict['Others']:
                 new_dict['Others'][day] = 0
             new_dict['Others'][day] += count
+    if new_dict['Others'] == {}:
+        new_dict.pop('Others')
     streamer_trend_data = new_dict
     time_distribution = {}
     for x in range(24):
@@ -690,6 +694,8 @@ def user_stats(channel_id=None):
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
     new_dict['Others'] = sum(list(user_clips.values())[max_count:])
+    if new_dict['Others'] == 0:
+        new_dict.pop('Others')
     user_clips = new_dict        
     new = []
     count = 0
@@ -769,6 +775,8 @@ def user_stats(channel_id=None):
             if day not in new_dict['Others']:
                 new_dict['Others'][day] = 0
             new_dict['Others'][day] += count
+    if new_dict['Others'] == {}:
+        new_dict.pop('Others')
     streamer_trend_data = new_dict
     time_distribution = {}
     for x in range(24):
