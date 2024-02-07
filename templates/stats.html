@@ -170,7 +170,7 @@
         var oglabels = {{streamers_labels|tojson}};
         var dates = {{streamers_trend_days|tojson}};
         var datasets = [];
-        for (var i = 1; i < Object.keys(rawData).length; i++) {
+        for (var i = 0; i < Object.keys(rawData).length; i++) {
             var key = Object.keys(rawData)[i];
             var dataset = {
                 label: key,
