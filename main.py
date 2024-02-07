@@ -553,7 +553,7 @@ def channel_stats(channel_id=None):
     # time trend
     # day : no_of_clips
     for clip in clips:
-        day = (clip.time ).strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -564,7 +564,7 @@ def channel_stats(channel_id=None):
     streamers_trend_days = []
     max_count = 0
     for clip in clips:
-        day = (clip.time ).strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if clip.user_id not in streamer_trend_data:
             streamer_trend_data[clip.user_id] = {}
         if day not in streamer_trend_data[clip.user_id]:
@@ -607,7 +607,7 @@ def channel_stats(channel_id=None):
     for x in range(24):
         time_distribution[x] = 0
     for clip in clips:
-        hm = int(clip.time.strftime("%H"))
+        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
     message = f"Channel Stats for {streamer_name}. {user_count} users clipped\n{clip_count} clips till now. \nand counting."
     return render_template(
@@ -728,7 +728,7 @@ def user_stats(channel_id=None):
     # time trend
     # day : no_of_clips
     for clip in clips:
-        day = (clip.time ).strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -739,7 +739,7 @@ def user_stats(channel_id=None):
     streamers_trend_days = []
     max_count = 0
     for clip in clips:
-        day = (clip.time ).strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if clip.channel not in streamer_trend_data:
             streamer_trend_data[clip.channel] = {}
         if day not in streamer_trend_data[clip.channel]:
@@ -782,7 +782,7 @@ def user_stats(channel_id=None):
     for x in range(24):
         time_distribution[x] = 0
     for clip in clips:
-        hm = int(clip.time.strftime("%H"))
+        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))     
         time_distribution[hm] += 1
     message = f"User Stats for {streamer_name}. Clipped\n{clip_count} clips in {user_count} channels till now. and counting."
     return render_template(
@@ -880,7 +880,7 @@ def stats():
     # time trend 
     # day : no_of_clips
     for clip in clips:
-        day = (clip.time ).strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -890,7 +890,7 @@ def stats():
     # streamer: {day: no_of_clips}
     streamers_trend_days = []
     for clip in clips:
-        day = (clip.time ).strftime("%Y-%m-%d")
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if clip.channel not in streamer_trend_data:
             streamer_trend_data[clip.channel] = {}
         if day not in streamer_trend_data[clip.channel]:
@@ -915,7 +915,7 @@ def stats():
     for x in range(24):
         time_distribution[x] = 0
     for clip in clips:
-        hm = int(clip.time.strftime("%H"))
+        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
 
     message = f"{user_count} users clipped\n{clip_count} clips on \n{len(user_clips)} channels till now. \nand counting."
