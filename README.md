@@ -29,7 +29,7 @@ If you want to send a discord message. then I would need to add a webhook URL al
 ### Examples:
 
 - `https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=false` - No links, no screenshots.
-- `https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false` - No links, but with screenshots.
+- `https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=true` - No links, but with screenshots.
 - `https://streamsnip.com/clip/$(chatid)/$(querystring)?screenshot=false` - Links provided, no screenshots.
 - `https://streamsnip.com/clip/$(chatid)/$(querystring)?delay=-20` - Set a delay in the past by 20 seconds.
 
