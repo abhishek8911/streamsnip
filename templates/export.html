@@ -17,6 +17,7 @@
             </div>
         </div>
         <a href="/cs/{{channel_id}}"> <button type="button" class="btn btn-primary">Stats for {{channel_name}}</button></a>
+        <!--
         <div class="row">
             <div class="col-md-12">
                 <h2>Raw Data</h2>
@@ -26,7 +27,7 @@
             <div class="col-md-12">
                 <textarea class="form-control" id="raw_data" rows="3"></textarea>
             </div>
-        </div>
+        </div>-->
 
         <div class="row">
             <div class="col-md-12">
@@ -142,7 +143,7 @@
         }
     });
 
-    document.getElementById("raw_data").value = JSON.stringify(data, null, 2);
+    //document.getElementById("raw_data").value = JSON.stringify(data, null, 2);
     document.getElementById("raw_string_data").value = {{ clips_string|tojson }};
     function updateClips() {
         var container = document.getElementById("clips-container");
