@@ -6,3 +6,4 @@ chat_downloader
 scrapetube
 dnspython
 schedule
+cronitor

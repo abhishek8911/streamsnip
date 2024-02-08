@@ -607,7 +607,7 @@ def channel_stats(channel_id=None):
     for x in range(24):
         time_distribution[x] = 0
     for clip in clips:
-        hm = int(clip.time.strftime("%H"))
+        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
     message = f"Channel Stats for {streamer_name}. {user_count} users clipped\n{clip_count} clips till now. \nand counting."
     return render_template(
@@ -782,7 +782,7 @@ def user_stats(channel_id=None):
     for x in range(24):
         time_distribution[x] = 0
     for clip in clips:
-        hm = int(clip.time.strftime("%H"))
+        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))     
         time_distribution[hm] += 1
     message = f"User Stats for {streamer_name}. Clipped\n{clip_count} clips in {user_count} channels till now. and counting."
     return render_template(
@@ -915,7 +915,7 @@ def stats():
     for x in range(24):
         time_distribution[x] = 0
     for clip in clips:
-        hm = int(clip.time.strftime("%H"))
+        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
 
     message = f"{user_count} users clipped\n{clip_count} clips on \n{len(user_clips)} channels till now. \nand counting."
