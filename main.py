@@ -10,7 +10,7 @@ from requests import get
 from flask import request
 from discord_webhook import DiscordWebhook
 import sqlite3
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from urllib import parse
 from urllib.parse import parse_qs
@@ -144,7 +144,7 @@ def get_clip(clip_id, channel=None) -> Optional[Clip]:
     x = Clip(data[0])
     return x
     
-def get_channel_clips(channel_id=None) -> [Clip]:
+def get_channel_clips(channel_id=None) -> List[Clip]:
     with conn:
         cur = conn.cursor()
         if channel_id:
@@ -834,7 +834,7 @@ def stats():
     # sort
     user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
     top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
-    notes = {k: 2+v*2 for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
+    notes = {k: 2*v for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
     notes = dict(list(notes.items())[:200])
     # replace dict_keys with actual channel
     new_dict = {}   
