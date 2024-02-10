@@ -298,15 +298,14 @@ def download_and_store(clip_id) -> str:
 @app.context_processor
 def inject_mini_stats():
     # todays count 
+    if "nightbot" in request.headers['user-agent'].lower():
+        return {}
     today = datetime.strptime(datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d").timestamp()
     with conn:
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM QUERIES WHERE time >= ?", (today,))
         data = cur.fetchall()
-    today_count = data[0][0]
-    with conn:
-        # last clip
-        cur = conn.cursor()
+        today_count = data[0][0]
         cur.execute("SELECT * FROM QUERIES ORDER BY time DESC LIMIT 1")
         data = cur.fetchall()
     if data:
