@@ -13,10 +13,16 @@
     <center>
         <div class="row">
             <div class="col-md-12">
+                {% if channel_id == 'all'%}
                 <h1>{{ channel_name }} - Clips ({{ data|length }})</h1>
+                {% else %}
+                <a href = "https://youtube.com/channel/{{ channel_id }}">
+                <img src="{{ channel_image }}" alt="{{ channel_name }}" class="rounded-circle" style="width: 200px; height: 200px;">
+                <h1> {{ channel_name }} - Clips ({{ data|length }})</h1></a>
+                {% endif %}
             </div>
         </div>
-        <a href="/cs/{{channel_id}}"> <button type="button" class="btn btn-primary">Stats for {{channel_name}}</button></a>
+        <a href="/cs/{{channel_id}}"> <button type="button" class="btn btn-primary">Stats</button></a></br></br>
         <!--
         <div class="row">
             <div class="col-md-12">
@@ -36,7 +42,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <textarea class="form-control" id="raw_string_data" rows="3"></textarea>
+                <textarea readonly class="form-control" id="raw_string_data" rows="3"></textarea>
             </div>
         </div>
         <div class="row">
