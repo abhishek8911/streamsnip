@@ -190,6 +190,7 @@
                 else{
                     thumbnail = `https://i.ytimg.com/vi/${clip['stream_id']}/sddefault.jpg`;
                 }
+                var is_checked = localStorage.getItem(clip['id']) ? 'true' : '';
                 var cardHtml = `<div class="col-md-4 col-lg-3">`;
                 cardHtml += `<div class="card ${getBorderStyle(clip['author']['level'])}" style="width: 100%;">`;
                 cardHtml += `<a href="${clip['link']}" target="_blank" class=${a_class}>`;
@@ -206,6 +207,9 @@
                 cardHtml += `<i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))}</p>`;
                 cardHtml += `</a>`;
                 cardHtml += `</div>`;
+                cardHtml += `<div class="card-footer checkbox-wrapper-2"><input type="checkbox" class="sc-gJwTLC ikxBAC" id=${clip['id']} value=${clip['id']} onclick='handleClick(this);' `
+                cardHtml += is_checked ? 'checked' : '';
+                cardHtml += `>`
                 cardHtml += `</div>`;
                 cardHtml += `</div>`;
                 container.innerHTML += cardHtml;
@@ -244,6 +248,15 @@
                 return '{{ regular_icon }}';
             default:
                 return '';
+        }
+    }
+
+    function handleClick(cb){
+        if(cb.checked){
+            localStorage.setItem(cb.id, true);
+        }
+        else{
+            localStorage.removeItem(cb.id);   
         }
     }
 
