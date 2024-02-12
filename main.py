@@ -335,6 +335,10 @@ def before_request():
     else:
         pass
 
+# this function exists just because google chrome assumes that the favicon is at /favicon.ico 
+@app.route("/favicon.ico")
+def favicon():
+    return send_file("static/favicon.ico")
 
 @app.route("/")
 def slash():
