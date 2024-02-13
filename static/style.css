@@ -110,6 +110,10 @@ a:visited.dark-theme {
 	text-decoration: none;
 }
 
+:root{
+  --bs-border-radius: 2rem;
+}
+
 /* The switch - the box around the slider */
 .switch {
 	position: relative;
