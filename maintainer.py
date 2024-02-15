@@ -54,6 +54,7 @@ def periodic_task():
     for clip in os.listdir("clips"):
         if clip.split('.')[0] not in clip_ids:
             os.remove(f"clips/{clip}")
+            continue
         if clip.endswith(".part"):
             os.remove(f"clips/{clip}")
     need_to_download_ids = [x for x in clip_ids if x not in already_downloaded]
