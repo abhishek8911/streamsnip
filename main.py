@@ -275,7 +275,10 @@ def download_and_store(clip_id) -> str:
         'quiet': True
     }
     with yt_dlp.YoutubeDL(params) as ydl:
-        ydl.download([video_url])
+        try:
+            ydl.download([video_url])
+        except yt_dlp.utils.DownloadError as e:
+            return e
     files = [
         os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
     ]
