@@ -65,7 +65,7 @@ def periodic_task():
     management_webhook.execute()
 
     # Number of threads for downloading
-    num_threads = 10
+    num_threads = 3
 
     # Split `need_to_download_ids` into chunks for each thread
     chunk_size = len(need_to_download_ids) // num_threads
