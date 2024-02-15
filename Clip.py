@@ -42,6 +42,7 @@ class Clip:
         self.ss_id = data[11]
         self.ss_link = data[12]
         self.hms = time_to_hms(self.time_in_seconds)
+        self.download_link = f"/video/{self.id}"
     
     def __str__(self):
         return self.desc
@@ -63,6 +64,7 @@ class Clip:
             "ss_id": self.ss_id,
             "ss_link": self.ss_link
         }
+        x['download_link'] = self.download_link
         return x 
     
     def edit(self, new_desc:str, conn:sqlite3.Connection):
