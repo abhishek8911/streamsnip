@@ -57,7 +57,7 @@ else:
 app = Flask(__name__)
 
 global download_lock
-download_lock = True
+download_lock = False
 conn = sqlite3.connect("queries.db", check_same_thread=False)
 # cur = db.cursor() # this is not thread safe. we will create a new cursor for each thread
 owner_icon = "👑"
@@ -278,7 +278,8 @@ def download_and_store(clip_id) -> str:
         try:
             ydl.download([video_url])
         except yt_dlp.utils.DownloadError as e:
-            return e
+            print(e)
+            return # this video is still live. we can't download it
     files = [
         os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
     ]
@@ -1369,30 +1370,9 @@ def video(clip_id):
     global download_lock
     if download_lock:
         return "Disabled for now. We don't have enough resources to serve you at the moment."
-    download_lock = True
     clip = download_and_store(clip_id)
     if not clip:
-        download_lock = False
         return "Seems like you are trying to download a clip that is currently live. we currently doesn't support that."
-    if ".part" in clip:
-        # rename to mp4
-        while True:
-            try:
-                os.rename(clip, clip.replace(".part", ".mp4"))
-                break
-            except:
-                pass
-        clip = clip.replace(".part", ".mp4")
-    if "." not in clip:
-        # reaname it to mp4
-        while True:
-            try:
-                os.rename(clip, clip + ".mp4")
-                break
-            except:
-                pass
-        clip += ".mp4"
-    download_lock = False
     return send_file(clip, as_attachment=True)
 
 channel_info = {}
