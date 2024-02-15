@@ -46,7 +46,7 @@ def periodic_task():
         # restart the system
         os.system("reboot")
     
-    clips = get_channel_clips()[:500]
+    clips = get_channel_clips()[:250]
     clip_ids = [x.id for x in clips]
     already_downloaded = [x.split('.')[0] for x in os.listdir("clips")]
     need_to_download_ids = []
@@ -61,7 +61,7 @@ def periodic_task():
     management_webhook.execute()
 
     # Number of threads for downloading
-    num_threads = 5
+    num_threads = 10
 
     # Split `need_to_download_ids` into chunks for each thread
     chunk_size = len(need_to_download_ids) // num_threads
