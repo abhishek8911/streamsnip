@@ -3,6 +3,7 @@ import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import subprocess
 import os
+import yt_dlp
 from json import load, dump
 import time
 from bs4 import BeautifulSoup
@@ -265,28 +266,16 @@ def download_and_store(clip_id) -> str:
     l = [timestamp, timestamp + delay]
     start_time = min(l)
     end_time = max(l)
-
-    start_time = time_to_hms(start_time)
-    end_time = time_to_hms(end_time)
-    params = [
-        "yt-dlp",
-        "--output",
-        f"{output_filename}",
-        "--download-sections",
-        f"*{start_time}-{end_time}",
-        "--quiet",
-        "--no-warnings",
-        "--match-filter",
-        "!is_live & live_status!=is_upcoming & availability=public",
-        video_url,
-    ]
+    params = {'download_ranges': yt_dlp.utils.download_range_func([], [[start_time, end_time]]),
+                'match_filter': yt_dlp.utils.match_filter_func("!is_live & live_status!=is_upcoming & availability=public"),
+                'no_warnings': True,
+                'noprogress': True,
+                'outtmpl': {'default': output_filename},
+                'quiet': True
+                }
     current_time = time.time()
-    try:
-        subprocess.run(params, check=True, timeout=60)
-    except subprocess.TimeoutExpired as e:
-        pass
-    except subprocess.CalledProcessError as e:
-        return None
+    with yt_dlp.YoutubeDL(params) as ydl:
+        ydl.download([video_url])
     print("Completed the process in ", time.time() - current_time)
     files = [
         os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
@@ -431,9 +420,6 @@ def clips():
 @app.route("/exports/<channel_id>")
 @app.route("/e/<channel_id>")
 def exports(channel_id=None):
-    channel_link = f"https://youtube.com/channel/{channel_id}"
-    html_data = get(channel_link).text
-    soup = BeautifulSoup(html_data, "html.parser")
     try:
         channel_name, channel_image = get_channel_name_image(channel_id)
     except TypeError:
