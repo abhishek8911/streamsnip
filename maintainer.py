@@ -12,12 +12,12 @@ management_webhook_url = json.load(open("creds.json", "r")).get('management_webh
 if not management_webhook_url:
     exit("No management webhook found")
 
-def download_clips(ids):
+def download_clips(ids, thread_no):
     for clip_id in ids:
         out = download_and_store(clip_id)
         if isinstance(out, str):
             if "error" not in out.lower():
-                management_webhook = DiscordWebhook(url=management_webhook_url, content=f"Downloaded - {out}")
+                management_webhook = DiscordWebhook(url=management_webhook_url, content=f"#{thread_no} - Downloaded - {out}")
                 management_webhook.execute()
 
 DiscordWebhook(url=management_webhook_url, content="Maintainer started").execute()
@@ -71,8 +71,9 @@ def periodic_task():
 
     # Create threads and start downloading
     threads = []
+    thread_count = 1
     for chunk in chunks:
-        thread = threading.Thread(target=download_clips, args=(chunk,))
+        thread = threading.Thread(target=download_clips, args=(chunk,thread_count,))
         thread.start()
         threads.append(thread)
 
