@@ -74,6 +74,7 @@ def periodic_task():
     thread_count = 1
     for chunk in chunks:
         thread = threading.Thread(target=download_clips, args=(chunk,thread_count,))
+        thread_count += 1
         thread.start()
         threads.append(thread)
 
