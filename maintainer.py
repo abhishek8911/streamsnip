@@ -14,7 +14,9 @@ if not management_webhook_url:
 
 def download_clips(ids):
     for clip_id in ids:
-        download_and_store(clip_id)
+        out = download_and_store(clip_id)
+        management_webhook = DiscordWebhook(url=management_webhook_url, content=f"Downloaded - {out}")
+        management_webhook.execute()
 
 DiscordWebhook(url=management_webhook_url, content="Maintainer started").execute()
 def periodic_task():
@@ -50,6 +52,8 @@ def periodic_task():
     # delete clips that are not in clips 
     for clip in os.listdir("clips"):
         if clip.split('.')[0] not in clip_ids:
+            os.remove(f"clips/{clip}")
+        if clip.endswith(".part"):
             os.remove(f"clips/{clip}")
     need_to_download_ids = [x for x in clip_ids if x not in already_downloaded]
     management_webhook = DiscordWebhook(url=management_webhook_url, content=f"Need to download {len(need_to_download_ids)} clips, Already have {len(already_downloaded)} clips")
