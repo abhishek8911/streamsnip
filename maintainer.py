@@ -34,7 +34,7 @@ def periodic_task():
     #management_webhook.add_file(file=open("creds.json", "rb"), filename="creds.json")
     # consturct a string that contains most important vitals of system
     # and send it to the webhook
-    system_vitals = f"CPU: {psutil.cpu_percent()}%\nMemory: {psutil.virtual_memory().percent}%\nDisk: {psutil.disk_usage('/').percent}%"
+    system_vitals = f"{task_count} CPU: {psutil.cpu_percent()}%\nMemory: {psutil.virtual_memory().percent}%\nDisk: {psutil.disk_usage('/').percent}%"
     management_webhook.content += system_vitals
 
     try:
@@ -47,6 +47,8 @@ def periodic_task():
         # restart the system
         os.system("reboot")
     
+    if task_count %30 != 0:
+        return
     clips = get_channel_clips()[:250]
     clip_ids = [x.id for x in clips]
     already_downloaded = [x.split('.')[0] for x in os.listdir("clips")]
@@ -86,6 +88,8 @@ def periodic_task():
     management_webhook = DiscordWebhook(url=management_webhook_url, content="Clips downloaded")
     management_webhook.execute()
 
+task_count = 0
 while True:
+    task_count += 1 
     periodic_task()
     time.sleep(60)
