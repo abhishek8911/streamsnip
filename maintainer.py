@@ -15,9 +15,10 @@ if not management_webhook_url:
 def download_clips(ids):
     for clip_id in ids:
         out = download_and_store(clip_id)
-        if out and "error" not in out.lower():
-            management_webhook = DiscordWebhook(url=management_webhook_url, content=f"Downloaded - {out}")
-            management_webhook.execute()
+        if isinstance(out, str):
+            if "error" not in out.lower():
+                management_webhook = DiscordWebhook(url=management_webhook_url, content=f"Downloaded - {out}")
+                management_webhook.execute()
 
 DiscordWebhook(url=management_webhook_url, content="Maintainer started").execute()
 def periodic_task():
