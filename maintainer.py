@@ -5,11 +5,16 @@ import requests as request
 import os
 import psutil
 from main import * 
+import threading
 
 management_webhook_url = None
 management_webhook_url = json.load(open("creds.json", "r")).get('management_webhook', None)
 if not management_webhook_url:
     exit("No management webhook found")
+
+def download_clips(ids):
+    for clip_id in ids:
+        download_and_store(clip_id)
 
 DiscordWebhook(url=management_webhook_url, content="Maintainer started").execute()
 def periodic_task():
@@ -47,14 +52,11 @@ def periodic_task():
         if clip.split('.')[0] not in clip_ids:
             os.remove(f"clips/{clip}")
     need_to_download_ids = [x for x in clip_ids if x not in already_downloaded]
-    import threading
-
-    def download_clips(ids):
-        for clip_id in ids:
-            download_and_store(clip_id)
+    management_webhook = DiscordWebhook(url=management_webhook_url, content=f"Need to download {len(need_to_download_ids)} clips, Already have {len(already_downloaded)} clips")
+    management_webhook.execute()
 
     # Number of threads for downloading
-    num_threads = 5 
+    num_threads = 5
 
     # Split `need_to_download_ids` into chunks for each thread
     chunk_size = len(need_to_download_ids) // num_threads
@@ -70,7 +72,10 @@ def periodic_task():
     # Wait for all threads to complete
     for thread in threads:
         thread.join()
-        
+
+    # Send a message to the management webhook
+    management_webhook = DiscordWebhook(url=management_webhook_url, content="Clips downloaded")
+    management_webhook.execute()
 
 while True:
     periodic_task()
