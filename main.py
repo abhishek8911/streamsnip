@@ -941,7 +941,6 @@ def admin():
         if key in ["password", "management_webhook"]:
             continue
         if key in channel_info:
-            print(channel_info)
             channel_info_admin[key] = channel_info[key]
         else:
             channel_info[key] = {}
@@ -1111,10 +1110,14 @@ def add():
                     "Nightbot-User": f"providerId={chat['author']['id']}&displayName={chat['author']['name']}&userLevel={user_level}",
                     "Nightbot-Response-Url": "https://api.nightbot.tv/1/channel/send/"
                 }
-                if local:
-                    link = f"http://localhost/clip/{chat_id}/{clip_message}"
+                if request.is_secure:
+                    htt = "https://"
                 else:
-                    link = f"https://localhost/clip/{chat_id}/{clip_message}"
+                    htt = "http://"
+                if local:
+                    link = f"{htt}{request.host}/clip/{chat_id}/{clip_message}"
+                else:
+                    link = f"{htt}{request.host}/{chat_id}/{clip_message}"
                 r = get(link, headers=headers)
                 response += r.text + "\n"
             return "Done" + "\n" + response
