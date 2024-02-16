@@ -934,7 +934,29 @@ def stats():
 def admin():
     clips = get_channel_clips()
     clip_ids = [x.id for x in clips]
-    return render_template("admin.html", ids=clip_ids)
+    with open("creds.json", "r") as f:
+        config = load(f)
+    channel_info_admin = {}
+    for key, value in config.items():
+        if key in ["password", "management_webhook"]:
+            continue
+        if key in channel_info:
+            print(channel_info)
+            channel_info_admin[key] = channel_info[key]
+        else:
+            channel_info[key] = {}
+            (
+                channel_info[key]["name"],
+                channel_info[key]["image"],
+            ) = get_channel_name_image(key)
+            channel_info_admin[key] = channel_info[key]
+        if request.is_secure:
+            htt = "https://"
+        else:
+            htt = "http://"
+        channel_info_admin[key]["link"] = f"{htt}{request.host}{url_for('exports', channel_id=key)}"
+
+    return render_template("admin.html", ids=clip_ids, channel_info=channel_info_admin)
 
 @app.route("/ed", methods=["POST"])
 def edit_delete():
