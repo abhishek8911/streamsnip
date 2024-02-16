@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import subprocess
 import os
 import yt_dlp
-from json import load, dump
+from json import load, dump, loads, dumps
 import time
 from bs4 import BeautifulSoup
 from requests import get
@@ -64,7 +64,7 @@ owner_icon = "👑"
 mod_icon = "🔧"
 regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
-allowed_ip = ["127.0.0.1", "3.131.150.96"]  # store the nightbot ips here. or your own ip for testing purpose
+allowed_ip = ["127.0.0.1", "52.15.46.178"]  # store the nightbot ips here. or your own ip for testing purpose
 requested_myself = False # on startup we request ourself so that apache build the cache.
 base_domain = "https://streamsnip.com" # just for the sake of it. store the base domain here
 chat_id_video = {} # store chat_id: vid. to optimize clip command
@@ -1104,7 +1104,10 @@ def add():
             for chat in right_chats:
                 clip_message = " ".join(chat["message"].split(" ")[1:])
                 chat_id = vid_id
-                user_level = parse_user_badges(chat["author"]["badges"])
+                try:
+                    user_level = parse_user_badges(chat["author"]["badges"])
+                except KeyError:
+                    user_level = "everyone"
                 headers = {
                     "Nightbot-Channel": f"providerId={streamer_id}",
                     "Nightbot-User": f"providerId={chat['author']['id']}&displayName={chat['author']['name']}&userLevel={user_level}",
@@ -1117,7 +1120,7 @@ def add():
                 if local:
                     link = f"{htt}{request.host}/clip/{chat_id}/{clip_message}"
                 else:
-                    link = f"{htt}{request.host}/{chat_id}/{clip_message}"
+                    link = f"{htt}{request.host}/clip/{chat_id}/{clip_message}"
                 r = get(link, headers=headers)
                 response += r.text + "\n"
             return "Done" + "\n" + response
