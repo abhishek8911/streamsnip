@@ -1206,7 +1206,11 @@ def clip(message_id, clip_desc=None):
     elif user_level == "subscriber":
         webhook_name += f" {subscriber_icon}"
 
-    message_to_return = f"Clip {clip_id} by {user_name} -> '{clip_desc[:32]}' Clipped at {hour_minute_second}"
+    if len(clip_desc) > 30:
+        t_clip_desc = clip_desc[:30] + "..."
+    else:
+        t_clip_desc = clip_desc
+    message_to_return = f"Clip {clip_id} by {user_name} -> '{t_clip_desc}' Clipped at {hour_minute_second}"
     if delay:
         message_to_return += f" Delayed by {delay} seconds."
     if webhook_url:  # if webhook is not found then don't send the message
