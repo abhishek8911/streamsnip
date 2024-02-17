@@ -49,6 +49,7 @@ def periodic_task():
     
     if task_count %30 != 0:
         return
+    return # lock it for now
     clips = get_channel_clips()[:250]
     clip_ids = [x.id for x in clips]
     already_downloaded = [x.split('.')[0] for x in os.listdir("clips")]
