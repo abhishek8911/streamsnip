@@ -370,6 +370,11 @@ def slash():
     """
     return render_template("home.html", data=returning)
 
+@app.route("/data")
+def data():
+    clips = get_channel_clips()
+    clips = [x.json() for x in clips]
+    return clips
 
 def get_video_id(video_link):
     x = parse.urlparse(video_link)
