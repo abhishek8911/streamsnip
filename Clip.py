@@ -51,7 +51,7 @@ class Clip:
         x = {}
         x["link"] = self.stream_link
         x["author"] = {"name": self.user_name, "id": self.user_id, "level": self.userlevel}
-        x["clip_time"] = self.time
+        x["clip_time"] = self.time_in_seconds
         x["time"] = self.time  # real life time when clip was made
         x["message"] = self.desc
         x["stream_id"] = self.stream_id
