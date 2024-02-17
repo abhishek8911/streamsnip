@@ -206,9 +206,11 @@
                 cardHtml += `<i class="fa-solid fa-clock"></i> At ${clip['hms']} (+${clip['delay']*-1}s)</br>`;
                 cardHtml += `<i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))}</p>`;
                 cardHtml += `</a>`;
+                /*
                 cardHtml += `<a href="${clip['download_link']}">`;
                 cardHtml += `<i class="fa-solid fa-download"></i>`;
                 cardHtml += `</a>`;
+                */ 
                 cardHtml += `</div>`;
                 cardHtml += `<div class="card-footer checkbox-wrapper-2"><input type="checkbox" class="sc-gJwTLC ikxBAC" id=${clip['id']} value=${clip['id']} onclick='handleClick(this);' `
                 cardHtml += is_checked ? 'checked' : '';

@@ -57,7 +57,7 @@ else:
 app = Flask(__name__)
 
 global download_lock
-download_lock = False
+download_lock = True
 conn = sqlite3.connect("queries.db", check_same_thread=False)
 # cur = db.cursor() # this is not thread safe. we will create a new cursor for each thread
 owner_icon = "👑"
