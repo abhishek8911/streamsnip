@@ -1116,7 +1116,8 @@ def add():
                 headers = {
                     "Nightbot-Channel": f"providerId={streamer_id}",
                     "Nightbot-User": f"providerId={chat['author']['id']}&displayName={chat['author']['name']}&userLevel={user_level}",
-                    "Nightbot-Response-Url": "https://api.nightbot.tv/1/channel/send/"
+                    "Nightbot-Response-Url": "https://api.nightbot.tv/1/channel/send/",
+                    "videoID": vid_id,
                 }
                 if request.is_secure:
                     htt = "https://"
@@ -1214,6 +1215,10 @@ def clip(message_id, clip_desc=None):
     else:
         vid = get_latest_live(channel_id)
         chat_id_video[message_id] = vid
+    # if there is a video id passed through headers. we may want to use it instead 
+    h_vid = request.headers.get("videoID")
+    if h_vid:
+        vid = YouTubeChatDownloader().get_video_data(video_id=h_vid)
     if not vid:
         return "No LiveStream Found."
     clip_time = request_time - vid["start_time"] / 1000000 + 5 
