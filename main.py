@@ -1118,6 +1118,7 @@ def add():
                     "Nightbot-User": f"providerId={chat['author']['id']}&displayName={chat['author']['name']}&userLevel={user_level}",
                     "Nightbot-Response-Url": "https://api.nightbot.tv/1/channel/send/",
                     "videoID": vid_id,
+                    "time_in_seconds": str(chat["time_in_seconds"]),
                 }
                 if request.is_secure:
                     htt = "https://"
@@ -1222,6 +1223,9 @@ def clip(message_id, clip_desc=None):
     if not vid:
         return "No LiveStream Found."
     clip_time = request_time - vid["start_time"] / 1000000 + 5 
+    h_clip_time = request.headers.get("time_in_seconds") 
+    if h_clip_time:
+        clip_time = h_clip_time
     clip_time += delay
     url = "https://youtu.be/" + vid["original_video_id"] + "?t=" + str(int(clip_time))
     clip_id = message_id[-3:] + str(int(clip_time))
