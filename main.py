@@ -1118,7 +1118,7 @@ def add():
                     "Nightbot-User": f"providerId={chat['author']['id']}&displayName={chat['author']['name']}&userLevel={user_level}",
                     "Nightbot-Response-Url": "https://api.nightbot.tv/1/channel/send/",
                     "videoID": vid_id,
-                    "timestamp": chat['timestamp']
+                    "timestamp": str(chat['timestamp'])
                 }
                 if request.is_secure:
                     htt = "https://"
@@ -1189,10 +1189,6 @@ def clip(message_id, clip_desc=None):
     except ValueError:
         silent = 2
     delay = request.args.get("delay", 0)
-    try:
-        delay = int(delay)
-    except ValueError:
-        return "Given Delay is not a number"
     show_link = False if show_link == "false" else True
     screenshot = True if screenshot == "true" else False
     try:
@@ -1202,7 +1198,10 @@ def clip(message_id, clip_desc=None):
     request_time = time.time()
     h_request_time = request.headers.get("timestamp")
     if h_request_time:
-        request_time = float(h_request_time)
+        try:
+            request_time = float(h_request_time)
+        except ValueError:
+            return "The value of request time in headers must be a number"
     if not local:
         monitor.ping(state='run')
     if not message_id:
