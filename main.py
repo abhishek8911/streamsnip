@@ -1202,6 +1202,9 @@ def clip(message_id, clip_desc=None):
             request_time = float(h_request_time)
         except ValueError:
             return "The value of request time in headers must be a number"
+        if len(str(int(request_time))) > 10:
+            request_time = request_time / 1000000
+            # this is because youtube unknownigly stores chat timing with very high precision. 
     if not local:
         monitor.ping(state='run')
     if not message_id:
