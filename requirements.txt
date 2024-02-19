@@ -7,3 +7,4 @@ scrapetube
 dnspython
 schedule
 cronitor
+yt_dlp
