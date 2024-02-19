@@ -1128,6 +1128,9 @@ def add():
                     link = f"{htt}{request.host}/clip/{chat_id}/{clip_message}"
                 else:
                     link = f"{htt}{request.host}/clip/{chat_id}/{clip_message}"
+                if delay:
+                    delay = int(delay)
+                    link += f"?delay={delay}"
                 r = get(link, headers=headers)
                 response += r.text + "\n"
             return "Done" + "\n" + response
