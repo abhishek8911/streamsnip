@@ -7,11 +7,11 @@
 {% block content %}
 <center>
     <form action="/add" method="post">
-        <input type="text" name="link" value="{{link}}">
+        <input type="text" name="link" placeholder="{{link}}">
         <input type="text" name="command" value="{{desc}}">
-        <input type="text" name="password" value="{{password}}">
-        <input type="submit" value="Submit" name="new">
-    <table border=5>
+        <input type="password" name="password" placeholder="{{password}} i.e your discord webhook url link"></br>
+        <button type="button" class="btn btn-primary" type="submit" value="Submit" name="new">Submit</button> </br></br></br></br>
+    <table border=5 class="styled-table">
         <tr>
             <th>User</th>
             <th>Chat</th>
@@ -25,15 +25,17 @@
             <td>{{chat.message}}</td>
             <td>{{chat.time_text}}</td>
             <td>
-                <input type="checkbox" id="{{chat.message_id}}" name="{{chat.message_id}}" value="">
+                <div class="card-footer checkbox-wrapper-2"> 
+                    <input type="checkbox" class="sc-gJwTLC ikxBAC" id="{{chat.message_id}}" name="{{chat.message_id}}" value="">
+                </div>
             </td>
         </tr>
     {% endfor %}
     </table>
     <label for="delay">Delay in seconds:</label>
-    <input type"text" name="delay" value="0">
+    <input type="text" name="delay" value="0">
 
-    <input type="submit" value="Submit" name="add">
+    <button type="button" class="btn btn-primary" type="submit" value="Submit" name="add" >Submit</button>
 
 
 </center>
