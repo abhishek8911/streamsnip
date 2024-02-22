@@ -1181,14 +1181,15 @@ def stream_info():
 @app.route("/clip/<message_id>/")
 @app.route("/clip/<message_id>/<clip_desc>")
 def clip(message_id, clip_desc=None):
-    show_link = request.args.get("showlink", True)
-    screenshot = request.args.get("screenshot", False)
-    silent = request.args.get("silent", 2) # silent level. if not then 2
+    arguments = {k.replace("?", ""):request.args[k] for k in request.args}
+    show_link = arguments.get("showlink", True)
+    screenshot = arguments.get("screenshot", False)
+    silent = arguments.get("silent", 2) # silent level. if not then 2
     try:
         silent = int(silent)
     except ValueError:
         silent = 2
-    delay = request.args.get("delay", 0)
+    delay = arguments.get("delay", 0)
     show_link = False if show_link == "false" else True
     screenshot = True if screenshot == "true" else False
     try:
