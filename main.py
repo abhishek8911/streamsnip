@@ -1395,10 +1395,11 @@ def edit(xxx=None):
     # an id is last 3 characters of message_id + time_in_seconds
     # get previous description
     clip = get_clip(clip_id, channel_id)
+    old_desc = clip.desc
     if not clip:
         return "Clip ID not found"
     if clip.edit(new_desc, conn):
-        return "Edited clip from title '" + clip.desc + "' to '" + new_desc + "'."
+        return "Edited clip from title '" + old_desc + "' to '" + new_desc + "'."
     else:
         return "ERROR, Please contact Developers."
 
