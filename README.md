@@ -24,6 +24,9 @@ If you want to send a discord message. then I would need to add a webhook URL al
 - `delay` (default: 0) - Introduce an artificial delay to the command. Useful for scheduling links in the future or past.
 - `silent` (default: 2||Highest) - Level of the clipping message. see example below. </br> 
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/1010c32e-ad75-4a75-b732-9e3b2ddc6d44)
+- `private` (default: false) - If set to true. the clips made are not shown on the web nor impact stats. you can use this to create a seperate command to clip inside joke stuff. and don't want editor to work on.
+  ![Uploading image.png…]()
+
 
 
 ### Examples:
