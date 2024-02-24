@@ -78,7 +78,7 @@
                             </a>
                         </li>
                     </ul>
-                    <p>Page <span id="current-page">1</span>/<span id="total-page"></p>
+                    <p>Page <span id="current-page">1</span>/<span id="total-page"> (<span id="total-clips"></span>)</p>
                 </nav>
             </div>
         </div>
@@ -244,6 +244,7 @@
         maxPage = Math.ceil(filteredData.length / clipsPerPage);
         document.getElementById("current-page").innerHTML = currentPage;
         document.getElementById("total-page").innerHTML = maxPage;
+        document.getElementById("total-clips").innerHTML = `${startIndex + 1}-${endIndex} of ${filteredData.length}`;
     }
     function getUserChannelLink(authorId) {
         return `https://www.youtube.com/channel/${authorId}`;
