@@ -57,7 +57,7 @@ else:
 app = Flask(__name__)
 
 global download_lock
-download_lock = True
+download_lock = False
 conn = sqlite3.connect("queries.db", check_same_thread=False)
 # cur = db.cursor() # this is not thread safe. we will create a new cursor for each thread
 owner_icon = "👑"
@@ -68,6 +68,7 @@ allowed_ip = ["127.0.0.1", "52.15.46.178"]  # store the nightbot ips here. or yo
 requested_myself = False # on startup we request ourself so that apache build the cache.
 base_domain = "https://streamsnip.com" # just for the sake of it. store the base domain here
 chat_id_video = {} # store chat_id: vid. to optimize clip command
+downloader_base_url = "https://azure-internal-verse.glitch.me"
 
 with conn:
     cur = conn.cursor()
@@ -1438,10 +1439,15 @@ def video(clip_id):
     global download_lock
     if download_lock:
         return "Disabled for now. We don't have enough resources to serve you at the moment."
-    clip = download_and_store(clip_id)
-    if not clip:
-        return "Seems like you are trying to download a clip that is currently live. we currently doesn't support that."
-    return send_file(clip, as_attachment=True)
+    clip = get_clip(clip_id)
+    delay = clip.delay
+    timestamp += -1 * delay
+    if not delay:
+        delay = -60
+    l = [timestamp, timestamp + delay]
+    start_time = min(l)
+    end_time = max(l)
+    return redirect(f"{downloader_base_url}/download/{clip.stream_id}/{start_time}/{end_time}")
 
 channel_info = {}
 with conn:
