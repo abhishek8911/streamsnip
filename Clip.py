@@ -87,7 +87,8 @@ class Clip:
         webhook_url = get_webhook_url(self.channel)
         if webhook_url and self.webhook:
             hms = self.hms
-            new_message = f"{self.id} | **{new_desc}** \n\n{hms}\n<{self.stream_link}>"
+            is_privated_str = "(P) " if self.private else ""
+            new_message = f"{is_privated_str}{self.id} | **{new_desc}** \n\n{hms}\n<{self.stream_link}>"
             if self.delay:
                 new_message += f"\nDelayed by {self.delay} seconds."
             webhook = DiscordWebhook(

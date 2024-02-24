@@ -1249,8 +1249,9 @@ def clip(message_id, clip_desc=None):
     clip_id = message_id[-3:] + str(int(clip_time))
     # if clip_time is in seconds. then hh:mm:ss format would be like
     hour_minute_second = time_to_hms(clip_time)
+    is_privated_str = "(P) " if private else ""
     message_cc_webhook = (
-        f"{clip_id} | **{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
+        f"{is_privated_str}{clip_id} | **{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
     )
     if delay:
         message_cc_webhook += f"\nDelayed by {delay} seconds."
