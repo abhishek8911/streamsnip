@@ -839,7 +839,7 @@ def stats():
     # sort
     user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
     top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
-    notes = {k: 2*v for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
+    notes = {k: 1.2*v for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
     notes = dict(list(notes.items())[:200])
     # replace dict_keys with actual channel
     new_dict = {}   
