@@ -27,7 +27,7 @@
         </div>
         <div class="row">
             <h1>Clip User Piechart</h1>
-            <canvas id="pieChart" width="700" height="700"></canvas>
+            <center> <canvas id="pieChart" width="700" height="700"></canvas></center>
         </div>
         <div class="row">
             <canvas id="myChart" width="1000" height="800"></canvas>
@@ -145,6 +145,7 @@
             },
             options: {
                 responsive: true,
+                aspectRatio: 1.7,
                 plugins: {
                     legend: {
                         position: 'top',
@@ -188,19 +189,19 @@
             options: {
                 responsive: true,
                 plugins: {
-                title: {
-                    display: false,
-                    text: ''
-                },
+                    title: {
+                        display: false,
+                        text: ''
+                    },
                 },
                 responsive: true,
                 scales: {
-                x: {
-                    stacked: true,
-                },
-                y: {
-                    stacked: true
-                }
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true
+                    }
                 }
             }
         };
