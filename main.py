@@ -103,6 +103,11 @@ with conn:
         conn.commit()
         print("Added ss_link column to QUERIES table")
 
+    if "private" not in colums:
+        cur.execute("ALTER TABLE QUERIES ADD COLUMN private VARCHAR(40)")
+        conn.commit()
+        print("Added private column to QUERIES table")
+
 # if there is no folder named clips then make one
 if not os.path.exists("clips"):
     os.makedirs("clips")
@@ -410,7 +415,7 @@ def export():
 @app.route("/exports/")
 def clips():
     data = get_channel_clips()
-    data = [x.json() for x in data]
+    data = [x.json() for x in data if not x.private]
     return render_template(
         "export.html", 
         data=data,
@@ -435,7 +440,7 @@ def exports(channel_id=None):
             url_for("slash")
         )  # if channel is not found then redirect to home page
     data = get_channel_clips(channel_id)
-    data = [x.json() for x in data]
+    data = [x.json() for x in data if not x.private]
     return render_template(
         "export.html",
         data=data,
@@ -1185,6 +1190,7 @@ def clip(message_id, clip_desc=None):
     show_link = arguments.get("showlink", True)
     screenshot = arguments.get("screenshot", False)
     silent = arguments.get("silent", 2) # silent level. if not then 2
+    private = arguments.get("private", False)
     try:
         silent = int(silent)
     except ValueError:
@@ -1192,6 +1198,7 @@ def clip(message_id, clip_desc=None):
     delay = arguments.get("delay", 0)
     show_link = False if show_link == "false" else True
     screenshot = True if screenshot == "true" else False
+    private = True if private == "true" else False
     try:
         delay = 0 if not delay else int(delay)
     except ValueError:
@@ -1308,7 +1315,7 @@ def clip(message_id, clip_desc=None):
     with conn:
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 channel_id,
                 message_id,
@@ -1322,12 +1329,15 @@ def clip(message_id, clip_desc=None):
                 delay,
                 user_level,
                 ss_id,
-                ss_link
+                ss_link,
+                private
             ),
         )
         conn.commit()
     if not local:
         monitor.ping(state='complete')
+    if private:
+        return "clipped 😉"
     if silent == 2:
         return message_to_return
     elif silent == 1:
