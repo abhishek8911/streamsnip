@@ -19,6 +19,7 @@ class Clip:
     userlevel = None
     ss_id = None
     ss_link = None
+    private= False
 
     def __init__(self, data):
         # data is a [str]
@@ -43,6 +44,7 @@ class Clip:
         self.ss_link = data[12]
         self.hms = time_to_hms(self.time_in_seconds)
         self.download_link = f"/video/{self.id}"
+        self.private = str(data[13]) == '1'
     
     def __str__(self):
         return self.desc
@@ -65,6 +67,7 @@ class Clip:
             "ss_link": self.ss_link
         }
         x['download_link'] = self.download_link
+        x['private'] = self.private
         return x 
     
     def edit(self, new_desc:str, conn:sqlite3.Connection):
