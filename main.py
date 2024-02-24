@@ -300,10 +300,10 @@ def inject_mini_stats():
     today = datetime.strptime(datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d").timestamp()
     with conn:
         cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM QUERIES WHERE time >= ?", (today,))
+        cur.execute("SELECT COUNT(*) FROM QUERIES WHERE time >= ? AND private is not '1' ", (today,))
         data = cur.fetchall()
         today_count = data[0][0]
-        cur.execute("SELECT * FROM QUERIES ORDER BY time DESC LIMIT 1")
+        cur.execute("SELECT * FROM QUERIES where private is not '1' ORDER BY time DESC LIMIT 1")
         data = cur.fetchall()
     if data:
         last_clip = Clip(data[0])
@@ -464,7 +464,7 @@ def channel_stats(channel_id=None):
         return redirect(url_for("stats"))
     with conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM QUERIES WHERE channel_id=?", (channel_id,))
+        cur.execute("SELECT * FROM QUERIES WHERE channel_id=? AND private is not '1'", (channel_id,))
         data = cur.fetchall()
     if not data:
         return redirect(url_for("slash"))
@@ -640,7 +640,7 @@ def user_stats(channel_id=None):
         return redirect(url_for("slash"))
     with conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM QUERIES WHERE user_id=?", (channel_id,))
+        cur.execute("SELECT * FROM QUERIES WHERE user_id=? AND private is not '1' ", (channel_id,))
         data = cur.fetchall()
     if not data:
         return redirect(url_for("slash"))
@@ -810,7 +810,7 @@ def stats():
     # get clips
     with conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM QUERIES")
+        cur.execute("SELECT * FROM QUERIES WHERE private is not '1'")
         data = cur.fetchall()
     clips = []
     for x in data:
