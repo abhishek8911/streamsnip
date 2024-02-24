@@ -377,6 +377,7 @@ def slash():
 
 @app.route("/data")
 def data():
+    return "Disabled"
     clips = get_channel_clips()
     clips = [x.json() for x in clips]
     return clips
