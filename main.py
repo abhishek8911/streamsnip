@@ -1441,6 +1441,7 @@ def video(clip_id):
         return "Disabled for now. We don't have enough resources to serve you at the moment."
     clip = get_clip(clip_id)
     delay = clip.delay
+    timestamp = clip.time_in_seconds
     timestamp += -1 * delay
     if not delay:
         delay = -60
