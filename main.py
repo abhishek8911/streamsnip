@@ -1193,6 +1193,9 @@ def clip(message_id, clip_desc=None):
     screenshot = arguments.get("screenshot", False)
     silent = arguments.get("silent", 2) # silent level. if not then 2
     private = arguments.get("private", False)
+    webhook = arguments.get("webhook", False)
+    if webhook and not webhook.startswith("https://discord.com/api/webhooks/"):
+        webhook = f"https://discord.com/api/webhooks/{webhook}"
     try:
         silent = int(silent)
     except ValueError:
@@ -1228,8 +1231,7 @@ def clip(message_id, clip_desc=None):
         return "Headers not found. Are you sure you are using nightbot ?"
 
     channel_id = channel.get("providerId")[0]
-    webhook_url = get_webhook_url(channel_id)
-
+    webhook_url = get_webhook_url(channel_id) if not webhook else webhook
     user_level = user.get("userLevel")[0]
     user_id = user.get("providerId")[0]
     user_name = user.get("displayName")[0]
@@ -1283,7 +1285,9 @@ def clip(message_id, clip_desc=None):
             avatar_url=channel_image,
             allowed_mentions={"role": [], "user": [], "everyone": False},
         )
-        webhook.execute()
+        response = webhook.execute()
+        if not response.status_code == 200:
+            return "Error in sending message to discord. Perhaps the webhook is invalid. Please contant AG at https://discord.gg/2XVBWK99Vy"
         webhook_id = webhook.id
     else:
         webhook_id = None
