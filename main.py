@@ -1194,7 +1194,7 @@ def clip(message_id, clip_desc=None):
     silent = arguments.get("silent", 2) # silent level. if not then 2
     private = arguments.get("private", False)
     webhook = arguments.get("webhook", False)
-    logging.log(f"A request for clip with arguments {arguments} and headers {request.headers}") 
+    logging.log(level=logging.INFO, msg=f"A request for clip with arguments {arguments} and headers {request.headers}") 
     if webhook and not webhook.startswith("https://discord.com/api/webhooks/"):
         webhook = f"https://discord.com/api/webhooks/{webhook}"
     try:
