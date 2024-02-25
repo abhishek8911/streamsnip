@@ -66,16 +66,12 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
 ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/2be98062-d9f7-4e91-879f-e940ad0c1ffa) </br>
 
 
-4. `!cliptest` - test if the clipper is working, basically checks if the website is reachable.
-```markdown
-!addcom !cliptest $(urlfetch https://streamsnip.com/)
-```
-
 #### Super Advanced, Proceed with caution here
-5. `!search` gives the last clip that had the query in in it
+4. `!search` gives the last clip that had the query in in it
  ```markdown
  !addcom !search $(urlfetch https://streamsnip.com/search/$(querystring))
 ```
+
 SUPER PRO MODE </br>
 Idea from [here](https://community.nightdev.com/t/clip-command-then-have-lastclip-automatically-update/35360), You can combine !search command to give out timestamp to particular events in the stream </br>
 A combo can look like this 
