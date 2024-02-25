@@ -24,10 +24,16 @@ If you want to send a discord message. then I would need to add a webhook URL al
 - `delay` (default: 0) - Introduce an artificial delay to the command. Useful for scheduling links in the future or past.
 - `silent` (default: 2||Highest) - Level of the clipping message. see example below. </br> 
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/1010c32e-ad75-4a75-b732-9e3b2ddc6d44)
-- `private` (default: false) - If set to true. the clips made are not shown on the web nor impact stats. if you don't want your channel to show up on website. you use it.
-  ![Uploading image.png…]()
+- `private` (default: false) - If set to true. the clips made are not shown on the web nor impact stats. if you don't want your channel to show up on website. you use it. This override `silent` and returns just ​​`clipped 😉` </br>
+  ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/42c6744e-f3d1-4335-822c-3c3713ac4ab4)
+- `webhook` (default: None) - You can pass your own webhook rather than using the one you provided me (if you did), if combined with `private` you can make totally anonymous clips in a private channel.
+  this take webhook in format of webhook_id/webhook_token
+  ex. lets say a webhook is -> `https://discord.com/api/webhooks/1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s` then you pass `webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s`
 
-
+Here's one example using all of it.
+```
+https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=true&delay=-30&private=true&webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s
+```
 
 ### Examples:
 
