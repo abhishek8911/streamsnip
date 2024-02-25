@@ -1194,7 +1194,7 @@ def clip(message_id, clip_desc=None):
     silent = arguments.get("silent", 2) # silent level. if not then 2
     private = arguments.get("private", False)
     webhook = arguments.get("webhook", False)
-    print(f"A request for clip with arguments {arguments} and headers {request.headers}") 
+    logging.log(f"A request for clip with arguments {arguments} and headers {request.headers}") 
     if webhook and not webhook.startswith("https://discord.com/api/webhooks/"):
         webhook = f"https://discord.com/api/webhooks/{webhook}"
     try:
@@ -1310,9 +1310,6 @@ def clip(message_id, clip_desc=None):
         file_name = take_screenshot(url, clip_time)
         with open(file_name, "rb") as f:
             webhook.add_file(file=f.read(), filename="ss.jpg")
-        print(
-            f"Sent screenshot to {user_name} from {channel_id} with message -> {clip_desc} {url}"
-        )
         webhook.execute()
         ss_id = webhook.id
         ss_link = webhook.attachments[0]['url']
@@ -1357,7 +1354,7 @@ def clip(message_id, clip_desc=None):
 @app.route("/delete/<clip_id>")
 def delete(clip_id=None):
     if not clip_id:
-        print("No Clip ID provided")
+        return "No Clip ID provided"
     try:
         channel = parse_qs(request.headers["Nightbot-Channel"])
     except KeyError:
