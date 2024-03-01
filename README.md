@@ -97,6 +97,11 @@ returning data looks something like this </br>
 7. `!streaminfo` ADVANCED - this gives streaminfo in JSON format that you can use to do some other stuff.
    data looks something like this.
    ![carbon](https://github.com/SurajBhari/clip_nightbot/assets/45149585/811ec86a-9d69-4cc3-bde5-2d2cc66bd5ac)
+   Route is at `/stream_info`
+   ```markdown
+   !addcom !myid $(eval info=$(urlfetch json https://streamsnip.com/stream_info); info['author_id'])
+   ```
+
 
 
 ### Additional Customization:
