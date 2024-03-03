@@ -1362,6 +1362,10 @@ def delete(clip_id=None):
     channel_id = channel.get("providerId")[0]
     arguments = {k.replace("?", ""):request.args[k] for k in request.args}
     silent = arguments.get("silent", 2) # silent level. if not then 2
+    try:
+        silent = int(silent)
+    except ValueError:
+        return "Silent level should be an integer"
     returning_str = ""
     errored_str = ""
     for c in clip_id.split(" "):
@@ -1403,10 +1407,11 @@ def edit(xxx=None):
     silent = arguments.get("silent", 2) # silent level. if not then 2
     clip_id = xxx.split(" ")[0]
     new_desc = " ".join(xxx.split(" ")[1:])
-
+    try:
+        silent = int(silent)
+    except ValueError:
+        return "Silent level should be an integer"
     channel_id = channel.get("providerId")[0]
-    # an id is last 3 characters of message_id + time_in_seconds
-    # get previous description
     clip = get_clip(clip_id, channel_id)
     old_desc = clip.desc
     if not clip:
