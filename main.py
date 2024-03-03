@@ -1360,6 +1360,8 @@ def delete(clip_id=None):
     except KeyError:
         return "Not able to auth"
     channel_id = channel.get("providerId")[0]
+    arguments = {k.replace("?", ""):request.args[k] for k in request.args}
+    silent = arguments.get("silent", 2) # silent level. if not then 2
     returning_str = ""
     errored_str = ""
     for c in clip_id.split(" "):
@@ -1378,7 +1380,12 @@ def delete(clip_id=None):
         returning_str = "Deleted clips with id" + returning_str
     if errored_str:
         errored_str = "Couldn't delete clips with id" + errored_str
-    return returning_str + errored_str
+    if silent == 0:
+        return " "
+    elif silent == 1:
+        return returning_str
+    else:
+        return returning_str + errored_str
 
 
 
@@ -1392,6 +1399,8 @@ def edit(xxx=None):
         return "Not able to auth"
     if len(xxx.split(" ")) < 2:
         return "Please provide clip id and new description"
+    arguments = {k.replace("?", ""):request.args[k] for k in request.args}
+    silent = arguments.get("silent", 2) # silent level. if not then 2
     clip_id = xxx.split(" ")[0]
     new_desc = " ".join(xxx.split(" ")[1:])
 
@@ -1402,10 +1411,15 @@ def edit(xxx=None):
     old_desc = clip.desc
     if not clip:
         return "Clip ID not found"
-    if clip.edit(new_desc, conn):
-        return "Edited clip from title '" + old_desc + "' to '" + new_desc + "'."
+    edited = clip.edit(new_desc, conn)
+    if not edited:
+        return "Couldn't edit the clip"
+    if silent == 0:
+        return " "
+    elif silent == 1:
+        return clip_id
     else:
-        return "ERROR, Please contact Developers."
+        return f"Edited clip {clip_id} from title '" + old_desc + "' to '" + new_desc + "'."
 
 
 @app.route("/search/<clip_desc>")
