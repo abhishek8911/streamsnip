@@ -408,7 +408,7 @@ def export():
         htt = "https://"
     else:
         htt = "http://"
-    return f"You can download the export from {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
+    return f"You can see all the clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
 # this is for ALL CLIPS 
 @app.route("/e")
