@@ -23,7 +23,7 @@ If you want to send a discord message. then I would need to add a webhook URL al
 - `screenshot` (default: false) - Enable or disable screenshot capture. If enabled the nightbot may not get response in given time and will say "Timed out" message. but it will still clip.
 - `delay` (default: 0) - Introduce an artificial delay to the command. Useful for scheduling links in the future or past.
 - `silent` (default: 2||Highest) - Level of the clipping message. see example below. </br> 
-  ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/1010c32e-ad75-4a75-b732-9e3b2ddc6d44)
+  ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f4e0bffa-1759-491a-ada9-c1ca4a55240b)
 - `private` (default: false) - If set to true. the clips made are not shown on the web nor impact stats. if you don't want your channel to show up on website. you use it. This override `silent` and returns just ​​`clipped 😉` </br>
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/42c6744e-f3d1-4335-822c-3c3713ac4ab4)
 - `webhook` (default: None) - You can pass your own webhook rather than using the one you provided me (if you did), if combined with `private` you can make totally anonymous clips in a private channel.
@@ -65,7 +65,7 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
 ```markdown
 !addcom !export $(urlfetch https://streamsnip.com/export)
 ```
-![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/2be98062-d9f7-4e91-879f-e940ad0c1ffa) </br>
+![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/7d72988e-0ab0-46a1-b7cb-0183e542eb2d) </br>
 
 
 #### Super Advanced, Proceed with caution here
