@@ -340,6 +340,11 @@ def before_request():
 def favicon():
     return send_file("static/logo.svg")
 
+@app.route("/robots.txt")
+def robots():
+    return send_file("static/robots.txt")
+
+
 @app.route("/")
 def slash():
     # this offload the load from every slash request to only the time when the script is initially ran
