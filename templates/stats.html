@@ -86,6 +86,9 @@
         Chart.defaults.color = fontcolor;
         var wordcloud_data = {{notes|tojson}};
         var ctx = document.getElementById('wordcloud').getContext('2d');
+        if(Object.keys(wordcloud_data).length == 0){
+            wordcloud_data = {"": 0};
+        }
         var wordcloud = new Chart(ctx, {
             type: "wordCloud",
             data: {
