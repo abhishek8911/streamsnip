@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, send_file, session
+from flask import Flask, request, render_template, redirect, url_for, send_file, session, jsonify
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import subprocess
@@ -296,6 +296,8 @@ def download_and_store(clip_id) -> str:
 @app.context_processor
 def inject_mini_stats():
     # todays count 
+    if "user-agent" not in request.headers:
+        return "bro where is your user-agent"
     if "nightbot" in request.headers['user-agent'].lower():
         return {}
     today = datetime.strptime(datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d").timestamp()
@@ -1014,7 +1016,7 @@ def edit_delete():
         creds[key] = value
         with open("creds.json", "w") as f:
             dump(creds, f, indent=4)
-        return "Added"
+        return jsonify(creds)
     else:
         return "what ?"
     
