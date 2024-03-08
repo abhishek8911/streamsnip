@@ -370,7 +370,7 @@ def slash():
             channel_info[ch_id[0]]["name"] = channel_name
             channel_info[ch_id[0]]["image"] = channel_image
         ch["id"] = ch_id[0]
-        channel_info[ch_id[0]]["image"].replace("s900-c-k-c0x00ffffff-no-rj", "s300-c-k-c0x00ffffff-no-rj")
+        channel_info[ch_id[0]]["image"] = channel_info[ch_id[0]]["image"].replace("s900-c-k-c0x00ffffff-no-rj", "s300-c-k-c0x00ffffff-no-rj")
         if request.is_secure:
             htt = "https://"
         else:
