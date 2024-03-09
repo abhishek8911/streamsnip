@@ -16,7 +16,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script>
+
+        window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')
         function timeSince(previous) {
             var current = new Date();
             var msPerMinute = 60 * 1000;
@@ -67,6 +72,7 @@
             }
             var body = document.body;
             var theme_button = document.getElementById("theme_button");
+            var navbar = document.getElementById("navbar_id");
             if (isDarkTheme) {
                 body.classList.add("dark-theme");
                 for (var i = 0; i < form_control.length; i++) {
@@ -78,8 +84,16 @@
             }
             if(isDarkTheme){
                 theme_button.innerHTML = '<i class="fa-solid fa-moon"></i>';
+                navbar.classList.add("bg-dark");
+                navbar.classList.remove("bg-light");
+                navbar.classList.add("navbar-dark");
+                navbar.classList.remove("navbar-light");
             } else {
                 theme_button.innerHTML = '<i class="fa-solid fa-sun"></i>';
+                navbar.classList.remove("bg-dark");
+                navbar.classList.add("bg-light");
+                navbar.classList.remove("navbar-dark");
+                navbar.classList.add("navbar-light");
             }
         });
         function toggleDarkTheme() {
@@ -95,10 +109,20 @@
                 a[i].classList.toggle("dark-theme");
             }
             localStorage.setItem("darkTheme", isDarkTheme);
+            var theme_button = document.getElementById("theme_button");
+            var navbar = document.getElementById("navbar_id");
             if(isDarkTheme){
                 theme_button.innerHTML = '<i class="fa-solid fa-moon"></i>';
+                navbar.classList.add("bg-dark");
+                navbar.classList.remove("bg-light");
+                navbar.classList.add("navbar-dark");
+                navbar.classList.remove("navbar-light");
             } else {
                 theme_button.innerHTML = '<i class="fa-solid fa-sun"></i>';
+                navbar.classList.remove("bg-dark");
+                navbar.classList.add("bg-light");
+                navbar.classList.remove("navbar-dark");
+                navbar.classList.add("navbar-light");
             }
         }
         document.addEventListener("DOMContentLoaded", function () {
@@ -114,49 +138,38 @@
     {% endblock %}
 </head>
 <header>
-    <div class="px-3 py-2 text-bg-dark">
-        <div class="container">
-            <nav class="navbar navbar-dark bg-dark">
-                <!-- logo here -->
-                <a href="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
-                    <img src="/static/logo.svg" alt="logo" width="32" height="32" class="bi me-2">
-                    <h2>StreamSnip</h2>
-                </a>
-                <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
-                    <li>
-                        <a href="#" class="nav-link text-white">
-                            <i class="fa-solid fa-clipboard-list"></i> <i id="today_count"> </i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link text-white">
-                            <i id="last_clip_time"> </i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/exports" class="nav-link text-white">
-                            <i class="fa-solid fa-earth-asia"></i>  All Clips
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://forms.gle/NgF67HBR69CxAcvJ8" class="nav-link text-white">
-                            <i class="fa-solid fa-plus"></i>  Add your own channel here
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/stats" class="nav-link text-white">
-                            <i class="fa-solid fa-chart-line"></i>  Stats
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link text-white" onclick="toggleDarkTheme()" id="theme_button">
-                        </a>                               
-                    </li>
-                </ul>
-            </nav>
-        </div>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="navbar_id">
+            <a class="navbar-brand" href="/">StreamSnip</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fa-solid fa-clipboard-list"></i> <i id="today_count"></i></a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="#"><i id="last_clip_time"></i></a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="/exports"><i class="fa-solid fa-earth-asia"></i> All Clips</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="https://forms.gle/NgF67HBR69CxAcvJ8"><i class="fa-solid fa-plus"></i> Add your own channel here</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="/stats"><i class="fa-solid fa-chart-line"></i> Stats</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="#" onclick="toggleDarkTheme()" id="theme_button"></a>
+                </li>
+            </ul>
+            </div>
+        </nav>       
     </div>
 </header>
+
 <div class="content">
     {% block content %}{% endblock %}
 </div>

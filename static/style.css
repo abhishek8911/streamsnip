@@ -33,6 +33,9 @@ body {
 	background-color: white;
 }
 
+body.container {
+  padding-top: 60px;
+}
 .card {
 	--bs-card-bg: rgba(255, 255, 255, 1);
 }
@@ -116,6 +119,7 @@ a:visited.dark-theme {
 
 :root{
   --bs-border-radius: 2rem;
+  --bs-light-rgb: 255, 255, 255;
 }
 
 /* The switch - the box around the slider */
