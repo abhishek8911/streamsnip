@@ -8,13 +8,10 @@
     {% set _ = channel_names.append(channel['name']) %}
 {% endfor %}
 {% set channel_names_str = channel_names|join(', ') %}
-<meta property="og:image" content="/static/logo-grey.svg" />
-<meta name="twitter:title" content="StreamSnip">
-<meta name="twitter:description" content="A way for streamers to clip stuff with single nightbot command. used mainly in IGC 
-{{channel_names_str}}">
-<meta name="twitter:image" content="/static/logo-grey.svg">
+<meta property="og:image" content="/static/logo.svg" />
 <meta property="og:description" content="A way for streamers to clip stuff with single nightbot command. used mainly in IGC 
 {{channel_names_str}}" />
+<meta property="og:title" content="StreamSnip" />
 {% endblock %}
 
 {% block content %}
