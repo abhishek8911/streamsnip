@@ -20,6 +20,9 @@
                 <img src="{{ channel_image }}" alt="{{ channel_name }}" class="rounded-circle" style="width: 200px; height: 200px;">
                 <h1> {{ channel_name }} - Clips ({{ data|length }})</h1></a>
                 {% endif %}
+                {% if channel_id != 'all'%}
+                </a>
+                {% endif %} 
             </div>
         </div>
         <a href="/cs/{{channel_id}}"> <button type="button" class="btn btn-primary">Stats</button></a></br></br>
@@ -104,7 +107,6 @@
 </div>
 </center>
 <script>
-    console.log('{{channel_image}}');
     var inverted = false;
     var maxPage = 0;
     var data = {{ data|tojson }};
