@@ -433,7 +433,7 @@ def clips():
         data=data,
         clips_string=create_simplified(data),
         channel_name="All channels",
-        channel_image="/static/logo.svg",
+        channel_image="https://streamsnip.com/static/logo-grey.svg",
         owner_icon=owner_icon,
         mod_icon=mod_icon,
         regular_icon=regular_icon,
@@ -949,7 +949,7 @@ def stats():
         streamers_labels = list(streamer_trend_data.keys()),
         time_distribution = time_distribution,
         channel_name="All channels",
-        channel_image="/static/logo.svg"
+        channel_image="https://streamsnip.com/static/logo-grey.svg"
         )
 
 @app.route("/admin")
