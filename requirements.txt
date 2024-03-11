@@ -8,3 +8,4 @@ dnspython
 schedule
 cronitor
 yt_dlp
+flask-sitemap

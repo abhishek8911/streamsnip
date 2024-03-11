@@ -12,6 +12,7 @@ from flask import request
 from discord_webhook import DiscordWebhook
 import sqlite3
 from typing import Optional, Tuple, List
+from flask_sitemap import Sitemap
 
 from urllib import parse
 from urllib.parse import parse_qs
@@ -55,6 +56,7 @@ else:
 
 
 app = Flask(__name__)
+ext = Sitemap(app=app)
 
 global download_lock
 download_lock = False
@@ -1478,6 +1480,21 @@ def video(clip_id):
     start_time = min(l)
     end_time = max(l)
     return redirect(f"{downloader_base_url}/download/{clip.stream_id}/{start_time}/{end_time}")
+
+@ext.register_generator
+def index():
+    # Not needed if you set SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS=True\
+    yield 'slash', {}
+    with conn:
+        cur = conn.cursor()
+        cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
+        data = cur.fetchall()
+    for channel in set([x[0] for x in data]):
+        yield 'channel_stats', {'channel_id':channel}
+        yield 'exports', {'channel_id':channel}
+
+    yield "clips", {}
+    yield "stats", {}
 
 channel_info = {}
 with conn:
