@@ -110,6 +110,11 @@ with conn:
         cur.execute("ALTER TABLE QUERIES ADD COLUMN private VARCHAR(40)")
         conn.commit()
         print("Added private column to QUERIES table")
+    
+    if "message_level" not in colums:
+        cur.execute("ALTER TABLE QUERIES ADD COLUMN message_level INT") # we store this for the sole purpose of rebuilding the message on !edit
+        conn.commit()
+        print("Added message_level column to QUERIES table")
 
 # if there is no folder named clips then make one
 if not os.path.exists("clips"):
@@ -1204,6 +1209,11 @@ def clip(message_id, clip_desc=None):
     silent = arguments.get("silent", 2) # silent level. if not then 2
     private = arguments.get("private", False)
     webhook = arguments.get("webhook", False)
+    message_level = arguments.get("message_level", 0) # 0 is normal. 1 is to persist the defautl webhook name. 2 is for no record on discord message. 3 is for service badging
+    try:
+        message_level = int(message_level)
+    except ValueError:
+        message_level = 0
     logging.log(level=logging.INFO, msg=f"A request for clip with arguments {arguments} and headers {request.headers}") 
     if webhook and not webhook.startswith("https://discord.com/api/webhooks/"):
         webhook = f"https://discord.com/api/webhooks/{webhook}"
@@ -1269,16 +1279,26 @@ def clip(message_id, clip_desc=None):
     )
     if delay:
         message_cc_webhook += f"\nDelayed by {delay} seconds."
-    channel_name, channel_image = get_channel_name_image(user_id)
-    webhook_name = user_name
-    if user_level == "owner":
-        webhook_name += f" {owner_icon}"
-    elif user_level == "moderator":
-        webhook_name += f" {mod_icon}"
-    elif user_level == "regular":
-        webhook_name += f" {regular_icon}"
-    elif user_level == "subscriber":
-        webhook_name += f" {subscriber_icon}"
+    if message_level == 0:
+        channel_name, channel_image = get_channel_name_image(user_id)
+    elif message_level == 1:
+        channel_name, channel_image = "", ""
+        message_cc_webhook += f"\nClipped by {user_name}"
+    elif message_level == 2:
+        channel_name, channel_image = "", ""
+    else:
+        channel_name, channel_image = "Streamsnip", "https://streamsnip.com/static/logo-grey.png"
+
+    if message_level == 0:
+        webhook_name = user_name
+        if user_level == "owner":
+            webhook_name += f" {owner_icon}"
+        elif user_level == "moderator":
+            webhook_name += f" {mod_icon}"
+        elif user_level == "regular":
+            webhook_name += f" {regular_icon}"
+        elif user_level == "subscriber":
+            webhook_name += f" {subscriber_icon}"
 
     if len(clip_desc) > 30:
         t_clip_desc = clip_desc[:30] + "..."
