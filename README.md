@@ -29,10 +29,12 @@ If you want to send a discord message. then I would need to add a webhook URL al
 - `webhook` (default: None) - You can pass your own webhook rather than using the one you provided me (if you did), if combined with `private` you can make totally anonymous clips in a private channel.
   this take webhook in format of webhook_id/webhook_token
   ex. lets say a webhook is -> `https://discord.com/api/webhooks/1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s` then you pass `webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s`
+- `message_level` (defauilt: 0) - Customize how the discord message should look like. to support "anonymity"
+  ![Untitled](https://github.com/SurajBhari/clip_nightbot/assets/45149585/614c15d8-d3d1-4765-ad7f-ee0a48965730)
 
 Here's one example using all of it.
 ```
-https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=true&delay=-30&private=true&webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s
+https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=true&delay=-30&private=true&webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s&message_level=3
 ```
 
 ### Examples:
