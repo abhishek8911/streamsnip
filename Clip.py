@@ -96,6 +96,8 @@ class Clip:
             new_message = f"{is_privated_str}{self.id} | **{new_desc}** \n\n{hms}\n<{self.stream_link}>"
             if self.delay:
                 new_message += f"\nDelayed by {self.delay} seconds."
+            if self.message_level == 1:
+                new_message += f"\nClipped by {self.user_name}"
             webhook = DiscordWebhook(
                 url=webhook_url,
                 id=self.webhook,
