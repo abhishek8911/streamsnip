@@ -1281,15 +1281,17 @@ def clip(message_id, clip_desc=None):
         message_cc_webhook += f"\nDelayed by {delay} seconds."
     if message_level == 0:
         channel_name, channel_image = get_channel_name_image(user_id)
+        webhook_name = user_name
     elif message_level == 1:
         channel_name, channel_image = "", ""
+        webhook_name = ""
         message_cc_webhook += f"\nClipped by {user_name}"
     elif message_level == 2:
+        webhook_name = ""
         channel_name, channel_image = "", ""
     else:
+        webhook_name = "Streamsnip"
         channel_name, channel_image = "Streamsnip", "https://streamsnip.com/static/logo-grey.png"
-    
-    webhook_name = user_name
 
     if message_level == 0:
         if user_level == "owner":
@@ -1351,7 +1353,7 @@ def clip(message_id, clip_desc=None):
     with conn:
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO QUERIES VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 channel_id,
                 message_id,
@@ -1366,7 +1368,8 @@ def clip(message_id, clip_desc=None):
                 user_level,
                 ss_id,
                 ss_link,
-                private
+                private,
+                message_level
             ),
         )
         conn.commit()
