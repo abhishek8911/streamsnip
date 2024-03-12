@@ -45,6 +45,10 @@ class Clip:
         self.hms = time_to_hms(self.time_in_seconds)
         self.download_link = f"/video/{self.id}"
         self.private = str(data[13]) == '1'
+        try:
+            self.message_level = int(data[14])
+        except (ValueError, TypeError):
+            self.message_level = 0
     
     def __str__(self):
         return self.desc
@@ -68,6 +72,7 @@ class Clip:
         }
         x['download_link'] = self.download_link
         x['private'] = self.private
+        x['message_level'] = self.message_level
         return x 
     
     def edit(self, new_desc:str, conn:sqlite3.Connection):
