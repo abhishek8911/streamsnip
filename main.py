@@ -1288,9 +1288,10 @@ def clip(message_id, clip_desc=None):
         channel_name, channel_image = "", ""
     else:
         channel_name, channel_image = "Streamsnip", "https://streamsnip.com/static/logo-grey.png"
+    
+    webhook_name = user_name
 
     if message_level == 0:
-        webhook_name = user_name
         if user_level == "owner":
             webhook_name += f" {owner_icon}"
         elif user_level == "moderator":
