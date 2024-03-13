@@ -1,4 +1,13 @@
-from flask import Flask, request, render_template, redirect, url_for, send_file, session, jsonify
+from flask import (
+    Flask,
+    request,
+    render_template,
+    redirect,
+    url_for,
+    send_file,
+    session,
+    jsonify,
+)
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import subprocess
@@ -18,7 +27,7 @@ from urllib import parse
 from urllib.parse import parse_qs
 import scrapetube
 from chat_downloader.sites import YouTubeChatDownloader
-from chat_downloader import ChatDownloader 
+from chat_downloader import ChatDownloader
 import logging
 from datetime import datetime, timedelta
 import cronitor
@@ -28,6 +37,7 @@ from Clip import Clip
 
 # we are in /var/www/clip_nighbot
 import os
+
 try:
     os.chdir("/var/www/clip_nightbot")
 except FileNotFoundError:
@@ -38,19 +48,16 @@ else:
     local = False
 
 logging.basicConfig(
-    filename='./record.log', 
-    level=logging.ERROR, 
-    format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+    filename="./record.log",
+    level=logging.ERROR,
+    format=f"%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
 )
 
-testing = load(open('testing_config.json', "r"))
+testing = load(open("testing_config.json", "r"))
 cronitor.api_key = testing["api_key"]
 
 if not local:
-    monitor = cronitor.Monitor.put(
-        key='Streamsnip-Clips-Performance',
-        type='job'
-    )
+    monitor = cronitor.Monitor.put(key="Streamsnip-Clips-Performance", type="job")
 else:
     monitor = None
 
@@ -66,10 +73,17 @@ owner_icon = "👑"
 mod_icon = "🔧"
 regular_icon = "🧑‍🌾"
 subscriber_icon = "⭐"
-allowed_ip = ["127.0.0.1", "52.15.46.178"]  # store the nightbot ips here. or your own ip for testing purpose
-requested_myself = False # on startup we request ourself so that apache build the cache.
-base_domain = "https://streamsnip.com" # just for the sake of it. store the base domain here
-chat_id_video = {} # store chat_id: vid. to optimize clip command
+allowed_ip = [
+    "127.0.0.1",
+    "52.15.46.178",
+]  # store the nightbot ips here. or your own ip for testing purpose
+requested_myself = (
+    False  # on startup we request ourself so that apache build the cache.
+)
+base_domain = (
+    "https://streamsnip.com"  # just for the sake of it. store the base domain here
+)
+chat_id_video = {}  # store chat_id: vid. to optimize clip command
 downloader_base_url = "https://azure-internal-verse.glitch.me"
 
 with conn:
@@ -110,9 +124,11 @@ with conn:
         cur.execute("ALTER TABLE QUERIES ADD COLUMN private VARCHAR(40)")
         conn.commit()
         print("Added private column to QUERIES table")
-    
+
     if "message_level" not in colums:
-        cur.execute("ALTER TABLE QUERIES ADD COLUMN message_level INT") # we store this for the sole purpose of rebuilding the message on !edit
+        cur.execute(
+            "ALTER TABLE QUERIES ADD COLUMN message_level INT"
+        )  # we store this for the sole purpose of rebuilding the message on !edit
         conn.commit()
         print("Added message_level column to QUERIES table")
 
@@ -131,7 +147,9 @@ except FileNotFoundError:
 management_webhook_url = creds.get("management_webhook", None)
 management_webhook = None
 if management_webhook_url and not local:
-    management_webhook = DiscordWebhook(management_webhook_url) # we implement this function because we have to recreate this wh again and again to use.
+    management_webhook = DiscordWebhook(
+        management_webhook_url
+    )  # we implement this function because we have to recreate this wh again and again to use.
     management_webhook.content = "Bot started"
     try:
         management_webhook.execute()
@@ -145,7 +163,12 @@ def get_clip(clip_id, channel=None) -> Optional[Clip]:
         if channel:
             cur.execute(
                 "SELECT * FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-                (channel, f"%{clip_id[:3]}", int(clip_id[3:]) - 1, int(clip_id[3:]) + 1),
+                (
+                    channel,
+                    f"%{clip_id[:3]}",
+                    int(clip_id[3:]) - 1,
+                    int(clip_id[3:]) + 1,
+                ),
             )
         else:
             cur.execute(
@@ -157,7 +180,8 @@ def get_clip(clip_id, channel=None) -> Optional[Clip]:
         return None
     x = Clip(data[0])
     return x
-    
+
+
 def get_channel_clips(channel_id=None) -> List[Clip]:
     with conn:
         cur = conn.cursor()
@@ -166,7 +190,7 @@ def get_channel_clips(channel_id=None) -> List[Clip]:
         else:
             cur.execute(f"select * from QUERIES ORDER BY time ASC")
         data = cur.fetchall()
-    l = []    
+    l = []
     for y in data:
         x = Clip(y)
         l.append(x)
@@ -193,7 +217,7 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     try:
         channel_image = soup.find("meta", property="og:image")["content"]
         channel_name = soup.find("meta", property="og:title")["content"]
-    except TypeError: # in case the channel is deleted or not found
+    except TypeError:  # in case the channel is deleted or not found
         channel_image = "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
         channel_name = "<deleted channel>"
     return channel_name, channel_image
@@ -241,8 +265,6 @@ def take_screenshot(video_url: str, seconds: int) -> str:
     return file_name
 
 
-
-
 def get_clip_with_desc(clip_desc: str, channel_id: str) -> Optional[Clip]:
     clips = get_channel_clips(channel_id)
     for clip in clips:
@@ -280,19 +302,23 @@ def download_and_store(clip_id) -> str:
     start_time = min(l)
     end_time = max(l)
     params = {
-        'download_ranges': yt_dlp.utils.download_range_func([], [[start_time, end_time]]),
-        'match_filter': yt_dlp.utils.match_filter_func("!is_live & live_status!=is_upcoming & availability=public"),
-        'no_warnings': True,
-        'noprogress': True,
-        'outtmpl': {'default': output_filename},
-        'quiet': True
+        "download_ranges": yt_dlp.utils.download_range_func(
+            [], [[start_time, end_time]]
+        ),
+        "match_filter": yt_dlp.utils.match_filter_func(
+            "!is_live & live_status!=is_upcoming & availability=public"
+        ),
+        "no_warnings": True,
+        "noprogress": True,
+        "outtmpl": {"default": output_filename},
+        "quiet": True,
     }
     with yt_dlp.YoutubeDL(params) as ydl:
         try:
             ydl.download([video_url])
         except yt_dlp.utils.DownloadError as e:
             print(e)
-            return # this video is still live. we can't download it
+            return  # this video is still live. we can't download it
     files = [
         os.path.join("clips", x) for x in os.listdir("./clips") if x.startswith(clip_id)
     ]
@@ -302,31 +328,39 @@ def download_and_store(clip_id) -> str:
 
 @app.context_processor
 def inject_mini_stats():
-    # todays count 
+    # todays count
     if "user-agent" not in request.headers:
         return "bro where is your user-agent"
-    if "nightbot" in request.headers['user-agent'].lower():
+    if "nightbot" in request.headers["user-agent"].lower():
         return {}
-    today = datetime.strptime(datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d").timestamp()
+    today = datetime.strptime(
+        datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d"
+    ).timestamp()
     with conn:
         cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM QUERIES WHERE time >= ? AND private is not '1' ", (today,))
+        cur.execute(
+            "SELECT COUNT(*) FROM QUERIES WHERE time >= ? AND private is not '1' ",
+            (today,),
+        )
         data = cur.fetchall()
         today_count = data[0][0]
-        cur.execute("SELECT * FROM QUERIES where private is not '1' ORDER BY time DESC LIMIT 1")
+        cur.execute(
+            "SELECT * FROM QUERIES where private is not '1' ORDER BY time DESC LIMIT 1"
+        )
         data = cur.fetchall()
     if data:
         last_clip = Clip(data[0])
         last_clip = last_clip.json()
     return dict(today_count=today_count, last_clip=last_clip)
 
+
 @app.before_request
 def before_request():
-    # if request is for /clip or /delete or /edit then check if its from real 
+    # if request is for /clip or /delete or /edit then check if its from real
     if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
         ip = request.remote_addr
         if ip in allowed_ip:
-            #print(f"Request from {ip} is allowed, known ip")
+            # print(f"Request from {ip} is allowed, known ip")
             return
         addrs = dns.reversename.from_address(ip)
         try:
@@ -337,15 +371,17 @@ def before_request():
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, ValueError):
             return f"You are not Nightbot. are you ?, your ip {ip}"
         else:
-            #print(f"Request from {ip} is allowed")
+            # print(f"Request from {ip} is allowed")
             allowed_ip.append(ip)
     else:
         pass
 
-# this function exists just because google chrome assumes that the favicon is at /favicon.ico 
+
+# this function exists just because google chrome assumes that the favicon is at /favicon.ico
 @app.route("/favicon.ico")
 def favicon():
     return send_file("static/logo.svg")
+
 
 @app.route("/robots.txt")
 def robots():
@@ -377,7 +413,9 @@ def slash():
             channel_info[ch_id[0]]["name"] = channel_name
             channel_info[ch_id[0]]["image"] = channel_image
         ch["id"] = ch_id[0]
-        channel_info[ch_id[0]]["image"] = channel_info[ch_id[0]]["image"].replace("s900-c-k-c0x00ffffff-no-rj", "s300-c-k-c0x00ffffff-no-rj")
+        channel_info[ch_id[0]]["image"] = channel_info[ch_id[0]]["image"].replace(
+            "s900-c-k-c0x00ffffff-no-rj", "s300-c-k-c0x00ffffff-no-rj"
+        )
         if request.is_secure:
             htt = "https://"
         else:
@@ -391,6 +429,7 @@ def slash():
     """
     return render_template("home.html", data=returning)
 
+
 @app.route("/data")
 def data():
     return "Disabled"
@@ -398,18 +437,21 @@ def data():
     clips = [x.json() for x in clips]
     return clips
 
+
 def get_video_id(video_link):
     x = parse.urlparse(video_link)
     to_return = ""
-    if x.path =="/watch":
-        to_return = x.query.replace("v=","")
+    if x.path == "/watch":
+        to_return = x.query.replace("v=", "")
     if "/live/" in x.path:
-        to_return = x.path.replace("/live/","")
-    return to_return.split("&")[0]   
+        to_return = x.path.replace("/live/", "")
+    return to_return.split("&")[0]
+
 
 @app.route("/ip")
 def get_ip():
     return request.remote_addr
+
 
 # this is for nightbot to give back export link
 @app.route("/export")
@@ -425,7 +467,8 @@ def export():
         htt = "http://"
     return f"You can see all the clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
-# this is for ALL CLIPS 
+
+# this is for ALL CLIPS
 @app.route("/e")
 @app.route("/exports")
 @app.route("/e/")
@@ -434,7 +477,7 @@ def clips():
     data = get_channel_clips()
     data = [x.json() for x in data if not x.private]
     return render_template(
-        "export.html", 
+        "export.html",
         data=data,
         clips_string=create_simplified(data),
         channel_name="All channels",
@@ -443,8 +486,9 @@ def clips():
         mod_icon=mod_icon,
         regular_icon=regular_icon,
         subscriber_icon=subscriber_icon,
-        channel_id="all"
-        )
+        channel_id="all",
+    )
+
 
 # this is for specific channel
 @app.route("/exports/<channel_id>")
@@ -468,8 +512,9 @@ def exports(channel_id=None):
         mod_icon=mod_icon,
         regular_icon=regular_icon,
         subscriber_icon=subscriber_icon,
-        channel_id=channel_id
+        channel_id=channel_id,
     )
+
 
 @app.route("/channelstats/<channel_id>")
 @app.route("/cs/<channel_id>")
@@ -481,7 +526,10 @@ def channel_stats(channel_id=None):
         return redirect(url_for("stats"))
     with conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM QUERIES WHERE channel_id=? AND private is not '1'", (channel_id,))
+        cur.execute(
+            "SELECT * FROM QUERIES WHERE channel_id=? AND private is not '1'",
+            (channel_id,),
+        )
         data = cur.fetchall()
     if not data:
         return redirect(url_for("slash"))
@@ -508,14 +556,23 @@ def channel_stats(channel_id=None):
             top_clippers[clip.user_id] = 0
         top_clippers[clip.user_id] += 1
     # sort
-    user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
-    notes = {k: 5+5*v for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
+    user_clips = {
+        k: v
+        for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)
+    }
+    notes = {
+        k: 5 + 5 * v
+        for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)
+    }
     notes = dict(list(notes.items())[:200])
     new_dict = {}
     # replace dict_keys with actual channel
     max_count = 0
     try:
-        streamer_name, streamer_image = channel_info[channel_id]["name"], channel_info[channel_id]["image"]
+        streamer_name, streamer_image = (
+            channel_info[channel_id]["name"],
+            channel_info[channel_id]["image"],
+        )
     except KeyError:
         streamer_name, streamer_image = get_channel_name_image(channel_id)
         channel_info[channel_id] = {}
@@ -523,7 +580,10 @@ def channel_stats(channel_id=None):
         channel_info[channel_id]["image"] = streamer_image
 
     # sort and get k top clippers
-    user_clips={k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    user_clips = {
+        k: v
+        for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)
+    }
     for k, v in user_clips.items():
         max_count += 1
         if max_count > 12:
@@ -536,11 +596,14 @@ def channel_stats(channel_id=None):
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
-    new_dict['Others'] = sum(list(user_clips.values())[max_count:])
-    if new_dict['Others'] == 0:
-        new_dict.pop('Others')
+    new_dict["Others"] = sum(list(user_clips.values())[max_count:])
+    if new_dict["Others"] == 0:
+        new_dict.pop("Others")
     user_clips = new_dict
-    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
+    top_clippers = {
+        k: v
+        for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)
+    }
     new = []
     count = 0
     for k, v in top_clippers.items():
@@ -548,22 +611,26 @@ def channel_stats(channel_id=None):
         if count > 12:
             break
         if k in channel_info:
-            new.append({
-                "name": channel_info[k]["name"],
-                "image": channel_info[k]["image"],
-                "count": v,
-                "link": f"https://youtube.com/channel/{k}",
-                "otherlink": url_for("user_stats", channel_id=k)
-            })
+            new.append(
+                {
+                    "name": channel_info[k]["name"],
+                    "image": channel_info[k]["image"],
+                    "count": v,
+                    "link": f"https://youtube.com/channel/{k}",
+                    "otherlink": url_for("user_stats", channel_id=k),
+                }
+            )
         else:
             channel_name, image = get_channel_name_image(k)
-            new.append({
-                "name": channel_name,
-                "image": image,
-                "count": v,
-                "link": f"https://youtube.com/channel/{k}",
-                "otherlink": url_for("user_stats", channel_id=k)
-            })
+            new.append(
+                {
+                    "name": channel_name,
+                    "image": image,
+                    "count": v,
+                    "link": f"https://youtube.com/channel/{k}",
+                    "otherlink": url_for("user_stats", channel_id=k),
+                }
+            )
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
@@ -597,7 +664,14 @@ def channel_stats(channel_id=None):
     known_k = []
     max_count = 0
     # sort
-    streamer_trend_data={k: v for k, v in sorted(streamer_trend_data.items(), key=lambda item: sum(item[1].values()), reverse=True)}
+    streamer_trend_data = {
+        k: v
+        for k, v in sorted(
+            streamer_trend_data.items(),
+            key=lambda item: sum(item[1].values()),
+            reverse=True,
+        )
+    }
     for k, v in streamer_trend_data.items():
         max_count += 1
         if max_count > 12:
@@ -611,16 +685,16 @@ def channel_stats(channel_id=None):
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
         known_k.append(k)
-    new_dict['Others'] = {}
+    new_dict["Others"] = {}
     for k, v in streamer_trend_data.items():
         if k in known_k:
             continue
         for day, count in v.items():
-            if day not in new_dict['Others']:
-                new_dict['Others'][day] = 0
-            new_dict['Others'][day] += count
-    if new_dict['Others'] == {}:
-        new_dict.pop('Others')
+            if day not in new_dict["Others"]:
+                new_dict["Others"][day] = 0
+            new_dict["Others"][day] += count
+    if new_dict["Others"] == {}:
+        new_dict.pop("Others")
     streamer_trend_data = new_dict
     time_distribution = {}
     for x in range(24):
@@ -631,22 +705,22 @@ def channel_stats(channel_id=None):
     message = f"Channel Stats for {streamer_name}. {user_count} users clipped\n{clip_count} clips till now. \nand counting."
     return render_template(
         "stats.html",
-        message = message,
+        message=message,
         notes=notes,
         clip_count=clip_count,
         user_count=user_count,
         clip_users=[(k, v) for k, v in user_clips.items()],
         top_clippers=top_clippers,
-        channel_count = len(user_clips),
-        times= list(time_trend.keys()),
-        counts= list(time_trend.values()),
+        channel_count=len(user_clips),
+        times=list(time_trend.keys()),
+        counts=list(time_trend.values()),
         streamer_trend_data=streamer_trend_data,
         streamers_trend_days=streamers_trend_days,
-        streamers_labels = list(streamer_trend_data.keys()),
-        time_distribution = time_distribution,
+        streamers_labels=list(streamer_trend_data.keys()),
+        time_distribution=time_distribution,
         channel_name=streamer_name,
-        channel_image=streamer_image
-        )
+        channel_image=streamer_image,
+    )
 
 
 @app.route("/userstats/<channel_id>")
@@ -657,7 +731,10 @@ def user_stats(channel_id=None):
         return redirect(url_for("slash"))
     with conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM QUERIES WHERE user_id=? AND private is not '1' ", (channel_id,))
+        cur.execute(
+            "SELECT * FROM QUERIES WHERE user_id=? AND private is not '1' ",
+            (channel_id,),
+        )
         data = cur.fetchall()
     if not data:
         return redirect(url_for("slash"))
@@ -683,15 +760,27 @@ def user_stats(channel_id=None):
             top_clippers[clip.channel] = 0
         top_clippers[clip.channel] += 1
     # sort
-    notes = {k: 5+5*v for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
+    notes = {
+        k: 5 + 5 * v
+        for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)
+    }
     notes = dict(list(notes.items())[:200])
-    user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
-    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
+    user_clips = {
+        k: v
+        for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)
+    }
+    top_clippers = {
+        k: v
+        for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)
+    }
     new_dict = {}
     # replace dict_keys with actual channel
     max_count = 0
     try:
-        streamer_name, streamer_image = channel_info[channel_id]["name"], channel_info[channel_id]["image"]
+        streamer_name, streamer_image = (
+            channel_info[channel_id]["name"],
+            channel_info[channel_id]["image"],
+        )
     except KeyError:
         streamer_name, streamer_image = get_channel_name_image(channel_id)
         channel_info[channel_id] = {}
@@ -699,7 +788,10 @@ def user_stats(channel_id=None):
         channel_info[channel_id]["image"] = streamer_image
 
     # sort and get k top clippers
-    user_clips={k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
+    user_clips = {
+        k: v
+        for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)
+    }
     for k, v in user_clips.items():
         max_count += 1
         if max_count > 12:
@@ -712,10 +804,10 @@ def user_stats(channel_id=None):
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
-    new_dict['Others'] = sum(list(user_clips.values())[max_count:])
-    if new_dict['Others'] == 0:
-        new_dict.pop('Others')
-    user_clips = new_dict        
+    new_dict["Others"] = sum(list(user_clips.values())[max_count:])
+    if new_dict["Others"] == 0:
+        new_dict.pop("Others")
+    user_clips = new_dict
     new = []
     count = 0
     for k, v in top_clippers.items():
@@ -723,22 +815,26 @@ def user_stats(channel_id=None):
         if count > 12:
             break
         if k in channel_info:
-            new.append({
-                "name": channel_info[k]["name"],
-                "image": channel_info[k]["image"],
-                "count": v,
-                "link": f"https://youtube.com/channel/{k}",
-                "otherlink": url_for("channel_stats", channel_id=k)
-            })
+            new.append(
+                {
+                    "name": channel_info[k]["name"],
+                    "image": channel_info[k]["image"],
+                    "count": v,
+                    "link": f"https://youtube.com/channel/{k}",
+                    "otherlink": url_for("channel_stats", channel_id=k),
+                }
+            )
         else:
             channel_name, image = get_channel_name_image(k)
-            new.append({
-                "name": channel_name,
-                "image": image,
-                "count": v,
-                "link": f"https://youtube.com/channel/{k}",
-                "otherlink": url_for("channel_stats", channel_id=k)
-            })
+            new.append(
+                {
+                    "name": channel_name,
+                    "image": image,
+                    "count": v,
+                    "link": f"https://youtube.com/channel/{k}",
+                    "otherlink": url_for("channel_stats", channel_id=k),
+                }
+            )
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
@@ -772,7 +868,14 @@ def user_stats(channel_id=None):
     known_k = []
     max_count = 0
     # sort
-    streamer_trend_data={k: v for k, v in sorted(streamer_trend_data.items(), key=lambda item: sum(item[1].values()), reverse=True)}
+    streamer_trend_data = {
+        k: v
+        for k, v in sorted(
+            streamer_trend_data.items(),
+            key=lambda item: sum(item[1].values()),
+            reverse=True,
+        )
+    }
     for k, v in streamer_trend_data.items():
         max_count += 1
         if max_count > 12:
@@ -786,42 +889,44 @@ def user_stats(channel_id=None):
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
         known_k.append(k)
-    new_dict['Others'] = {}
+    new_dict["Others"] = {}
     for k, v in streamer_trend_data.items():
         if k in known_k:
             continue
         for day, count in v.items():
-            if day not in new_dict['Others']:
-                new_dict['Others'][day] = 0
-            new_dict['Others'][day] += count
-    if new_dict['Others'] == {}:
-        new_dict.pop('Others')
+            if day not in new_dict["Others"]:
+                new_dict["Others"][day] = 0
+            new_dict["Others"][day] += count
+    if new_dict["Others"] == {}:
+        new_dict.pop("Others")
     streamer_trend_data = new_dict
     time_distribution = {}
     for x in range(24):
         time_distribution[x] = 0
     for clip in clips:
-        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))     
+        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
     message = f"User Stats for {streamer_name}. Clipped\n{clip_count} clips in {user_count} channels till now. and counting."
     return render_template(
         "stats.html",
-        message = message,
+        message=message,
         notes=notes,
         clip_count=clip_count,
         user_count=user_count,
         clip_users=[(k, v) for k, v in user_clips.items()],
         top_clippers=top_clippers,
-        channel_count = len(user_clips),
-        times= list(time_trend.keys()),
-        counts= list(time_trend.values()),
+        channel_count=len(user_clips),
+        times=list(time_trend.keys()),
+        counts=list(time_trend.values()),
         streamer_trend_data=streamer_trend_data,
         streamers_trend_days=streamers_trend_days,
-        streamers_labels = list(streamer_trend_data.keys()),
-        time_distribution = time_distribution,
+        streamers_labels=list(streamer_trend_data.keys()),
+        time_distribution=time_distribution,
         channel_name=streamer_name,
-        channel_image=streamer_image
-        )
+        channel_image=streamer_image,
+    )
+
+
 @app.route("/stats")
 def stats():
     # get clips
@@ -852,12 +957,21 @@ def stats():
         top_clippers[clip.user_id] += 1
 
     # sort
-    user_clips = {k: v for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)}
-    top_clippers = {k: v for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)}
-    notes = {k: 1.2*v for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)}
+    user_clips = {
+        k: v
+        for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)
+    }
+    top_clippers = {
+        k: v
+        for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)
+    }
+    notes = {
+        k: 1.2 * v
+        for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)
+    }
     notes = dict(list(notes.items())[:200])
     # replace dict_keys with actual channel
-    new_dict = {}   
+    new_dict = {}
     for k, v in user_clips.items():
         if k in channel_info:
             new_dict[channel_info[k]["name"]] = v
@@ -867,7 +981,7 @@ def stats():
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
-    user_clips = new_dict    
+    user_clips = new_dict
     new = []
     count = 0
     for k, v in top_clippers.items():
@@ -875,28 +989,32 @@ def stats():
         if count > 12:
             break
         if k in channel_info:
-            new.append({
-                "name": channel_info[k]["name"],
-                "image": channel_info[k]["image"],
-                "count": v,
-                "link": f"https://youtube.com/channel/{k}",
-                "otherlink": url_for("user_stats", channel_id=k)
-            })
+            new.append(
+                {
+                    "name": channel_info[k]["name"],
+                    "image": channel_info[k]["image"],
+                    "count": v,
+                    "link": f"https://youtube.com/channel/{k}",
+                    "otherlink": url_for("user_stats", channel_id=k),
+                }
+            )
         else:
             channel_name, image = get_channel_name_image(k)
-            new.append({
-                "name": channel_name,
-                "image": image,
-                "count": v,
-                "link": f"https://youtube.com/channel/{k}",
-                "otherlink": url_for("user_stats", channel_id=k)
-            })
+            new.append(
+                {
+                    "name": channel_name,
+                    "image": image,
+                    "count": v,
+                    "link": f"https://youtube.com/channel/{k}",
+                    "otherlink": url_for("user_stats", channel_id=k),
+                }
+            )
             channel_info[k] = {}
             channel_info[k]["name"] = channel_name
             channel_info[k]["image"] = image
     top_clippers = new
     new_dict = {}
-    # time trend 
+    # time trend
     # day : no_of_clips
     for clip in clips:
         day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
@@ -939,23 +1057,24 @@ def stats():
 
     message = f"{user_count} users clipped\n{clip_count} clips on \n{len(user_clips)} channels till now. \nand counting."
     return render_template(
-        "stats.html", 
-        message = message,
+        "stats.html",
+        message=message,
         notes=notes,
-        clip_count=clip_count, 
-        user_count=user_count, 
+        clip_count=clip_count,
+        user_count=user_count,
         clip_users=[(k, v) for k, v in user_clips.items()],
         top_clippers=top_clippers,
-        channel_count = len(user_clips),
-        times= list(time_trend.keys()),
-        counts= list(time_trend.values()),
+        channel_count=len(user_clips),
+        times=list(time_trend.keys()),
+        counts=list(time_trend.values()),
         streamer_trend_data=streamer_trend_data,
         streamers_trend_days=streamers_trend_days,
-        streamers_labels = list(streamer_trend_data.keys()),
-        time_distribution = time_distribution,
+        streamers_labels=list(streamer_trend_data.keys()),
+        time_distribution=time_distribution,
         channel_name="All channels",
-        channel_image="https://streamsnip.com/static/logo-grey.png"
-        )
+        channel_image="https://streamsnip.com/static/logo-grey.png",
+    )
+
 
 @app.route("/admin")
 def admin():
@@ -980,13 +1099,18 @@ def admin():
             htt = "https://"
         else:
             htt = "http://"
-        channel_info_admin[key]["link"] = f"{htt}{request.host}{url_for('exports', channel_id=key)}"
+        channel_info_admin[key][
+            "link"
+        ] = f"{htt}{request.host}{url_for('exports', channel_id=key)}"
 
     return render_template("admin.html", ids=clip_ids, channel_info=channel_info_admin)
 
+
 @app.route("/ed", methods=["POST"])
 def edit_delete():
-    actual_password = get_webhook_url("password") # i know this is not a good way to store password. but i am too lazy to implement a proper login system
+    actual_password = get_webhook_url(
+        "password"
+    )  # i know this is not a good way to store password. but i am too lazy to implement a proper login system
     if not actual_password:
         return "Password not set"
     password = request.form.get("password")
@@ -1005,7 +1129,7 @@ def edit_delete():
         clip = get_clip(clip_id)
         clip.edit(new_name, conn)
         return "Edited"
-    
+
     elif request.form.get("delete") == "Delete":
         if not request.form.get("clip", None):
             return "No Clip selected"
@@ -1015,7 +1139,7 @@ def edit_delete():
             return "Clip not found"
         clip.delete(conn)
         return "Deleted"
-    
+
     elif request.form.get("new") == "Submit":
         if not request.form.get("key", None):
             return "No key provided"
@@ -1032,8 +1156,7 @@ def edit_delete():
         return jsonify(creds)
     else:
         return "what ?"
-    
-    
+
 
 def get_latest_live(channel_id):
     vids = scrapetube.get_channel(channel_id, content_type="streams", limit=2, sleep=0)
@@ -1050,15 +1173,13 @@ def get_latest_live(channel_id):
     vid = YouTubeChatDownloader().get_video_data(video_id=vid["videoId"])
     return vid
 
+
 @app.route("/add", methods=["POST", "GET"])
 def add():
     if request.method == "GET":
         return render_template(
-            "add.html",
-            link = "enter link",
-            desc= "!clip",
-            password="password"
-            )
+            "add.html", link="enter link", desc="!clip", password="password"
+        )
     else:
         data = request.form
         if data.get("new") == "Submit":
@@ -1105,12 +1226,8 @@ def add():
                         if chat["message"].startswith(desc):
                             right_chats.append(chat)
             return render_template(
-                "add.html", 
-                link= link,
-                desc= desc,
-                password = password,
-                chats=right_chats
-                )
+                "add.html", link=link, desc=desc, password=password, chats=right_chats
+            )
         else:
             # second time
             link = data.get("link", None)
@@ -1140,7 +1257,7 @@ def add():
                     "Nightbot-User": f"providerId={chat['author']['id']}&displayName={chat['author']['name']}&userLevel={user_level}",
                     "Nightbot-Response-Url": "https://api.nightbot.tv/1/channel/send/",
                     "videoID": vid_id,
-                    "timestamp": str(chat['timestamp'])
+                    "timestamp": str(chat["timestamp"]),
                 }
                 if request.is_secure:
                     htt = "https://"
@@ -1157,19 +1274,22 @@ def add():
                 response += r.text + "\n"
             return "Done" + "\n" + response
 
+
 def parse_user_badges(badges) -> str:
-   """owner - Channel Owner
+    """owner - Channel Owner
     moderator - Channel Moderator
     subscriber - Paid Channel Subscriber
     everyone"""
-   badges = [x['title'].split(" ")[0].lower() for x in badges]
-   if "owner" in badges:
-       return "owner"
-   if "moderator" in badges:
+    badges = [x["title"].split(" ")[0].lower() for x in badges]
+    if "owner" in badges:
+        return "owner"
+    if "moderator" in badges:
         return "moderator"
-   if "member" in badges:
-       return "subscriber"
-   return "everyone"
+    if "member" in badges:
+        return "subscriber"
+    return "everyone"
+
+
 @app.route("/uptime")
 def uptime():
     # returns the uptime of the bot
@@ -1189,6 +1309,7 @@ def uptime():
     uptime = time_to_hms(uptime)
     return f"Stream uptime is {uptime}"
 
+
 @app.route("/stream_info")
 def stream_info():
     try:
@@ -1199,22 +1320,28 @@ def stream_info():
     channel_id = channel.get("providerId")[0]
     return get_latest_live(channel_id)
 
+
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10&silent=2
 @app.route("/clip/<message_id>/")
 @app.route("/clip/<message_id>/<clip_desc>")
 def clip(message_id, clip_desc=None):
-    arguments = {k.replace("?", ""):request.args[k] for k in request.args}
+    arguments = {k.replace("?", ""): request.args[k] for k in request.args}
     show_link = arguments.get("showlink", True)
     screenshot = arguments.get("screenshot", False)
-    silent = arguments.get("silent", 2) # silent level. if not then 2
+    silent = arguments.get("silent", 2)  # silent level. if not then 2
     private = arguments.get("private", False)
     webhook = arguments.get("webhook", False)
-    message_level = arguments.get("message_level", 0) # 0 is normal. 1 is to persist the defautl webhook name. 2 is for no record on discord message. 3 is for service badging
+    message_level = arguments.get(
+        "message_level", 0
+    )  # 0 is normal. 1 is to persist the defautl webhook name. 2 is for no record on discord message. 3 is for service badging
     try:
         message_level = int(message_level)
     except ValueError:
         message_level = 0
-    logging.log(level=logging.INFO, msg=f"A request for clip with arguments {arguments} and headers {request.headers}") 
+    logging.log(
+        level=logging.INFO,
+        msg=f"A request for clip with arguments {arguments} and headers {request.headers}",
+    )
     if webhook and not webhook.startswith("https://discord.com/api/webhooks/"):
         webhook = f"https://discord.com/api/webhooks/{webhook}"
     try:
@@ -1238,9 +1365,9 @@ def clip(message_id, clip_desc=None):
             return "The value of request time in headers must be a number"
         if len(str(int(request_time))) > 10:
             request_time = request_time / 1000000
-            # this is because youtube unknownigly stores chat timing with very high precision. 
+            # this is because youtube unknownigly stores chat timing with very high precision.
     if not local:
-        monitor.ping(state='run')
+        monitor.ping(state="run")
     if not message_id:
         return "No message id provided, You have configured it wrong. please contact AG at https://discord.gg/2XVBWK99Vy"
     if not clip_desc:
@@ -1261,22 +1388,20 @@ def clip(message_id, clip_desc=None):
     else:
         vid = get_latest_live(channel_id)
         chat_id_video[message_id] = vid
-    # if there is a video id passed through headers. we may want to use it instead 
+    # if there is a video id passed through headers. we may want to use it instead
     h_vid = request.headers.get("videoID")
     if h_vid:
         vid = YouTubeChatDownloader().get_video_data(video_id=h_vid)
     if not vid:
         return "No LiveStream Found."
-    clip_time = request_time - vid["start_time"] / 1000000 + 5 
+    clip_time = request_time - vid["start_time"] / 1000000 + 5
     clip_time += delay
     url = "https://youtu.be/" + vid["original_video_id"] + "?t=" + str(int(clip_time))
     clip_id = message_id[-3:] + str(int(clip_time))
     # if clip_time is in seconds. then hh:mm:ss format would be like
     hour_minute_second = time_to_hms(clip_time)
     is_privated_str = "(P) " if private else ""
-    message_cc_webhook = (
-        f"{is_privated_str}{clip_id} | **{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
-    )
+    message_cc_webhook = f"{is_privated_str}{clip_id} | **{clip_desc}** \n\n{hour_minute_second} \n<{url}>"
     if delay:
         message_cc_webhook += f"\nDelayed by {delay} seconds."
     if message_level == 0:
@@ -1291,7 +1416,10 @@ def clip(message_id, clip_desc=None):
         channel_name, channel_image = "", ""
     else:
         webhook_name = "Streamsnip"
-        channel_name, channel_image = "Streamsnip", "https://streamsnip.com/static/logo-grey.png"
+        channel_name, channel_image = (
+            "Streamsnip",
+            "https://streamsnip.com/static/logo-grey.png",
+        )
 
     if message_level == 0:
         if user_level == "owner":
@@ -1345,7 +1473,7 @@ def clip(message_id, clip_desc=None):
             webhook.add_file(file=f.read(), filename="ss.jpg")
         webhook.execute()
         ss_id = webhook.id
-        ss_link = webhook.attachments[0]['url']
+        ss_link = webhook.attachments[0]["url"]
     else:
         ss_id = None
         ss_link = None
@@ -1369,12 +1497,12 @@ def clip(message_id, clip_desc=None):
                 ss_id,
                 ss_link,
                 private,
-                message_level
+                message_level,
             ),
         )
         conn.commit()
     if not local:
-        monitor.ping(state='complete')
+        monitor.ping(state="complete")
     if private:
         return "clipped 😉"
     if silent == 2:
@@ -1394,8 +1522,8 @@ def delete(clip_id=None):
     except KeyError:
         return "Not able to auth"
     channel_id = channel.get("providerId")[0]
-    arguments = {k.replace("?", ""):request.args[k] for k in request.args}
-    silent = arguments.get("silent", 2) # silent level. if not then 2
+    arguments = {k.replace("?", ""): request.args[k] for k in request.args}
+    silent = arguments.get("silent", 2)  # silent level. if not then 2
     try:
         silent = int(silent)
     except ValueError:
@@ -1426,7 +1554,6 @@ def delete(clip_id=None):
         return returning_str + errored_str
 
 
-
 @app.route("/edit/<xxx>")
 def edit(xxx=None):
     if not xxx:
@@ -1437,8 +1564,8 @@ def edit(xxx=None):
         return "Not able to auth"
     if len(xxx.split(" ")) < 2:
         return "Please provide clip id and new description"
-    arguments = {k.replace("?", ""):request.args[k] for k in request.args}
-    silent = arguments.get("silent", 2) # silent level. if not then 2
+    arguments = {k.replace("?", ""): request.args[k] for k in request.args}
+    silent = arguments.get("silent", 2)  # silent level. if not then 2
     clip_id = xxx.split(" ")[0]
     new_desc = " ".join(xxx.split(" ")[1:])
     try:
@@ -1458,7 +1585,13 @@ def edit(xxx=None):
     elif silent == 1:
         return clip_id
     else:
-        return f"Edited clip {clip_id} from title '" + old_desc + "' to '" + new_desc + "'."
+        return (
+            f"Edited clip {clip_id} from title '"
+            + old_desc
+            + "' to '"
+            + new_desc
+            + "'."
+        )
 
 
 @app.route("/search/<clip_desc>")
@@ -1503,22 +1636,26 @@ def video(clip_id):
     l = [timestamp, timestamp + delay]
     start_time = min(l)
     end_time = max(l)
-    return redirect(f"{downloader_base_url}/download/{clip.stream_id}/{start_time}/{end_time}")
+    return redirect(
+        f"{downloader_base_url}/download/{clip.stream_id}/{start_time}/{end_time}"
+    )
+
 
 @ext.register_generator
 def index():
     # Not needed if you set SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS=True\
-    yield 'slash', {}
+    yield "slash", {}
     with conn:
         cur = conn.cursor()
         cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
         data = cur.fetchall()
     for channel in set([x[0] for x in data]):
-        yield 'channel_stats', {'channel_id':channel}
-        yield 'exports', {'channel_id':channel}
+        yield "channel_stats", {"channel_id": channel}
+        yield "exports", {"channel_id": channel}
 
     yield "clips", {}
     yield "stats", {}
+
 
 channel_info = {}
 with conn:
@@ -1531,7 +1668,7 @@ for ch_id in data:
     if ch_id[0] in channel_info:
         continue
     if local:
-        break # don't build cache on locally running. 
+        break  # don't build cache on locally running.
     channel_info[ch_id[0]] = {}
     (
         channel_info[ch_id[0]]["name"],

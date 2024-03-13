@@ -4,6 +4,7 @@ from discord_webhook import DiscordWebhook
 
 import sqlite3
 
+
 class Clip:
     channel = None
     id = None
@@ -19,7 +20,7 @@ class Clip:
     userlevel = None
     ss_id = None
     ss_link = None
-    private= False
+    private = False
 
     def __init__(self, data):
         # data is a [str]
@@ -44,19 +45,23 @@ class Clip:
         self.ss_link = data[12]
         self.hms = time_to_hms(self.time_in_seconds)
         self.download_link = f"/video/{self.id}"
-        self.private = str(data[13]) == '1'
+        self.private = str(data[13]) == "1"
         try:
             self.message_level = int(data[14])
         except (ValueError, TypeError):
             self.message_level = 0
-    
+
     def __str__(self):
         return self.desc
-    
+
     def json(self):
         x = {}
         x["link"] = self.stream_link
-        x["author"] = {"name": self.user_name, "id": self.user_id, "level": self.userlevel}
+        x["author"] = {
+            "name": self.user_name,
+            "id": self.user_id,
+            "level": self.userlevel,
+        }
         x["clip_time"] = self.time_in_seconds
         x["time"] = self.time  # real life time when clip was made
         x["message"] = self.desc
@@ -65,17 +70,17 @@ class Clip:
         x["hms"] = self.hms
         x["id"] = self.id
         x["delay"] = self.delay
-        x["discord"] ={
+        x["discord"] = {
             "webhook": self.webhook,
             "ss_id": self.ss_id,
-            "ss_link": self.ss_link
+            "ss_link": self.ss_link,
         }
-        x['download_link'] = self.download_link
-        x['private'] = self.private
-        x['message_level'] = self.message_level
-        return x 
-    
-    def edit(self, new_desc:str, conn:sqlite3.Connection):
+        x["download_link"] = self.download_link
+        x["private"] = self.private
+        x["message_level"] = self.message_level
+        return x
+
+    def edit(self, new_desc: str, conn: sqlite3.Connection):
         with conn:
             cur = conn.cursor()
             cur.execute(
@@ -111,13 +116,18 @@ class Clip:
                 pass
         self.desc = new_desc
         return True
-    
-    def delete(self, conn:sqlite3.Connection):
+
+    def delete(self, conn: sqlite3.Connection):
         with conn:
             cur = conn.cursor()
             cur.execute(
                 "DELETE FROM QUERIES WHERE channel_id=? AND message_id LIKE ? AND time_in_seconds >= ? AND time_in_seconds < ?",
-                (self.channel, f"%{self.id[:3]}", self.time_in_seconds - 1, self.time_in_seconds + 1),
+                (
+                    self.channel,
+                    f"%{self.id[:3]}",
+                    self.time_in_seconds - 1,
+                    self.time_in_seconds + 1,
+                ),
             )
             conn.commit()
         webhook_url = get_webhook_url(self.channel)
