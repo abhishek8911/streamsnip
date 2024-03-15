@@ -47,11 +47,12 @@ except FileNotFoundError:
 else:
     local = False
 
-logging.basicConfig(
-    filename="./record.log",
-    level=logging.ERROR,
-    format=f"%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
-)
+if not local:
+    logging.basicConfig(
+        filename="./record.log",
+        level=logging.ERROR,
+        format=f"%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
+    )
 
 testing = load(open("testing_config.json", "r"))
 cronitor.api_key = testing["api_key"]
@@ -494,12 +495,22 @@ def clips():
 @app.route("/exports/<channel_id>")
 @app.route("/e/<channel_id>")
 def exports(channel_id=None):
-    try:
-        channel_name, channel_image = get_channel_name_image(channel_id)
-    except TypeError:
-        return redirect(
-            url_for("slash")
-        )  # if channel is not found then redirect to home page
+    if channel_id in channel_info:
+        channel_name, channel_image = ( # if the channel is already in the cache
+            channel_info[channel_id]["name"],
+            channel_info[channel_id]["image"],
+        )
+    else:
+        try:
+            channel_name, channel_image = get_channel_name_image(channel_id)
+        except TypeError:
+            return redirect(
+                url_for("slash")
+            )  # if channel is not found then redirect to home page
+        else:
+            channel_info[channel_id] = {}
+            channel_info[channel_id]["name"] = channel_name
+            channel_info[channel_id]["image"] = channel_image
     data = get_channel_clips(channel_id)
     data = [x.json() for x in data if not x.private]
     return render_template(
