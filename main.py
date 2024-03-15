@@ -409,18 +409,11 @@ def slash():
         if ch_id[0] in known_channels:
             continue
         known_channels.append(ch_id[0])
-        if ch_id[0] in channel_info:
-            ch["image"] = channel_info[ch_id[0]]["image"]
-            ch["name"] = channel_info[ch_id[0]]["name"]
-        else:
-            channel_name, channel_image = get_channel_name_image(ch_id[0])
-            ch["image"] = channel_image
-            ch["name"] = channel_name
-            channel_info[ch_id[0]] = {}
-            channel_info[ch_id[0]]["name"] = channel_name
-            channel_info[ch_id[0]]["image"] = channel_image
+        channel_name, channel_image = get_channel_name_image(ch_id[0])
+        ch["image"] = channel_image
+        ch["name"] = channel_name
         ch["id"] = ch_id[0]
-        channel_info[ch_id[0]]["image"] = channel_info[ch_id[0]]["image"].replace(
+        ch["image"] = channel_image.replace(
             "s900-c-k-c0x00ffffff-no-rj", "s300-c-k-c0x00ffffff-no-rj"
         )
         if request.is_secure:
