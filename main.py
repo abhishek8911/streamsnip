@@ -213,7 +213,10 @@ def create_simplified(clips: list) -> str:
 
 def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     if channel_id in channel_info:
-        return channel_info[channel_id]["name"], channel_info[channel_id]["image"]
+        try:
+            return channel_info[channel_id]["name"], channel_info[channel_id]["image"]
+        except KeyError:
+            print(channel_info[channel_id])
     
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
