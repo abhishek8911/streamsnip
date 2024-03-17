@@ -1200,9 +1200,26 @@ def uptime():
         return "No live stream found"
     start_time = latest_live["start_time"] / 1000000
     current_time = time.time()
-    uptime = current_time - start_time
-    uptime = time_to_hms(uptime)
-    return f"Stream uptime is {uptime}"
+    uptime_seconds = current_time - start_time
+    uptime = time_to_hms(uptime_seconds)
+    level = request.args.get("delay", 0)
+    if not level:
+        return f"Stream uptime is {uptime}"
+    elif level == 1:
+        return uptime
+    elif level == 2:
+        # convert time to x hours y minutes z seconds
+        uptime = uptime.split(":")
+        string = ""
+        if len(uptime) == 3:
+            string = f"{uptime[0]} hours {uptime[1]} minutes {uptime[2]} seconds"
+        elif len(uptime) == 2:
+            string = f"{uptime[0]} minutes {uptime[1]} seconds"
+        else:
+            string = f"{uptime[0]} seconds"
+        return string
+    else:
+        return uptime_seconds
 
 
 @app.route("/stream_info")
