@@ -11,101 +11,123 @@
 {% block content %}
 <div class="container">
     <center>
-        <div class="row">
-            <div class="col-md-12">
-                {% if channel_id == 'all'%}
-                <h1>{{ channel_name }} - Clips ({{ data|length }})</h1>
-                {% else %}
-                <a href = "https://youtube.com/channel/{{ channel_id }}">
-                <img src="{{ channel_image }}" alt="{{ channel_name }}" class="rounded-circle" style="width: 200px; height: 200px;">
-                <h1> {{ channel_name }} - Clips ({{ data|length }})</h1></a>
-                {% endif %}
-                {% if channel_id != 'all'%}
-                </a>
-                {% endif %} 
-            </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% if channel_id == 'all'%}
+            <h1>{{ channel_name }} - Clips ({{ data|length }})</h1>
+            {% else %}
+            <a href = "https://youtube.com/channel/{{ channel_id }}">
+            <img src="{{ channel_image }}" alt="{{ channel_name }}" class="rounded-circle" style="width: 200px; height: 200px;">
+            <h1> {{ channel_name }} - Clips ({{ data|length }})</h1></a>
+            {% endif %}
+            {% if channel_id != 'all'%}
+            </a>
+            {% endif %} 
         </div>
-        <a href="/cs/{{channel_id}}"> <button type="button" class="btn btn-primary">Stats</button></a></br></br>
-        <!--
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Raw Data</h2>
-            </div>
+    </div>
+    <a href="/cs/{{channel_id}}"> <button type="button" class="btn btn-primary">Stats</button></a></br></br>
+    <!--
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Raw Data</h2>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <textarea class="form-control" id="raw_data" rows="3"></textarea>
-            </div>
-        </div>-->
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <textarea class="form-control" id="raw_data" rows="3"></textarea>
+        </div>
+    </div>-->
 
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Simplified String</h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <textarea readonly class="form-control" id="raw_string_data" rows="3"></textarea>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Filter by Level:</h2>
-                <select id="filter" class="form-control">
-                    <option value="all">All Levels</option>
-                    <option value="everyone">Everyone</option>
-                    <option value="moderator">Moderator</option>
-                    <option value="owner">Owner</option>
-                    <option value="regular">Regular</option>
-                    <option value="subscriber">Subscriber</option>
-                </select>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        <li class="page-item" id="prev-page">
-                            <a class="page-link" href="#" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item" id="next-page">
-                            <a class="page-link" href="#" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item" id="invert-page">
-                            <a class="page-link" href="#" aria-label="Invert">
-                                <span aria-hidden="true">↑↓</i></span>
-                            </a>
-                        </li>
-                    </ul>
-                    <p>Page <span id="current-page">1</span>/<span id="total-page"></span> </br>
-                    (<span id="total-clips"></span>)</p>
-                </nav>
-            </div>
-        </div>
-        <h2>Seperate streams</h2>
-        <label class="switch">
-            <input type="checkbox" id="iview" checked="checked">
-            <span class="slider round"></span>
-        </label>
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Search</h2>
-                <input type="text" id="search" class="form-control search" placeholder="Search for clips...">
-            </div>
-        </div>
-    </center>
-        <div class="row" id="clips-container">
-            <!-- Clips will be dynamically added here using JavaScript -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Simplified String</h2>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <textarea readonly class="form-control" id="raw_string_data" rows="3"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Filter by Level:</h2>
+            <select id="filter" class="form-control">
+                <option value="all">All Levels</option>
+                <option value="everyone">Everyone</option>
+                <option value="moderator">Moderator</option>
+                <option value="owner">Owner</option>
+                <option value="regular">Regular</option>
+                <option value="subscriber">Subscriber</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item" id="prev-page">
+                        <a class="page-link" href="#" aria-label="Previous" name="prev-button">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" id="next-page">
+                        <a class="page-link" href="#" aria-label="Next" name="next-button">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" id="invert-page">
+                        <a class="page-link" href="#" aria-label="Invert" name="invert-button"> 
+                            <span aria-hidden="true">↑↓</i></span>
+                        </a>
+                    </li>
+                </ul>
+                <p>Page <span id="current-page">1</span>/<span id="total-page"></span> </br>
+                (<span id="total-clips"></span>)</p>
+            </nav>
+        </div>
+    </div>
+    <h2>Seperate streams</h2>
+    <label class="switch">
+        <input type="checkbox" id="iview" checked="checked">
+        <span class="slider round"></span>
+    </label>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Search</h2>
+            <input type="text" id="search" class="form-control search" placeholder="Search for clips...">
+        </div>
     </div>
 </center>
+    <div class="row" id="clips-container">
+        <!-- Clips will be dynamically added here using JavaScript -->
+    </div>
+    <center>
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item" id="prev-page">
+                        <a class="page-link" href="#" aria-label="Previous" name="prev-button">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" id="next-page">
+                        <a class="page-link" href="#" aria-label="Next" name="next-button">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" id="invert-page">
+                        <a class="page-link" href="#" aria-label="Invert" name="invert-button"> 
+                            <span aria-hidden="true">↑↓</i></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</center>
+
 </div>
-</center>
 <script>
     var inverted = false;
     var maxPage = 0;
@@ -140,15 +162,31 @@
         updateClips();
     });
 
-    document.getElementById("prev-page").addEventListener("click", function (e) {
+    prev_buttons = document.getElementsByName("prev-button");
+    next_buttons = document.getElementsByName("next-button");
+    invert_buttons = document.getElementsByName("invert-button");
+    for(let i=0; i<prev_buttons.length; i++){
+        console.log(prev_buttons[i]);
+        prev_buttons[i].addEventListener("click", function(e){prev(e)})
+    }
+    for(let i=0; i<next_buttons.length; i++){
+        console.log(next_buttons[i]);
+        next_buttons[i].addEventListener("click", function(e){next(e)})
+    }
+    for(let i=0; i<invert_buttons.length; i++){
+        console.log(invert_buttons[i]);
+        invert_buttons[i].addEventListener("click", function(e){invert(e)})
+    }
+
+    function prev(e) {
         e.preventDefault();
         if (currentPage > 1) {
             currentPage--;
             updateClips();
         }
-    });
+    };
 
-    document.getElementById("next-page").addEventListener("click", function (e) {
+    function next(e) {
         e.preventDefault();
         if(maxPage==0){
             maxPage = Math.ceil(data.length / clipsPerPage);
@@ -157,9 +195,9 @@
             currentPage++;
             updateClips();
         }
-    });
+    };
 
-    document.getElementById("invert-page").addEventListener("click", function (e) {
+    function invert(e) {
         e.preventDefault();
         if (inverted) {
             inverted = false;
@@ -168,7 +206,7 @@
         }
         currentPage = 1; // Reset to the first page when the filter changes
         updateClips();
-    });
+    };
     
 
     //document.getElementById("raw_data").value = JSON.stringify(data, null, 2);
