@@ -1202,7 +1202,7 @@ def uptime():
     current_time = time.time()
     uptime_seconds = current_time - start_time
     uptime = time_to_hms(uptime_seconds)
-    level = request.args.get("delay", 0)
+    level = request.args.get("level", 0)
     if not level:
         return f"Stream uptime is {uptime}"
     elif level == 1:
