@@ -895,7 +895,7 @@ def stats():
 
     for k, v in _user_clips.items():
         max_count += 1
-        if max_count > 5:
+        if max_count > 12:
             break
         user_clips[k] = v
     user_clips["Others"] = sum(list(_user_clips.values())[max_count-1:])
