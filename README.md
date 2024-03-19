@@ -97,8 +97,11 @@ returning data looks something like this </br>
    ```markdown
    !addcom !uptime $(urlfetch https://streamsnip.com/uptime)
    ```
+   #### Args
+   `level` - (default: 0) - What level of answer you want. Here's a screenshot that showcase it.
+   
 
-7. `!streaminfo` ADVANCED - this gives streaminfo in JSON format that you can use to do some other stuff.
+8. `!streaminfo` ADVANCED - this gives streaminfo in JSON format that you can use to do some other stuff.
    data looks something like this.
    ![carbon](https://github.com/SurajBhari/clip_nightbot/assets/45149585/811ec86a-9d69-4cc3-bde5-2d2cc66bd5ac)
    
