@@ -888,19 +888,35 @@ def stats():
         k: v
         for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)
     }
+    # get only top 15 and other as sum of rest
+    _user_clips = user_clips
+    user_clips = {}
+    max_count = 0
+
+    for k, v in _user_clips.items():
+        max_count += 1
+        if max_count > 5:
+            break
+        user_clips[k] = v
+    user_clips["Others"] = sum(list(_user_clips.values())[max_count-1:])
+    if user_clips["Others"] == 0:
+        user_clips.pop("Others")
     top_clippers = {
         k: v
         for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)
     }
     notes = {
-        k: 1.2 * v
+        k:  v
         for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)
     }
     notes = dict(list(notes.items())[:200])
     # replace dict_keys with actual channel
     new_dict = {}
     for k, v in user_clips.items():
-        channel_name, image = get_channel_name_image(k)
+        if k != "Others":
+            channel_name, image = get_channel_name_image(k)
+        else:
+            channel_name = "Others"
         new_dict[channel_name] = v
     user_clips = new_dict
     new = []
@@ -943,11 +959,35 @@ def stats():
         if day not in streamers_trend_days:
             streamers_trend_days.append(day)
     streamers_trend_days.sort()
-    # replace channel id with channel name
+    # only top 15 and others 
+    streamer_trend_data = {
+        k: v
+        for k, v in sorted(
+            streamer_trend_data.items(),
+            key=lambda item: sum(item[1].values()),
+            reverse=True,
+        )
+    }
     new_dict = {}
+    known_k = []
+    max_count = 0
     for k, v in streamer_trend_data.items():
+        max_count += 1
+        if max_count > 15:
+            break
         channel_name, image = get_channel_name_image(k)
         new_dict[channel_name] = v
+        known_k.append(k)
+    new_dict["Others"] = {}
+    for k, v in streamer_trend_data.items():
+        if k in known_k:
+            continue
+        for day, count in v.items():
+            if day not in new_dict["Others"]:
+                new_dict["Others"][day] = 0
+            new_dict["Others"][day] += count
+    if new_dict["Others"] == {}:
+        new_dict.pop("Others")
     streamer_trend_data = new_dict
     time_distribution = {}
     for x in range(24):
