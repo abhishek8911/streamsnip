@@ -336,13 +336,7 @@ def download_and_store(clip_id) -> str:
         return files[0]
 
 
-@app.context_processor
-def inject_mini_stats():
-    # todays count
-    if "user-agent" not in request.headers:
-        return "bro where is your user-agent"
-    if "nightbot" in request.headers["user-agent"].lower():
-        return {}
+def mini_stats():
     today = datetime.strptime(
         datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d"
     ).timestamp()
@@ -362,6 +356,15 @@ def inject_mini_stats():
         last_clip = Clip(data[0])
         last_clip = last_clip.json()
     return dict(today_count=today_count, last_clip=last_clip)
+
+@app.context_processor
+def inject_mini_stats():
+    # todays count
+    if "user-agent" not in request.headers:
+        return "bro where is your user-agent"
+    if "nightbot" in request.headers["user-agent"].lower():
+        return {}
+    return mini_stats()
 
 
 @app.before_request
@@ -386,6 +389,9 @@ def before_request():
     else:
         pass
 
+@app.route("/mini_stats")
+def mini_stats_r():
+    return mini_stats()
 
 # this function exists just because google chrome assumes that the favicon is at /favicon.ico
 @app.route("/favicon.ico")
