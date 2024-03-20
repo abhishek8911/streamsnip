@@ -890,6 +890,7 @@ def stats():
     }
     # get only top 15 and other as sum of rest
     _user_clips = user_clips
+    channel_count = len(_user_clips)
     user_clips = {}
     max_count = 0
     top_15_ids = []
@@ -994,7 +995,7 @@ def stats():
         hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
 
-    message = f"{user_count} users clipped\n{clip_count} clips on \n{len(user_clips)} channels till now. \nand counting."
+    message = f"{user_count} users clipped\n{clip_count} clips on \n{channel_count} channels till now. \nand counting."
     return render_template(
         "stats.html",
         message=message,
@@ -1003,7 +1004,7 @@ def stats():
         user_count=user_count,
         clip_users=[(k, v) for k, v in user_clips.items()],
         top_clippers=top_clippers,
-        channel_count=len(user_clips),
+        channel_count=channel_count,
         times=list(time_trend.keys()),
         counts=list(time_trend.values()),
         streamer_trend_data=streamer_trend_data,
