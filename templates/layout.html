@@ -122,20 +122,13 @@
                 site_icon.src = "/static/logo-grey.svg";
             }
         }
-        var last_clip_id = null;
         function update_mini_stats(){
             fetch("/mini_stats").then((response) => response.json()).then((last_clip) => {
-                if (last_clip.last_clip.id == last_clip_id) {
-                    console.log("same clip id, not updating");
-                    return;
-                }
                 var last_clip_time = document.getElementById("last_clip_time");
                 last_clip_time.innerHTML = `   Last Clip - ${timeSince(new Date(last_clip.last_clip.time))}`;
                 var today_count = last_clip.today_count;
                 var today_count_element = document.getElementById("today_count");
                 today_count_element.innerHTML = today_count + " Clips Today";
-                last_clip_id = last_clip.last_clip.id;
-                console.log("Wrote to memory about last clip id: " + last_clip_id);
             });
             
         }
