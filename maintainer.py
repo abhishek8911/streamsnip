@@ -54,7 +54,6 @@ def periodic_task():
         management_webhook.execute()
     except request.exceptions.MissingSchema:
         exit("Invalid webhook URL")
-    """
     if psutil.virtual_memory().percent > 90:
         management_webhook = DiscordWebhook(
             url=management_webhook_url, content="Memory usage is high RESTARTING SERVER"
@@ -62,7 +61,6 @@ def periodic_task():
         management_webhook.execute()
         # restart the system
         os.system("reboot")
-    """
     if task_count % 30 != 0:
         return
     return  # lock it for now
