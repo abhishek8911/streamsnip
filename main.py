@@ -1100,21 +1100,23 @@ def edit_delete():
 
         channel_name, channel_image = get_channel_name_image(key)
         if value.startswith("https://discord"):
-            webhook = DiscordWebhook(url=value)
+            webhook = DiscordWebhook(url=value, username=project_name, avatar_url=project_logo)
             embed = DiscordEmbed(
                 title=f"Welcome to {project_name}!", 
                 description=f"If you haven't already. add Nightbot commands from {project_repo_link} . I will send clips for {channel_name} here",
                 )
-            embed.set_image(url=project_logo)
+            embed.set_thumbnail(url=project_logo)
+            embed.set_color(0xebf0f7)
             webhook.add_embed(embed)
             webhook.execute()
         if "update_webhook" in creds:
-            webhook = DiscordWebhook(url=creds["update_webhook"])
+            webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo)
             embed = DiscordEmbed(
                 title=f"New webhook added",
                 description=f"New webhook added for {channel_name}",
             )
-            embed.set_image(url=channel_image)
+            embed.set_thumbnail(url=channel_image)
+            embed.set_color(0xebf0f7)
             webhook.add_embed(embed)
             webhook.execute()
         return jsonify(creds)
