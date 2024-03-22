@@ -1103,8 +1103,9 @@ def edit_delete():
             webhook = DiscordWebhook(url=value, username=project_name, avatar_url=project_logo)
             embed = DiscordEmbed(
                 title=f"Welcome to {project_name}!", 
-                description=f"If you haven't already. add Nightbot commands from [{project_repo_link}](github) . I will send clips for {channel_name} here",
+                description=f"I will send clips for {channel_name} here",
                 )
+            embed.add_embed_field(name="Add Nightbot command", value=f"If you haven't already. add Nightbot commands from [{project_repo_link}](github) .")
             embed.set_thumbnail(url=project_logo)
             embed.set_color(0xebf0f7)
             webhook.add_embed(embed)
