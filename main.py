@@ -1124,10 +1124,10 @@ def edit_delete():
             webhook.add_embed(embed)
             webhook.execute()
         return jsonify(creds)
-    elif request.form.get("show") == "Submit":
+    elif request.form.get("show") == "show":
         return jsonify(open("creds.json", "r").read())
     else:
-        return "what ?"
+        return f"what ? {request.form}" 
 
 
 def get_latest_live(channel_id):
