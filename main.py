@@ -88,7 +88,7 @@ chat_id_video = {}  # store chat_id: vid. to optimize clip command
 downloader_base_url = "https://azure-internal-verse.glitch.me"
 project_name = "StreamSnip"
 project_logo = base_domain + "/static/logo.png"
-project_repo_link = "https//github.com/SurajBhari/clip_nightbot"
+project_repo_link = "https://github.com/SurajBhari/clip_nightbot"
 
 with conn:
     cur = conn.cursor()
