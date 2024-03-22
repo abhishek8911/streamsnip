@@ -18,7 +18,7 @@ import time
 from bs4 import BeautifulSoup
 from requests import get
 from flask import request
-from discord_webhook import DiscordWebhook
+from discord_webhook import DiscordWebhook, DiscordEmbed
 import sqlite3
 from typing import Optional, Tuple, List
 from flask_sitemap import Sitemap
@@ -86,6 +86,9 @@ base_domain = (
 )
 chat_id_video = {}  # store chat_id: vid. to optimize clip command
 downloader_base_url = "https://azure-internal-verse.glitch.me"
+project_name = "StreamSnip"
+project_logo = base_domain + "/static/logo.png"
+project_repo_link = "https//github.com/SurajBhari/clip_nightbot"
 
 with conn:
     cur = conn.cursor()
@@ -430,6 +433,7 @@ def slash():
         else:
             htt = "http://"
         ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[0])}"
+        #ch["last_clip"] = get_channel_clips(ch_id[0])[0].json()
         returning.append(ch)
     """
     for ch in returning:
@@ -1093,6 +1097,26 @@ def edit_delete():
         creds[key] = value
         with open("creds.json", "w") as f:
             dump(creds, f, indent=4)
+
+        channel_name, channel_image = get_channel_name_image(key)
+        if value.startswith("https://discord"):
+            webhook = DiscordWebhook(url=value)
+            embed = DiscordEmbed(
+                title=f"Welcome to {project_name}!", 
+                description=f"If you haven't already. add Nightbot commands from {project_repo_link} . I will send clips for {channel_name} here",
+                )
+            embed.set_image(url=project_logo)
+            webhook.add_embed(embed)
+            webhook.execute()
+        if "update_webhook" in creds:
+            webhook = DiscordWebhook(url=creds["update_webhook"])
+            embed = DiscordEmbed(
+                title=f"New webhook added",
+                description=f"New webhook added for {channel_name}",
+            )
+            embed.set_image(url=channel_image)
+            webhook.add_embed(embed)
+            webhook.execute()
         return jsonify(creds)
     else:
         return "what ?"
