@@ -1029,7 +1029,10 @@ def stats():
 @app.route("/admin")
 def admin():
     clips = get_channel_clips()
+    t = time.time()
     clip_ids = [x.id for x in clips]
+    print(f"took {time.time()-t} to get clips")
+    t = time.time()
     with open("creds.json", "r") as f:
         config = load(f)
     channel_info_admin = {}
@@ -1046,7 +1049,7 @@ def admin():
         channel_info_admin[key][
             "link"
         ] = f"{htt}{request.host}{url_for('exports', channel_id=key)}"
-
+    print(f"took {time.time()-t} to get channel info")
     return render_template("admin.html", ids=clip_ids, channel_info=channel_info_admin)
 
 
@@ -1121,6 +1124,8 @@ def edit_delete():
             webhook.add_embed(embed)
             webhook.execute()
         return jsonify(creds)
+    elif request.form.get("show") == "Submit":
+        return jsonify(open("creds.json", "r").read())
     else:
         return "what ?"
 
