@@ -1105,7 +1105,7 @@ def edit_delete():
                 title=f"Welcome to {project_name}!", 
                 description=f"I will send clips for {channel_name} here",
                 )
-            embed.add_embed_field(name="Add Nightbot command", value=f"If you haven't already. add Nightbot commands from [{project_repo_link}](github) .")
+            embed.add_embed_field(name="Add Nightbot command", value=f"If you haven't already. add Nightbot commands from [github]({project_repo_link}) .")
             embed.set_thumbnail(url=project_logo)
             embed.set_color(0xebf0f7)
             webhook.add_embed(embed)
