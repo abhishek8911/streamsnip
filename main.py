@@ -218,8 +218,8 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     if channel_id in channel_info:
         try:
             return channel_info[channel_id]["name"], channel_info[channel_id]["image"]
-        except KeyError:
-            print(channel_info[channel_id])
+        except Exception as e:
+            logging.log(logging.ERROR, e)
     
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
@@ -230,9 +230,7 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     except TypeError:  # in case the channel is deleted or not found
         channel_image = "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
         channel_name = "<deleted channel>"
-    channel_info[channel_id] = {}
-    channel_info[channel_id]["name"] = channel_name
-    channel_info[channel_id]["image"] = channel_image
+    channel_info[channel_id] = {"name": channel_name, "image": channel_image}
     return channel_name, channel_image
 
 
@@ -1039,7 +1037,6 @@ def admin():
     for key, value in config.items():
         if key in ["password", "management_webhook"]:
             continue
-        channel_info[key] = {}
         get_channel_name_image(key)
         channel_info_admin[key] = channel_info[key]
         if request.is_secure:
