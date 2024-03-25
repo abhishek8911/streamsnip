@@ -1277,23 +1277,27 @@ def uptime():
     uptime_seconds = current_time - start_time
     uptime = time_to_hms(uptime_seconds)
     level = request.args.get("level", 0)
+    try:
+        level = int(level)
+    except ValueError:
+        level = 0
     if not level:
         return f"Stream uptime is {uptime}"
     elif level == 1:
-        return uptime
+        return str(uptime)
     elif level == 2:
         # convert time to x hours y minutes z seconds
         uptime = uptime.split(":")
-        string = ""
+        string = "Stream is running from "
         if len(uptime) == 3:
-            string = f"{uptime[0]} hours {uptime[1]} minutes {uptime[2]} seconds"
+            string += f"{uptime[0]} hours {uptime[1]} minutes & {uptime[2]} seconds."
         elif len(uptime) == 2:
-            string = f"{uptime[0]} minutes {uptime[1]} seconds"
+            string += f"{uptime[0]} minutes & {uptime[1]} seconds."
         else:
-            string = f"{uptime[0]} seconds"
-        return string
+            string += f"{uptime[0]} seconds."
+        return str(string)
     else:
-        return uptime_seconds
+        return str(uptime_seconds)
 
 
 @app.route("/stream_info")
