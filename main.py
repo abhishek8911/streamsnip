@@ -896,18 +896,18 @@ def stats():
         k: v
         for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)
     }
-    # get only top 15 and other as sum of rest
+    # get only top 25 and other as sum of rest
     _user_clips = user_clips
     channel_count = len(_user_clips)
     user_clips = {}
     max_count = 0
-    top_15_ids = []
+    top_25_ids = []
 
     for k, v in _user_clips.items():
         max_count += 1
-        if max_count > 15:
+        if max_count > 25:
             break
-        top_15_ids.append(k)
+        top_25_ids.append(k)
         user_clips[k] = v
     user_clips["Others"] = sum(list(_user_clips.values())[max_count-1:])
     if user_clips["Others"] == 0:
@@ -963,7 +963,7 @@ def stats():
     for clip in clips:
         day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         channel_id = clip.channel
-        if channel_id not in top_15_ids:
+        if channel_id not in top_25_ids:
             channel_id = "Others"
         if channel_id not in streamer_trend_data:
             streamer_trend_data[channel_id] = {}
@@ -973,7 +973,7 @@ def stats():
         if day not in streamers_trend_days:
             streamers_trend_days.append(day)
     streamers_trend_days.sort()
-    # only top 15 and others 
+    # only top 25 and others 
     streamer_trend_data = {
         k: v
         for k, v in sorted(
