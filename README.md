@@ -94,7 +94,7 @@ returning data looks something like this </br>
    !addcom !uptime $(urlfetch https://streamsnip.com/uptime)
    ```
    #### Args
-   `level` - (default: 0) - What level of answer you want. Here's a screenshot that showcase it.
+   `level` - (default: 0) - What level of answer you want. ~~Here's a screenshot that showcase it.~~ soon. 
    
 8. `!streaminfo` ADVANCED - this gives streaminfo in JSON format that you can use to do some other stuff.
    data looks something like this.
