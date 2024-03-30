@@ -32,13 +32,13 @@ If you want to send a discord message. then I would need to add a webhook URL al
 - `message_level` (default: 0) - Customize how the discord message should look like. to support "anonymity"
   ![Untitled](https://github.com/SurajBhari/clip_nightbot/assets/45149585/614c15d8-d3d1-4765-ad7f-ee0a48965730)
 - `take_delays` (default: false) - Do you consider your viewers to be smarter than average person ? if you turn this on. the first and last `word` will be evaluted to add/subtract delay.
-  The following screenshot was taken with delay=0. but it still gave a delay of `20 seconds` as the clipper wrote `-20` as first word.  
+  The following screenshot was taken with delay=0. but it still gave a delay of `20 seconds` as the author wrote `-20` as first word.  
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/361dac19-192a-4a75-aa8f-0d94a480790d)
 
 
 Here's one example using all of it.
 ```
-https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=true&delay=-30&private=true&webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s&message_level=3
+https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=true&delay=-30&private=true&webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s&message_level=3&take_delays=true
 ```
 
 ### Examples:
@@ -71,48 +71,53 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
 ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/7d72988e-0ab0-46a1-b7cb-0183e542eb2d)
 
 ---
-#### Super Advanced, Proceed with caution here
 4. `!search` gives the last clip that had the query in in it
- ```markdown
+```markdown
  !addcom !search $(urlfetch https://streamsnip.com/search/$(querystring))
 ```
-
-SUPER PRO MODE </br>
-Idea from [here](https://community.nightdev.com/t/clip-command-then-have-lastclip-automatically-update/35360), You can combine !search command to give out timestamp to particular events in the stream </br>
-A combo can look like this 
+---
+5. `!uptime` gives uptime of the latest stream of the channel that called this command
+```markdown
+ !addcom !uptime $(urlfetch https://streamsnip.com/uptime)
 ```
-!addcom !clipkill $(urlfetch https://streamsnip.com/clip/$(chatid)/kill-automated)
-!addcom !lastkill $(urlfetch https://streamsnip.com/search/kill-automated)
-```
-Want more advanced ? here </br>
-There is one more endpoint named `/searchx/<clip-desc>` that returns JSON of the clip with that clip-desc.</br>
-THIS IS JUST 1 EXAMPLE. SKY IS THE LIMIT HERE
-```
-!addcom !lastkilltime $(eval clip=$(urlfetch json https://streamsnip.com/searchx/kill-automated); clip['hms'])
-```
-returning data looks something like this </br>
-![carbon (3)](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f7709890-6959-4a25-8a6d-292c9d20e10b)
-
-6. `!uptime` gives uptime of the latest stream of the channel that called this command
-   ```markdown
-   !addcom !uptime $(urlfetch https://streamsnip.com/uptime)
-   ```
-   #### Args
-   `level` - (default: 0) - What level of answer you want. Here's a screenshot that showcase it.
-   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/cf174b02-f95b-45b6-a1fb-b28675da8715)
+  #### Args
+  `level` - (default: 0) - What level of answer you want. Here's a screenshot that showcase it. 
    
-8. `!streaminfo` ADVANCED - this gives streaminfo in JSON format that you can use to do some other stuff.
-   data looks something like this.
-   ![carbon](https://github.com/SurajBhari/clip_nightbot/assets/45149585/811ec86a-9d69-4cc3-bde5-2d2cc66bd5ac)
+  ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/cf174b02-f95b-45b6-a1fb-b28675da8715) 
    
-   Route is at `/stream_info`
-   ```markdown
-   !addcom !myid $(eval info=$(urlfetch json https://streamsnip.com/stream_info); info['author_id'])
-   ```
+  --- 
+#### Super Advanced, Proceed with caution here
+<details>
+  <summary>Click me to open advanced options.</summary>
+  
+  Idea from [here](https://community.nightdev.com/t/clip-command-then-have-lastclip-automatically-update/35360), You can combine !search command to give out timestamp to particular events in the stream </br>
+  A combo can look like this 
+  ```
+  !addcom !clipkill $(urlfetch https://streamsnip.com/clip/$(chatid)/kill-automated)
+  !addcom !lastkill $(urlfetch https://streamsnip.com/search/kill-automated)
+  ```
+  Want more advanced ? here </br>
+  There is one more endpoint named `/searchx/<clip-desc>` that returns JSON of the clip with that clip-desc.</br>
+  THIS IS JUST 1 EXAMPLE. SKY IS THE LIMIT HERE
+  ```
+  !addcom !lastkilltime $(eval clip=$(urlfetch json https://streamsnip.com/searchx/kill-automated); clip['hms'])
+  ```
+  returning data looks something like this </br>
+  ![carbon (3)](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f7709890-6959-4a25-8a6d-292c9d20e10b)
+  
+     
+  6. `!streaminfo`  this gives streaminfo in JSON format that you can use to do some other stuff.
+     data looks something like this.
+     ![carbon](https://github.com/SurajBhari/clip_nightbot/assets/45149585/811ec86a-9d69-4cc3-bde5-2d2cc66bd5ac)
+     
+     Route is at `/stream_info`
+     ```markdown
+     !addcom !myid $(eval info=$(urlfetch json https://streamsnip.com/stream_info); info['author_id'])
+     ```
+</details>
 
 ### Additional Customization:
 
 You can use `-ul=userlevel` to limit clipping to specific user levels (e.g., mods). Find user levels [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to reduce spam and grant clipping access to specific individuals.  </br>
-
 
 ---
