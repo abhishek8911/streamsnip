@@ -31,6 +31,10 @@ If you want to send a discord message. then I would need to add a webhook URL al
   ex. lets say a webhook is -> `https://discord.com/api/webhooks/1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s` then you pass `webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s`
 - `message_level` (default: 0) - Customize how the discord message should look like. to support "anonymity"
   ![Untitled](https://github.com/SurajBhari/clip_nightbot/assets/45149585/614c15d8-d3d1-4765-ad7f-ee0a48965730)
+- `take_delays` (default: false) - Do you consider your viewers to be smarter than average person ? if you turn this on. the first and last `word` will be evaluted to add/subtract delay.
+  The following screenshot was taken with delay=0. but it still gave a delay of `20 seconds` as the clipper wrote `-20` as first word.  
+  ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/361dac19-192a-4a75-aa8f-0d94a480790d)
+
 
 Here's one example using all of it.
 ```
