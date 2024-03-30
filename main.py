@@ -1321,6 +1321,7 @@ def clip(message_id, clip_desc=None):
     silent = arguments.get("silent", 2)  # silent level. if not then 2
     private = arguments.get("private", False)
     webhook = arguments.get("webhook", False)
+    take_delays = arguments.get("take_delays", False)
     message_level = arguments.get(
         "message_level", 0
     )  # 0 is normal. 1 is to persist the defautl webhook name. 2 is for no record on discord message. 3 is for service badging
@@ -1342,10 +1343,24 @@ def clip(message_id, clip_desc=None):
     show_link = False if show_link == "false" else True
     screenshot = True if screenshot == "true" else False
     private = True if private == "true" else False
+    take_delays = True if take_delays == "true" else False
     try:
         delay = 0 if not delay else int(delay)
     except ValueError:
         return "Delay should be an integer (plus or minus)"
+    
+    if take_delays:
+        splitted = clip_desc.split()
+        candidates = [splitted[0], splitted[-1]]
+        for c in candidates:
+            try:
+                extra_delay = int(c)
+                clip_desc = clip_desc.replace(c, "")
+                delay += extra_delay
+                break
+            except ValueError:
+                pass
+
     request_time = time.time()
     h_request_time = request.headers.get("timestamp")
     if h_request_time:
