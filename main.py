@@ -1348,7 +1348,8 @@ def clip(message_id, clip_desc=None):
         delay = 0 if not delay else int(delay)
     except ValueError:
         return "Delay should be an integer (plus or minus)"
-    
+    if not clip_desc:
+        clip_desc = "None"
     if take_delays:
         splitted = clip_desc.split()
         candidates = [splitted[0], splitted[-1]]
@@ -1375,8 +1376,7 @@ def clip(message_id, clip_desc=None):
         monitor.ping(state="run")
     if not message_id:
         return "No message id provided, You have configured it wrong. please contact AG at https://discord.gg/2XVBWK99Vy"
-    if not clip_desc:
-        clip_desc = "None"
+    
     try:
         channel = parse_qs(request.headers["Nightbot-Channel"])
         user = parse_qs(request.headers["Nightbot-User"])
