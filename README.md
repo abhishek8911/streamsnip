@@ -71,10 +71,12 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
 ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/7d72988e-0ab0-46a1-b7cb-0183e542eb2d)
 
 ---
-4. `!search` gives the last clip that had the query in in it
+4. `!search` gives the last clip that had the query in in it.
 ```markdown
  !addcom !search $(urlfetch https://streamsnip.com/search/$(querystring))
 ```
+![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/28f4761d-c7b7-456d-81c7-42b5656e73ba)
+
 ---
 5. `!uptime` gives uptime of the latest stream of the channel that called this command
 ```markdown
