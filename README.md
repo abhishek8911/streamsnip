@@ -75,7 +75,10 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
 ```markdown
  !addcom !search $(urlfetch https://streamsnip.com/search/$(querystring))
 ```
-![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/28f4761d-c7b7-456d-81c7-42b5656e73ba)
+  #### Args
+  `level` - (default: 0) - What level of answer you want. Here's a screenshot that showcase it. 
+  ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/a7601ed3-265c-427a-b749-30d70216ce2a)
+
 
 ---
 5. `!uptime` gives uptime of the latest stream of the channel that called this command
