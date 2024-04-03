@@ -1607,9 +1607,24 @@ def search(clip_desc=None):
     except KeyError:
         return "Not able to auth"
     clip = get_clip_with_desc(clip_desc, channel.get("providerId")[0])
-    if clip:
-        return clip.stream_link
-    return "Clip not found"
+    level = request.args.get("level", 0)
+    try:
+        level = int(level)
+    except ValueError:
+        return "level should be an integer"
+    if not clip:
+        return "Clip not found"
+    match level:
+        case 0:
+            return clip.stream_link
+        case 1:
+            return clip.id
+        case 2:
+            return f"{clip.desc} - {clip.stream_link}"
+        case 3:
+            return f"{clip.id} {clip.user_name} | {clip.desc} - {clip.stream_link}"
+        case _:
+            return clip.stream_link
 
 
 @app.route("/searchx/<clip_desc>")
