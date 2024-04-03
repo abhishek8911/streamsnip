@@ -48,12 +48,12 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
 - `https://streamsnip.com/clip/$(chatid)/$(querystring)?delay=-20` - Set a delay in the past by 20 seconds.
 
 ## Other Commands
-1. `!delete <clip_id>` - delete the given clip
+1. `!delete <clip_id>` - delete the given clip(s)
 ```markdown
 !addcom !delete $(urlfetch https://streamsnip.com/delete/$(query)) -ul=moderator
 ```
 ⚠️ don't remove the `-ul=moderator` part, otherwise anyone can delete your clips. </br>
-![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/35d174c8-5f3f-4bb8-a6f7-15fc59ee0c43) </br>
+![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/35d174c8-5f3f-4bb8-a6f7-15fc59ee0c43) ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/7fde665c-84d0-4568-8ce2-fbb8108ca67f) </br>
   - `silent` (default: 2||Highest) - Level of returning message. 0 - no message. 1 - clip id(s) that was/were deleted. else no change.
 ---
 2. `!edit <clip_id> <new_title>` - edit the title of the given clip
