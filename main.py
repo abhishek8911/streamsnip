@@ -1440,7 +1440,10 @@ def clip(message_id, clip_desc=None):
         t_clip_desc = clip_desc[:30] + "..."
     else:
         t_clip_desc = clip_desc
-    message_to_return = f"Clip {clip_id} by {user_name} -> '{t_clip_desc}' "
+    if t_clip_desc != "None":
+        message_to_return = f"Clip {clip_id} by {user_name} -> '{t_clip_desc}' "
+    else:
+        message_to_return = f"Clip {clip_id} by {user_name} "
     if delay:
         message_to_return += f" Delayed by {delay} seconds."
     if webhook_url:  # if webhook is not found then don't send the message
