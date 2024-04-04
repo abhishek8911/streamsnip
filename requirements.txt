@@ -9,3 +9,4 @@ schedule
 cronitor
 yt_dlp
 flask-sitemap
+psutil
