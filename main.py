@@ -54,8 +54,12 @@ if not local:
         format=f"%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
     )
 
-testing = load(open("testing_config.json", "r"))
-cronitor.api_key = testing["api_key"]
+try:
+    testing = load(open("testing_config.json", "r"))
+except FileNotFoundError:
+    cronitor.api_key = None
+else:
+    cronitor.api_key = testing["api_key"]
 
 if not local:
     monitor = cronitor.Monitor.put(key="Streamsnip-Clips-Performance", type="job")
@@ -1310,6 +1314,30 @@ def stream_info():
     channel_id = channel.get("providerId")[0]
     return get_latest_live(channel_id)
 
+@app.route("/recent")
+def recent():
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+        user = parse_qs(request.headers["Nightbot-User"])
+    except KeyError:
+        return "Not able to auth"
+    channel_id = channel.get("providerId")[0]
+    clips = [clip for clip in get_channel_clips(channel_id) if not clip.private]
+    string = ""
+    request_count = request.args.get("count", 5)
+    if request_count:
+        try:
+            request_count = int(request_count)
+        except ValueError:
+            return "Count should be an integer"
+    
+    for clip in clips[:request_count]:
+        if len(clip.desc) > 10:
+            clip.desc = clip.desc[:10] + "..."
+        string += f"{clip.desc} {clip.id} | "
+    if len(string) > 256:
+        return string[:256] # youtube limits to 256 characters. who are we to disobey
+    return string
 
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10&silent=2
 @app.route("/clip/<message_id>/")
