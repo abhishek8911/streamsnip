@@ -91,6 +91,18 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/cf174b02-f95b-45b6-a1fb-b28675da8715) 
    
   --- 
+
+---
+5. `!record` gives last 5 clip details in chat. in format of `| <clip_id> <description> |` 
+```markdown
+ !addcom !record $(urlfetch https://streamsnip.com/record?count=$(1))
+```
+  #### Args
+  `count` - (default: 5) - How many records you want.  
+   
+   
+  --- 
+  
 #### Super Advanced, Proceed with caution here
 <details>
   <summary>Click me to open advanced options.</summary>
@@ -111,7 +123,7 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
   ![carbon (3)](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f7709890-6959-4a25-8a6d-292c9d20e10b)
   
      
-  6. `!streaminfo`  this gives streaminfo in JSON format that you can use to do some other stuff.
+  7. `!streaminfo`  this gives streaminfo in JSON format that you can use to do some other stuff.
      data looks something like this.
      ![carbon](https://github.com/SurajBhari/clip_nightbot/assets/45149585/811ec86a-9d69-4cc3-bde5-2d2cc66bd5ac)
      
