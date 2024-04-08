@@ -92,10 +92,9 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
    
   --- 
 
----
 5. `!recent` gives last 5 clip details in chat. in format of `| <clip_id> <description> |` 
 ```markdown
- !addcom !record $(urlfetch https://streamsnip.com/recent?count=$(1))
+ !addcom !recent $(urlfetch https://streamsnip.com/recent?count=$(1))
 ```
   #### Args
   `count` - (default: 5) - How many records you want.  
