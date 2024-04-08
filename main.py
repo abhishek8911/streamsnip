@@ -1315,7 +1315,9 @@ def stream_info():
     return get_latest_live(channel_id)
 
 @app.route("/recent")
+@app.route("/record")
 def recent():
+    default_value = 5 
     try:
         channel = parse_qs(request.headers["Nightbot-Channel"])
         user = parse_qs(request.headers["Nightbot-User"])
@@ -1324,13 +1326,12 @@ def recent():
     channel_id = channel.get("providerId")[0]
     clips = [clip for clip in get_channel_clips(channel_id) if not clip.private]
     string = ""
-    request_count = request.args.get("count", 5)
-    if request_count:
-        try:
-            request_count = int(request_count)
-        except ValueError:
-            return "Count should be an integer"
-    
+    request_count = request.args.get("count", default_value)
+    try:
+        request_count = int(request_count)
+    except ValueError:
+        request_count = default_value
+        
     for clip in clips[:request_count]:
         if len(clip.desc) > 10:
             clip.desc = clip.desc[:10] + "..."
