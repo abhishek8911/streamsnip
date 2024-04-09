@@ -1053,6 +1053,63 @@ def admin():
     print(f"took {time.time()-t} to get channel info")
     return render_template("admin.html", ids=clip_ids, channel_info=channel_info_admin)
 
+def get_channel_id(path):
+    html_data = get(path).text
+    soup = BeautifulSoup(html_data, "html.parser")
+    identifier = soup.find('meta', itemprop="identifier")
+    if not identifier:
+        return None
+    channel_id = identifier['content']
+    return channel_id
+
+
+@app.route("/approve")
+def approve():
+    # this is in format of https://streamsnip.com/approve?pass=somepassword&key=https://www.youtube.com/channel/UC5IRLz3Q-SADL71-sW-Z16Q&value=https://discord.com/api/webhooks/51313123122515125/sadfasdasd12rasfafase-VOkUSVo4clrbXSh6Mpa
+    password = request.args.get("pass")
+    key = request.args.get("key")
+    value = request.args.get("value")
+
+    if password != get_webhook_url("password"):
+        return "Wrong password"
+    if "youtube.com" not in key:
+        return f"Key isn't of youtube {key}"
+    if "discord.com/api/webhooks" not in value:
+        return f"Value isn't of discord webhook {value}"
+
+    channel_id = get_channel_id(key)
+    if not channel_id:
+        return "Channel id not found"
+
+    with open("creds.json", "r") as f:
+            creds = load(f)
+    creds[channel_id] = value
+    with open("creds.json", "w") as f:
+        dump(creds, f, indent=4)
+
+    channel_name, channel_image = get_channel_name_image(channel_id)
+    webhook = DiscordWebhook(url=value, username=project_name, avatar_url=project_logo)
+    embed = DiscordEmbed(
+        title=f"Welcome to {project_name}!", 
+        description=f"I will send clips for {channel_name} here",
+        )
+    embed.add_embed_field(name="Add Nightbot command", value=f"If you haven't already. add Nightbot commands from [github]({project_repo_link}) .")
+    embed.set_thumbnail(url=project_logo)
+    embed.set_color(0xebf0f7)
+    webhook.add_embed(embed)
+    webhook.execute()
+
+    if "update_webhook" in creds:
+        webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo)
+        embed = DiscordEmbed(
+            title=f"New webhook added",
+            description=f"New webhook added for {channel_name}",
+        )
+        embed.set_thumbnail(url=channel_image)
+        embed.set_color(0xebf0f7)
+        webhook.add_embed(embed)
+        webhook.execute()
+    return "Done"
 
 @app.route("/ed", methods=["POST"])
 def edit_delete():
