@@ -1397,6 +1397,24 @@ def recent():
         return string[:256] # youtube limits to 256 characters. who are we to disobey
     return string
 
+@app.route("/nstats")
+def nstats():
+    try:
+        channel = parse_qs(request.headers["Nightbot-Channel"])
+        user = parse_qs(request.headers["Nightbot-User"])
+    except KeyError:
+        return "Headers not found. Are you sure you are using nightbot ?"
+    channel_id = channel.get("providerId")[0]
+    user_id = user.get("providerId")[0]
+    clips = get_channel_clips(channel_id)
+    total_clips = len(clips)
+    total_users = len(set([clip.user_id for clip in clips]))
+    user_clip = [clip for clip in clips if clip.user_id == user_id]
+    user_clip_count = len(user_clip)
+    percentage = (user_clip_count / total_clips) * 100 
+    percentage = "%.2f".format(percentage)
+    return f"{total_clips} clips have been made by {total_users} users, out of which {user_clip_count} clips ({percentage}%) have been made by you."
+
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10&silent=2
 @app.route("/clip/<message_id>/")
 @app.route("/clip/<message_id>/<clip_desc>")
