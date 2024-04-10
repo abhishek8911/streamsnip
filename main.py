@@ -1398,6 +1398,7 @@ def recent():
     return string
 
 @app.route("/nstats")
+@app.route("/nstat")
 def nstats():
     try:
         channel = parse_qs(request.headers["Nightbot-Channel"])
@@ -1412,7 +1413,7 @@ def nstats():
     user_clip = [clip for clip in clips if clip.user_id == user_id]
     user_clip_count = len(user_clip)
     percentage = (user_clip_count / total_clips) * 100 
-    percentage = "%.2f".format(percentage)
+    percentage = round(percentage, 2)
     return f"{total_clips} clips have been made by {total_users} users, out of which {user_clip_count} clips ({percentage}%) have been made by you."
 
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10&silent=2
