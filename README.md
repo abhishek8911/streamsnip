@@ -93,7 +93,7 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
    
   --- 
 
-5. `!recent` gives last 5 clip details in chat. in format of `| <clip_id> <description> |` 
+6. `!recent` gives last 5 clip details in chat. in format of `| <clip_id> <description> |` 
 ```markdown
  !addcom !recent $(urlfetch https://streamsnip.com/recent?count=$(1))
 ```
@@ -103,6 +103,13 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
   
   --- 
   
+7. `!clipstats` gives a brief stats of number of clips in the chat. total and by the user who ran the command. 
+```markdown
+ !addcom !clipstats $(urlfetch https://streamsnip.com/nstats)
+```
+![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/04feb94b-7323-4cf7-878b-5e48dd56860d) 
+
+--- 
 #### Super Advanced, Proceed with caution here
 <details>
   <summary>Click me to open advanced options.</summary>
@@ -123,7 +130,7 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
   ![carbon (3)](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f7709890-6959-4a25-8a6d-292c9d20e10b)
   
      
-  7. `!streaminfo`  this gives streaminfo in JSON format that you can use to do some other stuff.
+  8. `!streaminfo`  this gives streaminfo in JSON format that you can use to do some other stuff.
      data looks something like this.
      ![carbon](https://github.com/SurajBhari/clip_nightbot/assets/45149585/811ec86a-9d69-4cc3-bde5-2d2cc66bd5ac)
      
