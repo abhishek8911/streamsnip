@@ -1426,7 +1426,7 @@ def nstats():
     percentage = (user_clip_count / total_clips) * 100 
     percentage = round(percentage, 2)
     today_count_string = f" ({this_stream_count} today)" if this_stream_count != 0 else f""
-    return f"{total_clips} clips have been made by {total_users} users{today_count_string}, out of which {user_clip_count} clips ({percentage}%) have been made by you."
+    return f"{total_clips} clips have been made {today_count_string} by total {total_users} users, out of which {user_clip_count} clips ({percentage}%) have been made by you."
 
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10&silent=2
 @app.route("/clip/<message_id>/")
