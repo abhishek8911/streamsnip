@@ -1412,9 +1412,21 @@ def nstats():
     total_users = len(set([clip.user_id for clip in clips]))
     user_clip = [clip for clip in clips if clip.user_id == user_id]
     user_clip_count = len(user_clip)
+    this_stream_count = 0
+    try:
+        this_stream_id = get_latest_live(channel_id)["original_video_id"]
+    except:
+        this_stream_id = None
+    for clip in clips:
+        if clip.stream_id == this_stream_id:
+            this_stream_count += 1
+        else:
+            break # this is cause the clips are sorted by time. so if we find a clip that is not of this stream. we can break and save time
+    
     percentage = (user_clip_count / total_clips) * 100 
     percentage = round(percentage, 2)
-    return f"{total_clips} clips have been made by {total_users} users, out of which {user_clip_count} clips ({percentage}%) have been made by you."
+    today_count_string = f" ({this_stream_count} today)" if this_stream_count != 0 else f""
+    return f"{total_clips} clips have been made by {total_users} users{today_count_string}, out of which {user_clip_count} clips ({percentage}%) have been made by you."
 
 # /clip/<message_id>/<clip_desc>?showlink=true&screenshot=true&dealy=-10&silent=2
 @app.route("/clip/<message_id>/")
