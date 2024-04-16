@@ -360,7 +360,7 @@ def mini_stats():
     if data:
         last_clip = Clip(data[0])
         last_clip = last_clip.json()
-    return dict(today_count=today_count, last_clip=last_clip)
+    return dict(today_count=today_count, last_clip=last_clip, data=generate_home_data())
 
 @app.context_processor
 def inject_mini_stats():

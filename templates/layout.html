@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script>
+        var is_home = false; // this will be overwritten on home page only
         function timeSince(previous) {
             var current = new Date();
             var msPerMinute = 60 * 1000;
@@ -129,6 +130,29 @@
                 var today_count = last_clip.today_count;
                 var today_count_element = document.getElementById("today_count");
                 today_count_element.innerHTML = today_count + " Clips Today";
+                var data = last_clip.data;
+                if(is_home) { // we need to change the order just in case it got changed. 
+                    prev_order = [];
+                    elems = document.getElementsByClassName("card");
+                    for (var i = 0; i < elems.length; i++) {
+                        prev_order.push(elems[i].getElementsByTagName("h6")[0].innerHTML.trim());
+                    }
+                    new_order = [];
+                    for(var i=0; i < data.length; i++){
+                        new_order.push(data[i].name.trim()); 
+                    }
+                    if(JSON.stringify(prev_order) != JSON.stringify(new_order)){
+                        new_html = "";
+                        new_html += '<div class="row">';
+                        for(var i=0; i < data.length; i++){
+                            new_html += '<div class="col-3"><a href="' + data[i].link + '" target="_blank"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body"><h6 class="card-title">' + data[i].name + '</h6></div></div></a></div>';
+                        }
+                        new_html += '</div>';
+                        document.getElementsByClassName("container")[1].innerHTML = new_html;
+                        console.log("changed");
+                    }
+                }
+
             });
             
         }
