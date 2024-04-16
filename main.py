@@ -408,25 +408,18 @@ def favicon():
 def robots():
     return send_file("static/robots.txt")
 
-
-@app.route("/")
-def slash():
-    # this offload the load from every slash request to only the time when the script is initially ran
+def generate_home_data():
     with conn:
         cur = conn.cursor()
-        cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
+        cur.execute(f"SELECT MAX(time) AS time, channel_id FROM QUERIES GROUP BY channel_id ORDER BY MAX(time) DESC;")
         data = cur.fetchall()
     returning = []
-    known_channels = []
     for ch_id in data:
         ch = {}
-        if ch_id[0] in known_channels:
-            continue
-        known_channels.append(ch_id[0])
-        channel_name, channel_image = get_channel_name_image(ch_id[0])
+        channel_name, channel_image = get_channel_name_image(ch_id[1])
         ch["image"] = channel_image
         ch["name"] = channel_name
-        ch["id"] = ch_id[0]
+        ch["id"] = ch_id[1]
         ch["image"] = channel_image.replace(
             "s900-c-k-c0x00ffffff-no-rj", "s300-c-k-c0x00ffffff-no-rj"
         )
@@ -434,7 +427,7 @@ def slash():
             htt = "https://"
         else:
             htt = "http://"
-        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[0])}"
+        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[1])}"
         #ch["last_clip"] = get_channel_clips(ch_id[0])[0].json()
         returning.append(ch)
     """
@@ -442,6 +435,12 @@ def slash():
         ch["clips"] = get_channel_clips(ch["id"])
     NOT A GOOD IDEA. THIS WILL MAKE THE PAGE LOAD SLOWLY. rather show that on admin page.
     """
+    return returning
+
+
+@app.route("/")
+def slash():
+    returning = generate_home_data()
     return render_template("home.html", data=returning)
 
 
