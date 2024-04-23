@@ -873,10 +873,12 @@ def stats():
         cur.execute("SELECT * FROM QUERIES WHERE private is not '1'")
         data = cur.fetchall()
     clips = []
+    three_months_ago = (datetime.now() - timedelta(days=90)).timestamp()
     for x in data:
-        clips.append(Clip(x))
-    clip_count = len(clips)
-    user_count = len(set([clip.user_id for clip in clips]))
+        c = Clip(x)
+        clips.append(c)
+    clip_count = len(data)
+    user_count = len(set([x[5] for x in data]))
     # "Name": no of clips
     user_clips = {}
     top_clippers = {}
@@ -955,6 +957,8 @@ def stats():
     # day : no_of_clips
     for clip in clips:
         day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
+        if clip.time.timestamp() < three_months_ago:
+            continue
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
@@ -965,6 +969,8 @@ def stats():
     streamers_trend_days = []
     for clip in clips:
         day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
+        if clip.time.timestamp() < three_months_ago:
+            continue # we don't need to show old data
         channel_id = clip.channel
         if channel_id not in top_25_ids:
             channel_id = "Others"
