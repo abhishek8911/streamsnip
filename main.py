@@ -93,6 +93,10 @@ downloader_base_url = "https://azure-internal-verse.glitch.me"
 project_name = "StreamSnip"
 project_logo = base_domain + "/static/logo.png"
 project_repo_link = "https://github.com/SurajBhari/clip_nightbot"
+project_logo_discord = "https://raw.githubusercontent.com/SurajBhari/clip_nightbot/main/256_discord_ss.png" # link to logo that is used in discord 
+
+if not project_logo_discord:
+    project_logo_discord = project_logo
 
 with conn:
     cur = conn.cursor()
@@ -873,7 +877,7 @@ def stats():
         cur.execute("SELECT * FROM QUERIES WHERE private is not '1'")
         data = cur.fetchall()
     clips = []
-    three_months_ago = (datetime.now() - timedelta(days=90)).timestamp()
+    three_months_ago = (datetime.now() - timedelta(days=28)).timestamp()
     for x in data:
         c = Clip(x)
         clips.append(c)
@@ -1093,19 +1097,19 @@ def approve():
         dump(creds, f, indent=4)
 
     channel_name, channel_image = get_channel_name_image(channel_id)
-    webhook = DiscordWebhook(url=value, username=project_name, avatar_url=project_logo)
+    webhook = DiscordWebhook(url=value, username=project_name, avatar_url=project_logo_discord)
     embed = DiscordEmbed(
         title=f"Welcome to {project_name}!", 
         description=f"I will send clips for {channel_name} here",
         )
     embed.add_embed_field(name="Add Nightbot command", value=f"If you haven't already. add Nightbot commands from [github]({project_repo_link}) .")
-    embed.set_thumbnail(url=project_logo)
+    embed.set_thumbnail(url=project_logo_discord)
     embed.set_color(0xebf0f7)
     webhook.add_embed(embed)
     webhook.execute()
 
     if "update_webhook" in creds:
-        webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo)
+        webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo_discord)
         embed = DiscordEmbed(
             title=f"New webhook added",
             description=f"New webhook added for {channel_name}",
@@ -1166,18 +1170,18 @@ def edit_delete():
 
         channel_name, channel_image = get_channel_name_image(key)
         if value.startswith("https://discord"):
-            webhook = DiscordWebhook(url=value, username=project_name, avatar_url=project_logo)
+            webhook = DiscordWebhook(url=value, username=project_name, avatar_url=project_logo_discord)
             embed = DiscordEmbed(
                 title=f"Welcome to {project_name}!", 
                 description=f"I will send clips for {channel_name} here",
                 )
             embed.add_embed_field(name="Add Nightbot command", value=f"If you haven't already. add Nightbot commands from [github]({project_repo_link}) .")
-            embed.set_thumbnail(url=project_logo)
+            embed.set_thumbnail(url=project_logo_discord)
             embed.set_color(0xebf0f7)
             webhook.add_embed(embed)
             webhook.execute()
         if "update_webhook" in creds:
-            webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo)
+            webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo_discord)
             embed = DiscordEmbed(
                 title=f"New webhook added",
                 description=f"New webhook added for {channel_name}",
@@ -1545,7 +1549,7 @@ def clip(message_id, clip_desc=None):
         webhook_name = "Streamsnip"
         channel_name, channel_image = (
             "Streamsnip",
-            "https://streamsnip.com/static/logo-grey.png",
+            project_logo_discord,
         )
 
     if message_level == 0:
