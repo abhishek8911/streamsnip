@@ -204,6 +204,10 @@
         currentPage = 1; // Reset to the first page when the filter changes
         updateClips();
     };
+
+    function escape(text){
+        return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
     
 
     //document.getElementById("raw_data").value = JSON.stringify(data, null, 2);
@@ -257,10 +261,10 @@
             cardHtml += `<center>${clip['id']}</center>`;
             cardHtml += `<div class="card-body">`;
             cardHtml += `<a href="${getUserChannelLink(clip['author']['id'])}" target="_blank" class=${a_class}>`;
-            cardHtml += `<h5 class="card-title"><i class="fa-solid fa-user"></i>${getAuthorTitle(clip['author']['level'])} ${clip['author']['name']}</h5>`;
+            cardHtml += `<h5 class="card-title"><i class="fa-solid fa-user"></i>${getAuthorTitle(clip['author']['level'])} ${escape(clip['author']['name'])}</h5>`;
             cardHtml += `</a>`;
             cardHtml += `<a href="${clip['link']}" target="_blank" class=${a_class}>`;
-            cardHtml += `<p class="card-text"><i class="fa-solid fa-clipboard-list"></i> ${clip['message']} </br>`;
+            cardHtml += `<p class="card-text"><i class="fa-solid fa-clipboard-list"></i> ${escape(clip['message'])} </br>`;
             cardHtml += `<i class="fa-solid fa-clock"></i> At ${clip['hms']} (+${clip['delay']*-1}s)</br>`;
             cardHtml += `<i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))}</p>`;
             cardHtml += `</a>`;
