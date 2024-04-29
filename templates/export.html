@@ -246,8 +246,13 @@
                 container.innerHTML += separatorHtml;
                 last_id = clip['stream_id'];
             }
+            var badges = "";
+            if(clip['discord']['webhook']){
+                badges += `<i class="fa-brands fa-discord"></i> `;
+            }
             if(clip['discord']['ss_link']){
                 thumbnail = clip['discord']['ss_link'];
+                badges += `<i class="fa-solid fa-image"></i> `;
             }
             else{
                 thumbnail = `https://i.ytimg.com/vi/${clip['stream_id']}/sddefault.jpg`;
@@ -258,7 +263,7 @@
             cardHtml += `<a href="${clip['link']}" target="_blank" class=${a_class}>`;
             cardHtml += `<img class="card-img-top" src="${thumbnail}" alt="Card image cap" onerror="this.src='https://i.ytimg.com/vi/${clip['stream_id']}/sddefault.jpg';">` // sometimes this also doesn't exists like https://i.ytimg.com/vi/i-CmAdOzNfc/sddefault.jpg
             cardHtml += `</a>`;
-            cardHtml += `<center>${clip['id']}</center>`;
+            cardHtml += `<center>${clip['id']}</br>${badges}</center>`;
             cardHtml += `<div class="card-body">`;
             cardHtml += `<a href="${getUserChannelLink(clip['author']['id'])}" target="_blank" class=${a_class}>`;
             cardHtml += `<h5 class="card-title"><i class="fa-solid fa-user"></i>${getAuthorTitle(clip['author']['level'])} ${escape(clip['author']['name'])}</h5>`;
