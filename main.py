@@ -415,23 +415,24 @@ def robots():
 def generate_home_data():
     with conn:
         cur = conn.cursor()
-        cur.execute(f"SELECT MAX(time) AS time, channel_id FROM QUERIES GROUP BY channel_id ORDER BY MAX(time) DESC;")
+        cur.execute(f"SELECT * FROM QUERIES GROUP BY channel_id ORDER BY MAX(time) DESC;")
         data = cur.fetchall()
     returning = []
-    for ch_id in data:
+    for clip in data:
         ch = {}
-        channel_name, channel_image = get_channel_name_image(ch_id[1])
+        channel_name, channel_image = get_channel_name_image(clip[0])
         ch["image"] = channel_image
         ch["name"] = channel_name
-        ch["id"] = ch_id[1]
+        ch["id"] = clip[0]
         ch["image"] = channel_image.replace(
             "s900-c-k-c0x00ffffff-no-rj", "s300-c-k-c0x00ffffff-no-rj"
         )
+        ch["last_clip"] = Clip(clip).json()
         if request.is_secure:
             htt = "https://"
         else:
             htt = "http://"
-        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[1])}"
+        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[0])}"
         #ch["last_clip"] = get_channel_clips(ch_id[0])[0].json()
         returning.append(ch)
     """
