@@ -419,7 +419,7 @@ def generate_home_data():
         data = cur.fetchall()
     returning = []
     for clip in data:
-        ch = {}
+        ch = {} 
         channel_name, channel_image = get_channel_name_image(clip[0])
         ch["image"] = channel_image
         ch["name"] = channel_name
@@ -432,7 +432,7 @@ def generate_home_data():
             htt = "https://"
         else:
             htt = "http://"
-        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=ch_id[0])}"
+        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=clip[0])}"
         #ch["last_clip"] = get_channel_clips(ch_id[0])[0].json()
         returning.append(ch)
     """
