@@ -10,3 +10,4 @@ cronitor
 yt_dlp
 flask-sitemap
 psutil
+flask-cors

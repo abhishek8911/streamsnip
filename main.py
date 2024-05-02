@@ -8,6 +8,7 @@ from flask import (
     session,
     jsonify,
 )
+from flask_cors import CORS
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
 import subprocess
@@ -68,6 +69,7 @@ else:
 
 
 app = Flask(__name__)
+CORS(app)
 ext = Sitemap(app=app)
 
 global download_lock
@@ -192,6 +194,21 @@ def get_clip(clip_id, channel=None) -> Optional[Clip]:
         return None
     x = Clip(data[0])
     return x
+
+def get_video_clips(video_id) ->  List[Optional[Clip]]:
+    with conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM QUERIES WHERE stream_link like ?", (f"%{video_id}%",)
+        )
+        data = cur.fetchall()
+    if not data:
+        return []
+    l = []
+    for y in data:
+        x = Clip(y)
+        l.append(x)
+    return l
 
 
 def get_channel_clips(channel_id=None) -> List[Clip]:
@@ -1768,6 +1785,11 @@ def searchx(clip_desc=None):
     if clip:
         return clip.json()
     return "{}"
+
+@app.route("/extension/clips/<video_id>")
+def extension_clips(video_id):
+    clips = get_video_clips(video_id)
+    return jsonify([clip.json() for clip in clips])
 
 
 @app.route("/video/<clip_id>")
