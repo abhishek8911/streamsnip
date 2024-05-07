@@ -173,7 +173,7 @@ if management_webhook_url and not local:
 
 def is_blacklisted(channel_id):
     try:
-        with open("blacklist.json", "r") as f:
+        with open("blacklisted.json", "r") as f:
             data = load(f)
     except FileNotFoundError:
         data = []
