@@ -4,8 +4,8 @@
 |:---:|:---:|:---:|
 
 | Tech Stack |  |
-|---|---|
-| ![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=Flat&logo=chart.js&logoColor=white) |  |
+|---|---| 
+| ![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=Flat&logo=chart.js&logoColor=white) | ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C.svg?style=Flat&logo=bootstrap&logoColor=white) |
 | ![Python](https://img.shields.io/badge/python-3670A0?style=Flat&logo=python&logoColor=ffdd54) | ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=Flat&logo=flask&logoColor=white) |
 | ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=Flat&logo=javascript&logoColor=%23F7DF1E) | ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=Flat&logo=css3&logoColor=white) |
 | ![Apache](https://img.shields.io/badge/apache-%23D42029.svg?style=Flat&logo=apache&logoColor=white) | ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=Flat&logo=amazon-aws&logoColor=white) |
