@@ -84,6 +84,7 @@ allowed_ip = [
     "127.0.0.1",
     "52.15.46.178",
 ]  # store the nightbot ips here. or your own ip for testing purpose
+show_fake_error = False # for blacklisted channel show fake error message or not 
 requested_myself = (
     False  # on startup we request ourself so that apache build the cache.
 )
@@ -170,6 +171,13 @@ if management_webhook_url and not local:
     except request.exceptions.MissingSchema:
         pass
 
+def is_blacklisted(channel_id):
+    try:
+        with open("blacklist.json", "r") as f:
+            data = load(f)
+    except FileNotFoundError:
+        data = []
+    return channel_id in data
 
 def get_clip(clip_id, channel=None) -> Optional[Clip]:
     with conn:
@@ -1490,6 +1498,7 @@ def clip(message_id, clip_desc=None):
     screenshot = True if screenshot == "true" else False
     private = True if private == "true" else False
     take_delays = True if take_delays == "true" else False
+    
     try:
         delay = 0 if not delay else int(delay)
     except ValueError:
@@ -1541,6 +1550,11 @@ def clip(message_id, clip_desc=None):
         chat_id_video[message_id] = vid
     # if there is a video id passed through headers. we may want to use it instead
     h_vid = request.headers.get("videoID")
+    if is_blacklisted(channel_id):
+        if show_fake_error:
+            return "Remote Server Returned Code 404"
+        else:
+            return "You are blacklisted from using this service. for undisclosed reasons. :)"
     if h_vid:
         vid = YouTubeChatDownloader().get_video_data(video_id=h_vid)
     if not vid:
