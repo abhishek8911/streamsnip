@@ -161,6 +161,7 @@
             
         }
         document.addEventListener("DOMContentLoaded", function () {
+            document.body.classList.add("loaded");
             update_mini_stats();
             setInterval(update_mini_stats, 30000);
         });
@@ -200,7 +201,11 @@
         </nav>       
     </div>
 </header>
-
+<div id="loader-wrapper">
+    <img src="/static/logo.svg" id="loader">
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
 <div class="content">
     {% block content %}{% endblock %}
 </div>
