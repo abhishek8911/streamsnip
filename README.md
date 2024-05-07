@@ -1,5 +1,16 @@
 # Clip_Nightbot/Streamsnip: Stream Clipping Simplified
-![Streamsnip](https://cronitor.io/badges/l4zGl5/production/rOa5oshJWmlCgt3t1OQ4Yh5xXGc.svg) ![StreamsnipClipsPerformance](https://cronitor.io/badges/kGZGWA/production/I_QFoL2euGXq7gGih2r6U4u9YDw.svg) <br> ![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=Flat&logo=chart.js&logoColor=white)![Flask](https://img.shields.io/badge/flask-%23000.svg?style=Flat&logo=flask&logoColor=white)![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=Flat&logo=amazon-aws&logoColor=white)![Python](https://img.shields.io/badge/python-3670A0?style=Flat&logo=python&logoColor=ffdd54)![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=Flat&logo=javascript&logoColor=%23F7DF1E)![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=Flat&logo=css3&logoColor=white)![Apache](https://img.shields.io/badge/apache-%23D42029.svg?style=Flat&logo=apache&logoColor=white)![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=Flat&logo=YouTube&logoColor=white)![Youtube Gaming](https://img.shields.io/badge/Youtube%20Gaming-FF0000?style=Flat&logo=Youtubegaming&logoColor=white)</br>
+
+| **Status** | **![Streamsnip](https://cronitor.io/badges/l4zGl5/production/rOa5oshJWmlCgt3t1OQ4Yh5xXGc.svg)** | **![StreamsnipClipsPerformance](https://cronitor.io/badges/kGZGWA/production/I_QFoL2euGXq7gGih2r6U4u9YDw.svg)** |
+|:---:|:---:|:---:|
+
+| Tech Stack |  |
+|---|---| 
+| ![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=Flat&logo=chart.js&logoColor=white) | ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C.svg?style=Flat&logo=bootstrap&logoColor=white) |
+| ![Python](https://img.shields.io/badge/python-3670A0?style=Flat&logo=python&logoColor=ffdd54) | ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=Flat&logo=flask&logoColor=white) |
+| ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=Flat&logo=javascript&logoColor=%23F7DF1E) | ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=Flat&logo=css3&logoColor=white) |
+| ![Apache](https://img.shields.io/badge/apache-%23D42029.svg?style=Flat&logo=apache&logoColor=white) | ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=Flat&logo=amazon-aws&logoColor=white) |
+| ![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=Flat&logo=YouTube&logoColor=white) | ![Youtube Gaming](https://img.shields.io/badge/Youtube%20Gaming-FF0000?style=Flat&logo=Youtubegaming&logoColor=white) |
+
 The primary goal of Clip_Nightbot is to streamline the clipping process, addressing challenges faced by one of my favorite streamers. Here's how you can make the most of it:
 ## Monetization
 This program is a free for everyone as of now. But you can contribute. </br>
@@ -11,12 +22,17 @@ Most of the donations goes back to development and hosting costing.
 !addcom !clip $(urlfetch https://streamsnip.com/clip/$(chatid)/$(querystring)?delay=-40)
 ```
 Just adding this command will get you started. but if you want to have a discord message. or customization then read below. </br>
-this is the most famous way of using it. 
+this is the most famous way of using it. Simply copy paste this in your chat. 
+
+## Nightbot panel way
+Go to [Nightbot Dashboard](https://nightbot.tv/commands/custom) and add command like this <br>
+![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/667db821-f8a6-4f9e-a525-15fe5887854a)
+
 
 If you want to send a discord message. then I would need to add a webhook URL alongside the youtube channel ID. for that fill [this form](https://forms.gle/NgF67HBR69CxAcvJ8) or contact me here.<br>
-![Discord Badge](https://dcbadge.vercel.app/api/shield/408994955147870208) </br>
-[![Server Badge](https://dcbadge.vercel.app/api/server/2XVBWK99Vy)](https://discord.gg/2XVBWK99Vy)
-
+| Contact | Discord |
+|---|---|
+| ![Discord Badge](https://dcbadge.vercel.app/api/shield/408994955147870208) | [![Server Badge](https://dcbadge.vercel.app/api/server/2XVBWK99Vy)](https://discord.gg/2XVBWK99Vy) |
 
 ## Optional Arguments:
 
@@ -27,11 +43,15 @@ If you want to send a discord message. then I would need to add a webhook URL al
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/f4e0bffa-1759-491a-ada9-c1ca4a55240b)
 - `private` (default: false) - If set to true. the clips made are not shown on the web nor impact stats. if you don't want your channel to show up on website. you use it. This override `silent` and returns just ​​`clipped 😉` </br>
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/42c6744e-f3d1-4335-822c-3c3713ac4ab4)
-- `webhook` (default: None) - You can pass your own webhook rather than using the one you provided me (if you did), if combined with `private` you can make totally anonymous clips in a private channel.
-  this take webhook in format of webhook_id/webhook_token
-  ex. lets say a webhook is -> `https://discord.com/api/webhooks/1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s` then you pass `webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s`
+- `webhook` (default: None) - You can provide your own webhook URL instead of the one provided earlier (if you did). By combining this with `private`, you can create completely anonymous clips in a private channel.
+  
+To use your webhook URL, it should be in the format of webhook_id/webhook_token. For example, if your webhook URL is:
+```
+https://discord.com/api/webhooks/1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s
+```
+You would pass `webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s` as the argument. 
 - `message_level` (default: 0) - Customize how the discord message should look like. to support "anonymity"
-  ![Untitled](https://github.com/SurajBhari/clip_nightbot/assets/45149585/614c15d8-d3d1-4765-ad7f-ee0a48965730)
+  ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/bf5e5ced-0472-4a5a-9a84-9b03f4364596)
 - `take_delays` (default: false) - Do you consider your viewers to be smarter than average person ? if you turn this on. the first and last `word` will be evaluted to add/subtract delay.
   The following screenshot was taken with delay=0. but it still gave a delay of `20 seconds` as the author wrote `-20` as first word.  
   ![image](https://github.com/SurajBhari/clip_nightbot/assets/45149585/361dac19-192a-4a75-aa8f-0d94a480790d)
