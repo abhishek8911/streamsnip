@@ -32,7 +32,7 @@ Go to [Nightbot Dashboard](https://nightbot.tv/commands/custom) and add command 
 If you want to send a discord message. then I would need to add a webhook URL alongside the youtube channel ID. for that fill [this form](https://forms.gle/NgF67HBR69CxAcvJ8) or contact me here.<br>
 | Contact | Discord |
 |---|---|
-| ![Discord Badge](https://dcbadge.vercel.app/api/shield/408994955147870208) | [![Server Badge](https://dcbadge.vercel.app/api/server/2XVBWK99Vy)](https://discord.gg/2XVBWK99Vy) |
+| ![Discord Badge](https://dcbadge.limes.pink/api/shield/408994955147870208) | [![Server Badge](https://dcbadge.limes.pink/api/server/2XVBWK99Vy)](https://discord.gg/2XVBWK99Vy) |
 
 ## Optional Arguments:
 
