@@ -8,12 +8,7 @@
 {% block content %}
 <center>
     <form action="/ed" method="post">
-        <select id="clip" name="clip">
-            <option value="">Clip</option>
-            {% for clip in ids %}
-                <option value="{{ clip }}">{{ clip }}</option>
-            {% endfor %} 
-        </select> 
+        <input type="text" placeholder="Clip Id" name="clip" id="clip"></br>
         </br></br>
         <input type="password" name="password" placeholder="Password"></br>
         <input type="text" name="new_name" placeholder="New Name"> </br>

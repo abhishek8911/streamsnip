@@ -1159,6 +1159,7 @@ def edit_delete():
     if password != actual_password:
         return "Invalid password"
     # get the clip id
+    print(request.form)
     clip_id = request.form.get("clip")
     # get the action
     if request.form.get("rename") == "Rename":
