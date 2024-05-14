@@ -149,7 +149,7 @@
                         new_html = "";
                         new_html += '<div class="row">';
                         for(var i=0; i < data.length; i++){
-                            new_html += '<div class="col-3"><a href="' + data[i].link + '" target="_blank"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body"><h6 class="card-title">' + data[i].name + '</h6></div></div></a></div>';
+                            new_html += '<div class="col-3"><a href="' + data[i].link + '"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body"><h6 class="card-title">' + data[i].name + '</h6></div></div></a></div>';
                         }
                         new_html += '</div>';
                         document.getElementsByClassName("container")[1].innerHTML = new_html;
