@@ -250,18 +250,22 @@
             if(clip['discord']['webhook']){
                 badges += `<i class="fa-brands fa-discord"></i> `;
             }
+            var sd_thumbnail = `https://i.ytimg.com/vi/${clip['stream_id']}/sddefault.jpg`;
+            var hq_live_thumbnail = `https://i.ytimg.com/vi/${clip['stream_id']}/hqdefault_live.jpg`;
             if(clip['discord']['ss_link']){
-                thumbnail = clip['discord']['ss_link'];
+                var thumbnail = clip['discord']['ss_link'];
+                var alternative = `https://i.ytimg.com/vi/${clip['stream_id']}/sddefault.jpg`;
                 badges += `<i class="fa-solid fa-image"></i> `;
+                
             }
             else{
-                thumbnail = `https://i.ytimg.com/vi/${clip['stream_id']}/sddefault.jpg`;
+                var thumbnail = sd_thumbnail;   
             }
             var is_checked = localStorage.getItem(clip['id']) ? 'true' : '';
             var cardHtml = `<div class="col-md-4 col-lg-3">`;
             cardHtml += `<div class="card ${getBorderStyle(clip['author']['level'])}" style="width: 100%;">`;
             cardHtml += `<a href="${clip['link']}" target="_blank" class=${a_class}>`;
-            cardHtml += `<img class="card-img-top" src="${thumbnail}" alt="Card image cap" onerror="this.src='https://i.ytimg.com/vi/${clip['stream_id']}/sddefault.jpg';">` // sometimes this also doesn't exists like https://i.ytimg.com/vi/i-CmAdOzNfc/sddefault.jpg
+            cardHtml += `<img class="card-img-top" src="${thumbnail}" alt="Card image cap" onerror="this.src='${alternative}';" onload="if(this.naturalHeight==90 && this.naturalWidth==120){this.src='${hq_live_thumbnail}'}">`;
             cardHtml += `</a>`;
             cardHtml += `<center>${clip['id']}</br>${badges}</center>`;
             cardHtml += `<div class="card-body">`;
