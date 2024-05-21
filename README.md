@@ -161,6 +161,22 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
      ```
 </details>
 
+## Self Hosting 
+<details>
+  I made it quite easy to host yourself. if you prefer that way.
+  
+  ### Installation
+  1. Clone the repo
+  2. Install requirements - `pip install -r requirements.txt`
+  3. (Optional) Install ffmpeg and ytdlp for screenshot to work.
+  4. CONFIG - edit creds.sample.json to creds.json and insert few keys in it. `password` to use at `/admin` page and `/add` route.
+
+  ### Running
+  1. Run by doing. `python main.py`
+  2. (Optional) You can run. `maintainer.py`. for this you will need `management_webhook` in creds.json to send you backup and logs to your discord.
+  3. For nightbot. you need to replace `streamsnip.com` to your ip. and use `http` instead of `https`. 
+</details>
+
 ### Additional Customization:
 
 You can use `-ul=userlevel` to limit clipping to specific user levels (e.g., mods). Find user levels [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to reduce spam and grant clipping access to specific individuals.  </br>
