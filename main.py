@@ -159,17 +159,6 @@ except FileNotFoundError:
     with open("creds.json", "w") as f:
         dump({}, f)
         creds = {}
-management_webhook_url = creds.get("management_webhook", None)
-management_webhook = None
-if management_webhook_url and not local:
-    management_webhook = DiscordWebhook(
-        management_webhook_url
-    )  # we implement this function because we have to recreate this wh again and again to use.
-    management_webhook.content = "Bot started"
-    try:
-        management_webhook.execute()
-    except request.exceptions.MissingSchema:
-        pass
 
 def is_blacklisted(channel_id):
     try:
