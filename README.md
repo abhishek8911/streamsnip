@@ -36,7 +36,7 @@ If you want to send a discord message. then I would need to add a webhook URL al
 
 ## Optional Arguments:
 
-- `showlink` (default: true) - Display the link where all clips can be viewed.
+- `showlink` (default: true) - Display the link where all clips can be viewed. (pass `1` to get link to discord message)
 - `screenshot` (default: false) - Enable or disable screenshot capture. If enabled the nightbot may not get response in given time and will say "Timed out" message. but it will still clip.
 - `delay` (default: 0) - Introduce an artificial delay to the command. Useful for scheduling links in the future or past.
 - `silent` (default: 2||Highest) - Level of the clipping message. see example below. </br> 
