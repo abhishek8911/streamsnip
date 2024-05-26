@@ -8,6 +8,7 @@ from flask import (
     session,
     jsonify,
 )
+from requests import get as GET
 from flask_cors import CORS
 import dns.resolver, dns.reversename
 from bs4 import BeautifulSoup
@@ -1484,11 +1485,17 @@ def clip(message_id, clip_desc=None):
     except ValueError:
         silent = 2
     delay = arguments.get("delay", 0)
-    show_link = False if show_link == "false" else True
+    show_link = False if show_link == "false" else show_link
     screenshot = True if screenshot == "true" else False
     private = True if private == "true" else False
     take_delays = True if take_delays == "true" else False
     
+    if type(show_link) != bool:
+        try:
+            show_link = int(show_link)
+        except ValueError:
+            show_link = True # default value
+    show_link_message = ""
     try:
         delay = 0 if not delay else int(delay)
     except ValueError:
@@ -1608,17 +1615,23 @@ def clip(message_id, clip_desc=None):
         response = webhook.execute()
         if not response.status_code == 200:
             return "Error in sending message to discord. Perhaps the webhook is invalid. Please contant AG at https://discord.gg/2XVBWK99Vy"
-        webhook_id = webhook.id
+        webhook_id = webhook.id  
+        if show_link == 1: # we don't need to get webhook details if its not needed (optimization)
+            webhook_details = GET(webhook_url).json() 
+            # construct the link
+            ll = f"https://discord.com/channels/{webhook_details['guild_id']}/{webhook_details['channel_id']}/{webhook_id}"
+            show_link_message = f" See the clip message at {ll}"
     else:
         webhook_id = None
 
-    if show_link:
+    if show_link is True:
         if request.is_secure:
             htt = "https://"
         else:
             htt = "http://"
-        message_to_return += f" See all clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
+        show_link_message = f" See all clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
+    message_to_return += show_link_message
     if screenshot and webhook_url:
         webhook = DiscordWebhook(
             url=webhook_url,
