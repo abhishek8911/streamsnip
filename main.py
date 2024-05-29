@@ -96,8 +96,8 @@ chat_id_video = {}  # store chat_id: vid. to optimize clip command
 downloader_base_url = "https://azure-internal-verse.glitch.me"
 project_name = "StreamSnip"
 project_logo = base_domain + "/static/logo.png"
-project_repo_link = "https://github.com/SurajBhari/clip_nightbot"
-project_logo_discord = "https://raw.githubusercontent.com/SurajBhari/clip_nightbot/main/static/256_discord_ss.png" # link to logo that is used in discord 
+project_repo_link = "https://github.com/SurajBhari/streamsnip"
+project_logo_discord = "https://raw.githubusercontent.com/SurajBhari/streamsnip/main/static/256_discord_ss.png" # link to logo that is used in discord 
 
 if not project_logo_discord:
     project_logo_discord = project_logo
