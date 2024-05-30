@@ -40,12 +40,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <h2>Simplified String</h2>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <textarea readonly class="form-control" id="raw_string_data" rows="3"></textarea>
+           <h3 onclick="copySimplifiedString()" id="ssbutton"><i class="fa-regular fa-clipboard"></i> Simplified String</h3>
         </div>
     </div>
     <div class="row">
@@ -142,7 +137,13 @@
         iview = false;
         document.getElementById("iview").checked = iview;
     }
-
+    function copySimplifiedString(){
+        var simplifiedString = {{ clips_string | tojson }};
+        navigator.clipboard.writeText(simplifiedString);
+        ssbutton = document.getElementById("ssbutton");
+        ssbutton.innerHTML = "<i class='fa-solid fa-clipboard-check'></i> Copied!";
+        ssbutton.style.color = "lightgreen";
+    }
     document.getElementById("iview").addEventListener("click", function () {
         if (iview == true) {
             iview = false;
@@ -210,8 +211,6 @@
     }
     
 
-    //document.getElementById("raw_data").value = JSON.stringify(data, null, 2);
-    document.getElementById("raw_string_data").value = {{ clips_string|tojson }};
     function updateClips() {
         var container = document.getElementById("clips-container");
         var search = document.getElementById("search").value.toLowerCase();
