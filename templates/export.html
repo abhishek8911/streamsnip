@@ -264,11 +264,11 @@
             }
             var is_checked = localStorage.getItem(clip['id']) ? 'true' : '';
             var cardHtml = `<div class="col-md-4 col-lg-3">`;
-            cardHtml += `<div class="card ${getBorderStyle(clip['author']['level'])}" style="width: 100%;">`;
+            cardHtml += `<div class="card ${getBorderStyle(clip['author']['level'])}" id="${clip['id']}" style="width: 100%;">`;
             cardHtml += `<a href="${clip['link']}" target="_blank" class=${a_class}>`;
             cardHtml += `<img class="card-img-top" src="${thumbnail}" alt="Card image cap" onerror="this.src='${alternative}';" onload="if(this.naturalHeight==90 && this.naturalWidth==120){this.src='${hq_live_thumbnail}'}">`;
             cardHtml += `</a>`;
-            cardHtml += `<center>${clip['id']}</br>${badges}</center>`;
+            cardHtml += `<center>${clip['id']} <a href="#${clip['id']}"> <i class="fa-solid fa-link"></i> </a> </br>${badges}</center>`;
             cardHtml += `<div class="card-body">`;
             cardHtml += `<a href="${getUserChannelLink(clip['author']['id'])}" target="_blank" class=${a_class}>`;
             cardHtml += `<h5 class="card-title"><i class="fa-solid fa-user"></i>${getAuthorTitle(clip['author']['level'])} ${escape(clip['author']['name'])}</h5>`;
