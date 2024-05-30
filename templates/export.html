@@ -38,14 +38,12 @@
         </div>
     </div>-->
 
+    <button type="button" class="btn btn-secondary" onclick="copySimplifiedString()" id="ssbutton"><i class="fa-regular fa-clipboard"></i> Simplified String</h3></button>
+    <br><br><br>
+    </center><h2>Filter by Level:</h2>
+    <center>
     <div class="row">
         <div class="col-md-12">
-           <h3 onclick="copySimplifiedString()" id="ssbutton"><i class="fa-regular fa-clipboard"></i> Simplified String</h3>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Filter by Level:</h2>
             <select id="filter" class="form-control">
                 <option value="all">All Levels</option>
                 <option value="everyone">Everyone</option>
@@ -81,14 +79,16 @@
             </nav>
         </div>
     </div>
-    <h2>Seperate streams</h2>
-    <label class="switch">
+    </center>
+    <h2>Seperate streams</h2><label class="switch">
         <input type="checkbox" id="iview" checked="checked">
         <span class="slider round"></span>
     </label>
+    <br><br><br>
     <div class="row">
         <div class="col-md-12">
             <h2>Search</h2>
+            <center>
             <input type="text" id="search" class="form-control search" placeholder="Search for clips...">
         </div>
     </div>
@@ -117,6 +117,8 @@
                         </a>
                     </li>
                 </ul>
+                <p>Page <span id="current-page1">1</span>/<span id="total-page1"></span> </br>
+                (<span id="total-clips1"></span>)</p>
             </nav>
         </div>
     </div>
@@ -295,6 +297,11 @@
         document.getElementById("total-page").innerHTML = maxPage;
         end = endIndex > filteredData.length ? filteredData.length : endIndex;
         document.getElementById("total-clips").innerHTML = `${startIndex + 1}-${end} of ${filteredData.length}`;
+
+        document.getElementById("current-page1").innerHTML = currentPage;
+        document.getElementById("total-page1").innerHTML = maxPage;
+        end = endIndex > filteredData.length ? filteredData.length : endIndex;
+        document.getElementById("total-clips1").innerHTML = `${startIndex + 1}-${end} of ${filteredData.length}`;
     }
     function getUserChannelLink(authorId) {
         return `https://www.youtube.com/channel/${authorId}`;
