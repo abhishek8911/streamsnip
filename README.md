@@ -58,6 +58,7 @@ You would pass `webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jio
 
 
 Here's one example using all of it.
+❌THIS IS PROBABLY NOT WHAT YOU WANT TO TYPE IN YOUR CHAT. ITS TOO BIG. use the one above.❌
 ```
 https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=true&delay=-30&private=true&webhook=1211440693168447599/ieU15QcFI_PcAun88TFGpUuRMK6E7Me14jioxB1mbJrRU6ay3XI8jByeEk3XKlVKr8_s&message_level=3&take_delays=true
 ```
