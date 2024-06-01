@@ -133,7 +133,7 @@
                 last_clip_time.innerHTML = `   Last Clip - ${timeSince(new Date(last_clip.last_clip.time))}`;
                 var today_count = last_clip.today_count;
                 var today_count_element = document.getElementById("today_count");
-                today_count_element.innerHTML = today_count + " Clips Today";
+                today_count_element.innerHTML = '<i class="fa-solid fa-clipboard-list"></i>' + today_count + " Clips Today";
                 var data = last_clip.data;
                 if(is_home) { // we need to change the order just in case it got changed. 
                     prev_order = [];
@@ -179,7 +179,7 @@
             <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fa-solid fa-clipboard-list"></i><i id="today_count"></i>&nbsp; &nbsp;<i id="last_clip_time"></i></a>
+                        <a class="nav-link" href="#"><i id="today_count"></i>&nbsp; &nbsp;<i id="last_clip_time"></i></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/exports"><i class="fa-solid fa-earth-asia"></i> All Clips</a>
