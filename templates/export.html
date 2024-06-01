@@ -276,7 +276,7 @@
             cardHtml += `<a href="${clip['link']}" target="_blank" class=${a_class}>`;
             cardHtml += `<p class="card-text"><i class="fa-solid fa-clipboard-list"></i> ${escape(clip['message'])} </br>`;
             cardHtml += `<i class="fa-solid fa-clock"></i> At ${clip['hms']} (+${clip['delay']*-1}s)</br>`;
-            cardHtml += `<i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))}</p>`;
+            cardHtml += `<span title="${clip['time']}"> <i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))} </span></p>`;
             cardHtml += `</a>`;
             /*
             cardHtml += `<a href="${clip['download_link']}">`;
