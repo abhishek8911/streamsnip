@@ -48,6 +48,8 @@ except FileNotFoundError:
     pass
 else:
     local = False
+    if __name__ != "__main__":
+        local = True
 
 if not local:
     logging.basicConfig(
@@ -1321,10 +1323,7 @@ def add():
                     htt = "https://"
                 else:
                     htt = "http://"
-                if local:
-                    link = f"{htt}{request.host}/clip/{chat_id}/{clip_message}"
-                else:
-                    link = f"{htt}{request.host}/clip/{chat_id}/{clip_message}"
+                link = f"{htt}{request.host}/clip/{chat_id}/{clip_message}"
                 if delay:
                     delay = int(delay)
                     link += f"?delay={delay}"
