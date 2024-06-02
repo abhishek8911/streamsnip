@@ -1868,5 +1868,4 @@ for ch_id in data:
     get_channel_name_image(ch_id[0])
 
 if __name__ == "__main__":
-    #app.run(host="0.0.0.0", port=80, debug=True)
-    print(get_channel_id("https://www.youtube.com/@itsMahii"))
+    app.run(host="0.0.0.0", port=80, debug=True)
