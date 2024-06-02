@@ -398,6 +398,7 @@ def inject_mini_stats():
 
 @app.before_request
 def before_request():
+    return
     # if request is for /clip or /delete or /edit then check if its from real
     if "/clip" in request.path or "/delete" in request.path or "/edit" in request.path:
         if "/extension/clips/" in request.path:
