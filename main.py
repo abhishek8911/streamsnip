@@ -256,6 +256,9 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
         channel_image = "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
         channel_name = "<deleted channel>"
     channel_info[channel_id] = {"name": channel_name, "image": channel_image}
+    # write channel_info to channel_cache.json
+    with open("channel_cache.json", "w+") as f:
+        dump(channel_info, f, indent=4)
     return channel_name, channel_image
 
 
@@ -1848,6 +1851,11 @@ def index():
 
 
 channel_info = {}
+if 'channel_cache.json' in os.listdir('.'):
+    with open("channel_cache.json","r") as f:
+        channel_info = load(f)
+
+    
 with conn:
     cur = conn.cursor()
     cur.execute(f"SELECT channel_id FROM QUERIES ORDER BY time DESC")
@@ -1860,4 +1868,5 @@ for ch_id in data:
     get_channel_name_image(ch_id[0])
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80, debug=True)
+    #app.run(host="0.0.0.0", port=80, debug=True)
+    print(get_channel_id("https://www.youtube.com/@itsMahii"))
