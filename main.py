@@ -1641,6 +1641,29 @@ def clip(message_id, clip_desc=None):
     else:
         webhook_id = None
 
+    try:
+        if screenshot and webhook_url:
+            webhook = DiscordWebhook(
+                url=webhook_url,
+                username=user_name,
+                avatar_url=channel_image,
+                allowed_mentions={"role": [], "user": [], "everyone": False},
+            )
+            file_name = take_screenshot(url, clip_time)
+            with open(file_name, "rb") as f:
+                webhook.add_file(file=f.read(), filename="ss.jpg")
+            webhook.execute()
+            ss_id = webhook.id
+            ss_link = webhook.attachments[0]["url"]
+        else:
+            ss_id = None
+            ss_link = None
+    except:
+        ss_id = None
+        ss_link = None
+        message_to_return += " Couldn't take screenshot."
+    
+
     if show_link is True:
         if request.is_secure:
             htt = "https://"
@@ -1649,22 +1672,7 @@ def clip(message_id, clip_desc=None):
         show_link_message = f" See all clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
 
     message_to_return += show_link_message
-    if screenshot and webhook_url:
-        webhook = DiscordWebhook(
-            url=webhook_url,
-            username=user_name,
-            avatar_url=channel_image,
-            allowed_mentions={"role": [], "user": [], "everyone": False},
-        )
-        file_name = take_screenshot(url, clip_time)
-        with open(file_name, "rb") as f:
-            webhook.add_file(file=f.read(), filename="ss.jpg")
-        webhook.execute()
-        ss_id = webhook.id
-        ss_link = webhook.attachments[0]["url"]
-    else:
-        ss_id = None
-        ss_link = None
+
     # insert the entry to database
     with conn:
         cur = conn.cursor()
