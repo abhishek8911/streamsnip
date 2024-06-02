@@ -37,12 +37,13 @@ import cronitor
 from util import *
 from Clip import Clip
 
-# we are in /var/www/clip_nighbot
+# we are in /var/www/streamsnip
 import os
 
 try:
     os.chdir("/var/www/streamsnip")
 except FileNotFoundError:
+    print("Running locally as we couldn't find the folder")
     local = True
     # we are working locally
     pass
