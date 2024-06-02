@@ -41,7 +41,7 @@ from Clip import Clip
 import os
 
 try:
-    os.chdir("/var/www/clip_nightbot")
+    os.chdir("/var/www/streamsnip")
 except FileNotFoundError:
     local = True
     # we are working locally
