@@ -8,6 +8,7 @@ from flask import (
     session,
     jsonify,
 )
+import random
 from requests import get as GET
 from flask_cors import CORS
 import dns.resolver, dns.reversename
@@ -101,6 +102,13 @@ project_name = "StreamSnip"
 project_logo = base_domain + "/static/logo.png"
 project_repo_link = "https://github.com/SurajBhari/streamsnip"
 project_logo_discord = "https://raw.githubusercontent.com/SurajBhari/streamsnip/main/static/256_discord_ss.png" # link to logo that is used in discord 
+
+def is_it_expired(t:int): # we add some randomness so that not all of the cache get invalidated and added back at same time. 
+    three_days_ago = int(time.time()) - 3 * 24 * 60 * 60
+    last_time = three_days_ago + random.randint(0, 48) * 60 * 60
+    if t < last_time:
+        return True
+    return False
 
 if not project_logo_discord:
     project_logo_discord = project_logo
@@ -242,6 +250,11 @@ def create_simplified(clips: list) -> str:
 
 def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     if channel_id in channel_info:
+        if "last_updated" not in channel_info[channel_id]:
+            channel_info[channel_id]["last_updated"] = 0 # forcing to outdate the value so that it gets updated
+        if is_it_expired(channel_info[channel_id]["last_updated"]):
+            del channel_info[channel_id]
+            return get_channel_name_image(channel_id)
         try:
             return channel_info[channel_id]["name"], channel_info[channel_id]["image"]
         except Exception as e:
@@ -256,7 +269,8 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     except TypeError:  # in case the channel is deleted or not found
         channel_image = "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
         channel_name = "<deleted channel>"
-    channel_info[channel_id] = {"name": channel_name, "image": channel_image}
+    last_updated = int(time.time())
+    channel_info[channel_id] = {"name": channel_name, "image": channel_image, "last_updated": last_updated}
     # write channel_info to channel_cache.json
     with open("channel_cache.json", "w+") as f:
         dump(channel_info, f, indent=4)
