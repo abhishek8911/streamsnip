@@ -196,6 +196,21 @@
                     <li class="nav-item" title="Toggle Theme">
                         <a class="nav-link" href="#" onclick="toggleDarkTheme()" id="theme_button"></a>
                     </li>
+                    <li class="nav-item" title="Toggle Theme">
+                        <a class="nav-link" href="#" onclick="toggleDarkTheme()" id="theme_button"></a>
+                    </li>
+                    {% if session['logged_in'] %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                <i class="fa-solid fa-sign-out"></i> Logout, {{session['username']}}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login"><i class="fa-solid fa-sign-in"></i> Login</a>
+                        </li>
+                    {% endif %}
+                    
                 </ul>
             </div>
         </nav>       

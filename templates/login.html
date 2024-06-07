@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+
+{% block head_content%}
+<title> StreamSnip </title>
+{% set channel_names = [] %}
+{% for channel in data[:10] %}
+    {% set _ = channel_names.append(channel['name']) %}
+{% endfor %}
+{% set channel_names_str = channel_names|join(', ') %}
+<meta property="og:image" content="https://streamsnip.com/static/logo.png" />
+<meta property="og:title" content="StreamSnip" />
+{% endblock %}
+{% block content %}
+
+<div class="login form-control">
+    <h1>Login</h1>
+    <form action="{{ url_for('login') }}" method="post">
+        <label for="username">
+            <i class="fas fa-user"></i>
+        </label>
+        <input type="password" name="password" placeholder="Password" id="password" required>
+        <div class="msg">{{ msg }}</div>
+        <input type="submit" value="Login">
+    </form>
+    {{session['username']}}
+    {{session['logged_in']}}
+    {{session['image']}}
+    
+    
+</div>
+
+{% endblock %}

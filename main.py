@@ -35,6 +35,7 @@ import logging
 from datetime import datetime, timedelta
 import cronitor
 
+from string import ascii_letters, digits
 from util import *
 from Clip import Clip
 
@@ -74,6 +75,7 @@ else:
 
 
 app = Flask(__name__)
+app.secret_key = "".join([random.choice(ascii_letters + digits) for x in range(32)]) # we can randomize this because it will invalidate session on machine restart
 CORS(app)
 ext = Sitemap(app=app)
 
@@ -492,6 +494,33 @@ def data():
     clips = get_channel_clips()
     clips = [x.json() for x in clips]
     return clips
+
+@app.route("/login", methods=["POST", "GET"])
+def login():
+    if request.method == "POST":
+        # set cookies to this password
+        with open("creds.json", "r") as f:
+            creds = load(f)
+        for cred in creds:
+            if creds[cred] == request.form["password"]:
+                session["password"] = request.form["password"]
+                if cred == "password":
+                    session["admin"] = True
+                    session["username"] = "admin"
+                    session["image"] = "https://images.freeimages.com/fic/images/icons/2526/bloggers/256/admin.png?fmt=webp&h=350"
+                else:
+                    username, image = get_channel_name_image(cred)
+                    session["username"] = username
+                    session["image"] = image
+                session['logged_in'] = True
+                return redirect(url_for("slash"))
+        return render_template("login.html", msg="INVALID PASSWORD")
+    return render_template("login.html", msg="Password is the webhook URL that you are using for your channel.")
+
+@app.route("/logout", methods=["POST", "GET"]) 
+def logout():
+    session.clear()
+    return redirect(url_for("slash"))
 
 
 def get_video_id(video_link):
