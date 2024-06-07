@@ -263,34 +263,36 @@
                 var thumbnail = sd_thumbnail;   
             }
             var is_checked = localStorage.getItem(clip['id']) ? 'true' : '';
-            var cardHtml = `<div class="col-md-4 col-lg-3">`;
-            cardHtml += `<div class="card ${getBorderStyle(clip['author']['level'])}" id="${clip['id']}" style="width: 100%;">`;
-            cardHtml += `<a href="${clip['link']}" target="_blank" class=${a_class}>`;
-            cardHtml += `<img class="card-img-top" src="${thumbnail}" alt="Card image cap" onerror="this.src='${alternative}';" onload="if(this.naturalHeight==90 && this.naturalWidth==120){this.src='${hq_live_thumbnail}'}">`;
-            cardHtml += `</a>`;
-            cardHtml += `<center>${clip['id']} <a href="#${clip['id']}"> <i class="fa-solid fa-link"></i> </a> </br>${badges}</center>`;
-            cardHtml += `<div class="card-body">`;
-            cardHtml += `<a href="${getUserChannelLink(clip['author']['id'])}" target="_blank" class=${a_class}>`;
-            cardHtml += `<h5 class="card-title"><i class="fa-solid fa-user"></i>${getAuthorTitle(clip['author']['level'])} ${escape(clip['author']['name'])}</h5>`;
-            cardHtml += `</a>`;
-            cardHtml += `<a href="${clip['link']}" target="_blank" class=${a_class}>`;
-            cardHtml += `<p class="card-text"><i class="fa-solid fa-clipboard-list"></i> ${escape(clip['message'])} </br>`;
-            cardHtml += `<i class="fa-solid fa-clock"></i> At ${clip['hms']} (+${clip['delay']*-1}s)</br>`;
-            cardHtml += `<span title="${clip['time']}"> <i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))} </span></p>`;
-            cardHtml += `</a>`;
-            /*
-            cardHtml += `<a href="${clip['download_link']}">`;
-            cardHtml += `<i class="fa-solid fa-download"></i>`;
-            cardHtml += `</a>`;
-            */ 
-            cardHtml += `</div>`;
-            cardHtml += `<div class="card-footer checkbox-wrapper-2"><input type="checkbox" class="sc-gJwTLC ikxBAC" id=${clip['id']} value=${clip['id']} onclick='handleClick(this);' `
-            cardHtml += is_checked ? 'checked' : '';
-            cardHtml += `>`
-            cardHtml += `</div>`;
-            cardHtml += `</div>`;
+            var cardHtml = `<div class="col-md-4 col-lg-3">
+                                <div class="card ${getBorderStyle(clip['author']['level'])}" id="${clip['id']}" style="width: 100%;">
+                                    <a href="${clip['link']}" target="_blank" class=${a_class}>
+                                        <img class="card-img-top" src="${thumbnail}" alt="Card image cap" onerror="this.src='${alternative}';" onload="if(this.naturalHeight==90 && this.naturalWidth==120){this.src='${hq_live_thumbnail}'}">
+                                    </a>
+                                    <center>${clip['id']} <a href="#${clip['id']}"> <i class="fa-solid fa-link"></i> </a> </br>${badges}</center>
+                                    <div class="card-body">
+                                        <a href="${getUserChannelLink(clip['author']['id'])}" target="_blank" class=${a_class}>
+                                            <h5 class="card-title"><i class="fa-solid fa-user"></i>${getAuthorTitle(clip['author']['level'])} ${escape(clip['author']['name'])}</h5>
+                                        </a>
+                                        <a href="${clip['link']}" target="_blank" class=${a_class}>
+                                            <p class="card-text">
+                                                <i class="fa-solid fa-clipboard-list"></i> ${escape(clip['message'])} </br>
+                                                <i class="fa-solid fa-clock"></i> At ${clip['hms']} (+${clip['delay']*-1}s)</br>
+                                                <span title="${clip['time']}"> <i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))} </span>
+                                            </p>
+                                        </a>
+                                    </div>
+                                    <div class="card-footer checkbox-wrapper-2">
+                                        <input type="checkbox" class="sc-gJwTLC ikxBAC" id=${clip['id']} value=${clip['id']} onclick='handleClick(this);' ${is_checked ? 'checked' : ''}>
+                                    </div>
+                                </div>
+                            </div>`;
             container.innerHTML += cardHtml;
-        
+            
+        });
+        displayedClips.forEach(clip => {
+            document.getElementById(clip['id']).addEventListener("contextmenu", function (e) {
+                e.preventDefault();
+            });
         });
         maxPage = Math.ceil(filteredData.length / clipsPerPage);
         document.getElementById("current-page").innerHTML = currentPage;
