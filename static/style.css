@@ -94,6 +94,10 @@ body.dark-theme {
 	--bs-btn-color: rgb(255, 255, 255);
 }
 
+.btn.dark-theme{
+  --bs-btn-color: rgb(255, 255, 255);
+}
+
 .form-control.dark-theme{
 	background-color:rgba(33, 37, 41, 1);
 	color:white;
