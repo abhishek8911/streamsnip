@@ -75,7 +75,7 @@ else:
 
 
 app = Flask(__name__)
-app.secret_key = "".join([random.choice(ascii_letters + digits) for x in range(32)]) # we can randomize this because it will invalidate session on machine restart
+app.secret_key = os.environ.get("WSGISecretKey", "".join(random.choices(ascii_letters + digits, k=32))) # if we are running on apache we have a WSGISecretKey if not then we generate one (hopefully in single threaded mode)
 CORS(app)
 ext = Sitemap(app=app)
 
