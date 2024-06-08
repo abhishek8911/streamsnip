@@ -164,6 +164,7 @@
             document.body.classList.add("loaded");
             update_mini_stats();
             setInterval(update_mini_stats, 30000);
+            console.log("{% session %}")
         });
     </script>
     {% block head_content %}
