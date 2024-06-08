@@ -380,7 +380,30 @@
     }
 
     function del(element){
-        console.log(element);
+        clip_id = element.parentElement.parentElement.id;
+        // send a request to the server to delete the clip
+        fetch("/webdelete", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+
+            },
+            body: JSON.stringify(
+                {
+                    clip_id: clip_id
+                }),
+        })
+        .then(response => response.status == 200 ? response.text() : Promise.reject(response))
+        .then(d => {
+            for(var i=0; i<data.length; i++){
+                if(data[i]['id'] == clip_id){
+                    data.splice(i, 1);
+                    break;
+                }
+            }
+        }).then(() => {
+            updateClips();
+        })  
     }
     function getBorderStyle(level) {
         switch (level) {
