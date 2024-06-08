@@ -495,6 +495,11 @@ def data():
     clips = [x.json() for x in clips]
     return clips
 
+@app.route("/session", methods=["GET"])
+def session_data():
+    if session:
+        return dumps(session, indent=4)
+    
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
