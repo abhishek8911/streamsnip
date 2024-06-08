@@ -522,6 +522,38 @@ def logout():
     session.clear()
     return redirect(url_for("slash"))
 
+@app.route("/webedit", methods=["POST"])
+def webedit():
+    try:
+        new_message = request.json["message"]
+        clip_id = request.json["clip_id"]
+    except KeyError:
+        return "Invalid request", 400
+    if not session.get("logged_in"):
+        print("Not logged in")
+        return "Not logged in", 401
+    clip = get_clip(clip_id=clip_id)
+    
+    if not clip:
+        return "Clip not found", 404
+    # compare the password of the session against the creds to verify legitmacy of the request
+    with open("creds.json", "r") as f:
+        creds = load(f)
+
+    try:
+        if creds["password"] == session["password"]: # for admin
+            pass
+        elif creds[clip.channel] == session["password"]:
+            pass
+        else:
+            return "Invalid password" , 401
+    except KeyError:
+        return "Invalid Key" , 401
+        
+
+    clip.edit(new_message, conn)
+    
+    return clip.desc, 200
 
 def get_video_id(video_link):
     x = parse.urlparse(video_link)
