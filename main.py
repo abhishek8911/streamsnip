@@ -1214,6 +1214,8 @@ def approve():
     password = request.args.get("pass")
     key = request.args.get("key")
     value = request.args.get("value")
+    
+    value = value.replace("discordapp.com", "discord.com")
 
     if password != get_webhook_url("password"):
         return "Wrong password"
