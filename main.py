@@ -697,6 +697,8 @@ def get_channel_at(channel_id): # returns the @username of the channel
 @app.route("/e/<channel_id>")
 def exports(channel_id=None):
     channel_id = get_channel_id_any(channel_id)
+    if not channel_id:
+        return redirect(url_for("slash")) # not found
     channel_name, channel_image = get_channel_name_image(channel_id)
     data = get_channel_clips(channel_id)
     data = [x.json() for x in data if not x.private]
@@ -723,6 +725,8 @@ def channel_stats(channel_id=None):
     if channel_id == "all":
         return redirect(url_for("stats"))
     channel_id = get_channel_id_any(channel_id)
+    if not channel_id:
+        return redirect(url_for("slash"))
     with conn:
         cur = conn.cursor()
         cur.execute(
@@ -893,6 +897,8 @@ def user_stats(channel_id=None):
     if not channel_id:
         return redirect(url_for("slash"))
     channel_id = get_channel_id_any(channel_id)
+    if not channel_id:
+        return redirect(url_for("slash"))
     with conn:
         cur = conn.cursor()
         cur.execute(
