@@ -699,7 +699,11 @@ def exports(channel_id=None):
     channel_id = get_channel_id_any(channel_id)
     if not channel_id:
         return redirect(url_for("slash")) # not found
-    channel_name, channel_image = get_channel_name_image(channel_id)
+    try:
+        channel_name, channel_image = get_channel_name_image(channel_id)
+    except Exception as e:
+        print(e)
+        return redirect(url_for("slash"))
     data = get_channel_clips(channel_id)
     data = [x.json() for x in data if not x.private]
     return render_template(
