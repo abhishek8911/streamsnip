@@ -665,11 +665,17 @@ def get_channel_id_any(channel_id): # returns the UC id of the channel
                     return x
             except KeyError:
                 del channel_info[x]
-                get_channel_name_image(x)
+                try:
+                    get_channel_name_image(x)
+                except Exception as e:
+                    continue
                 if channel_info[x]["username"].lower() == channel_id.lower():
                     return x
         if not found_flag:
-            get_channel_name_image(channel_id)
+            try:
+                get_channel_name_image(channel_id)
+            except Exception as e:
+                return None
         try:
             return channel_info[channel_id]["id"]
         except KeyError:    
