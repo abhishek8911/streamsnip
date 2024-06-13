@@ -28,3 +28,8 @@ def get_webhook_url(channel_id) -> Optional[str]:
     except KeyError:
         return None
     return webhook_url
+
+def get_json_from_html(html: str, key: str, num_chars: int = 2, stop: str = '"') -> str:
+    pos_begin = html.find(key) + len(key) + num_chars
+    pos_end = html.find(stop, pos_begin)
+    return html[pos_begin:pos_end]

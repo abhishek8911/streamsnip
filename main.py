@@ -264,18 +264,28 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
+    yt_initial_data = loads(
+        get_json_from_html(html_data, "var ytInitialData = ", 0, "};") + "}"
+    )
     soup = BeautifulSoup(html_data, "html.parser")
     try:
         channel_image = soup.find("meta", property="og:image")["content"]
         channel_name = soup.find("meta", property="og:title")["content"]
+        channel_username = yt_initial_data['header']['c4TabbedHeaderRenderer']['channelHandleText']['runs'][0]['text']
     except TypeError:  # in case the channel is deleted or not found
         channel_image = "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
         channel_name = "<deleted channel>"
+        channel_username = "@deleted"
     last_updated = int(time.time())
-    channel_info[channel_id] = {"name": channel_name, "image": channel_image, "last_updated": last_updated}
+    channel_info[channel_id] = {
+        "name": channel_name, 
+        "image": channel_image, 
+        "username": channel_username, 
+        "last_updated": last_updated
+    }
     # write channel_info to channel_cache.json
-    with open("channel_cache.json", "w+") as f:
-        dump(channel_info, f, indent=4)
+    write_channel_cache()
+    
     return channel_name, channel_image
 
 
@@ -471,7 +481,7 @@ def generate_home_data():
             htt = "https://"
         else:
             htt = "http://"
-        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=clip[0])}"
+        ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=get_channel_at(clip[0]))}"
         #ch["last_clip"] = get_channel_clips(ch_id[0])[0].json()
         returning.append(ch)
     """
@@ -619,7 +629,7 @@ def export():
         htt = "https://"
     else:
         htt = "http://"
-    return f"You can see all the clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
+    return f"You can see all the clips at {htt}{request.host}{url_for('exports', channel_id=get_channel_at(channel_id))}"
 
 
 # this is for ALL CLIPS
@@ -643,11 +653,50 @@ def clips():
         channel_id="all",
     )
 
+def get_channel_id_any(channel_id): # returns the UC id of the channel 
+    if channel_id.startswith("UC"):
+        print("Channel id is UC")
+        return channel_id
+    elif channel_id.startswith("@"):
+        found_flag = False
+        for x in channel_info:
+            try:
+                if channel_info[x]["username"].lower() == channel_id.lower():
+                    return x
+            except KeyError:
+                del channel_info[x]
+                get_channel_name_image(x)
+                if channel_info[x]["username"].lower() == channel_id.lower():
+                    return x
+        if not found_flag:
+            get_channel_name_image(channel_id)
+        try:
+            return channel_info[channel_id]["id"]
+        except KeyError:    
+            return None
+    else:
+        for x in channel_info:
+            if channel_info[x]["name"].lower() == channel_id.lower():
+                return x
+        return None
+    
+
+def get_channel_at(channel_id): # returns the @username of the channel
+    if channel_id.startswith("@"):
+        return channel_id
+    for x in channel_info:
+        if x == channel_id:
+            return channel_info[x]["username"]
+    for x in channel_info:
+        if channel_info[x]["name"].lower() == channel_id.lower():
+            return channel_info[x]["username"]
+    return channel_id
 
 # this is for specific channel
 @app.route("/exports/<channel_id>")
 @app.route("/e/<channel_id>")
 def exports(channel_id=None):
+    channel_id = get_channel_id_any(channel_id)
     channel_name, channel_image = get_channel_name_image(channel_id)
     data = get_channel_clips(channel_id)
     data = [x.json() for x in data if not x.private]
@@ -661,7 +710,7 @@ def exports(channel_id=None):
         mod_icon=mod_icon,
         regular_icon=regular_icon,
         subscriber_icon=subscriber_icon,
-        channel_id=channel_id,
+        channel_id=get_channel_at(channel_id),
     )
 
 
@@ -673,6 +722,7 @@ def channel_stats(channel_id=None):
         return redirect(url_for("slash"))
     if channel_id == "all":
         return redirect(url_for("stats"))
+    channel_id = get_channel_id_any(channel_id)
     with conn:
         cur = conn.cursor()
         cur.execute(
@@ -842,6 +892,7 @@ def channel_stats(channel_id=None):
 def user_stats(channel_id=None):
     if not channel_id:
         return redirect(url_for("slash"))
+    channel_id = get_channel_id_any(channel_id)
     with conn:
         cur = conn.cursor()
         cur.execute(
@@ -1769,7 +1820,7 @@ def clip(message_id, clip_desc=None):
             htt = "https://"
         else:
             htt = "http://"
-        show_link_message = f" See all clips at {htt}{request.host}{url_for('exports', channel_id=channel_id)}"
+        show_link_message = f" See all clips at {htt}{request.host}{url_for('exports', channel_id=get_channel_at(channel_id))}"
 
     message_to_return += show_link_message
 
@@ -1977,6 +2028,11 @@ channel_info = {}
 if 'channel_cache.json' in os.listdir('.'):
     with open("channel_cache.json","r") as f:
         channel_info = load(f)
+
+def write_channel_cache():
+    with open("channel_cache.json","w") as f:
+        dump(channel_info, f, indent=4)
+    return True
 
     
 with conn:

@@ -16,7 +16,7 @@
             {% if channel_id == 'all'%}
             <h1>{{ channel_name }} - Clips ({{ data|length }})</h1>
             {% else %}
-            <a href = "https://youtube.com/channel/{{ channel_id }}">
+            <a href = "https://youtube.com/{{ channel_id }}">
             <img src="{{ channel_image }}" alt="{{ channel_name }}" class="rounded-circle" style="width: 200px; height: 200px;">
             <h1> {{ channel_name }} - Clips ({{ data|length }})</h1></a>
             {% endif %}
