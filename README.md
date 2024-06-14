@@ -181,6 +181,12 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
 
 ### Additional Customization:
 
-You can use `-ul=userlevel` to limit clipping to specific user levels (e.g., mods). Find user levels [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to reduce spam and grant clipping access to specific individuals.  </br>
+1. You can use `-ul=userlevel` to limit clipping to specific user levels (e.g., mods). Find user levels [here](https://docs.nightbot.tv/commands/commands#advanced-usage) to reduce spam and grant clipping access to specific individuals.  </br>
 
+2. You can add a timer from [here](https://nightbot.tv/timers). to remind users to clip moments regularly <br> Ex. <br> 
+```
+​Saw something amazing ⭐? Type !clip to clip it and ship it 📩to Discord. (Also add a useful title too after the command (Optional but Preferred))
+```
+<br>
+ 
 ---
