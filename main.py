@@ -699,6 +699,7 @@ def get_channel_at(channel_id): # returns the @username of the channel
     for x in channel_info:
         if channel_info[x]["name"].lower() == channel_id.lower():
             return channel_info[x]["username"]
+    print(f"Channel id {channel_id} not found returning to {channel_id}")
     return channel_id
 
 # this is for specific channel
