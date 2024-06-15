@@ -695,7 +695,10 @@ def get_channel_at(channel_id): # returns the @username of the channel
         return channel_id
     for x in channel_info:
         if x == channel_id:
-            return channel_info[x]["username"]
+            if channel_info[x]['username']:
+                return channel_info[x]["username"]
+            else:
+                return x  # we don't have the username in cache
     for x in channel_info:
         if channel_info[x]["name"].lower() == channel_id.lower():
             return channel_info[x]["username"]
