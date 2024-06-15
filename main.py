@@ -271,7 +271,10 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     try:
         channel_image = soup.find("meta", property="og:image")["content"]
         channel_name = soup.find("meta", property="og:title")["content"]
-        channel_username = yt_initial_data['header']['c4TabbedHeaderRenderer']['channelHandleText']['runs'][0]['text']
+        try:
+            channel_username = yt_initial_data['header']['c4TabbedHeaderRenderer']['channelHandleText']['runs'][0]['text']
+        except KeyError:
+            channel_username = None # for the time being
     except TypeError:  # in case the channel is deleted or not found
         channel_image = "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
         channel_name = "<deleted channel>"
