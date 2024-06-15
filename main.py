@@ -267,6 +267,9 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     yt_initial_data = loads(
         get_json_from_html(html_data, "var ytInitialData = ", 0, "};") + "}"
     )
+    # put this in a local file for test purposes
+    with open("yt_initial_data.json", "w") as f:
+        dump(yt_initial_data, f, indent=4)
     soup = BeautifulSoup(html_data, "html.parser")
     try:
         channel_image = soup.find("meta", property="og:image")["content"]
