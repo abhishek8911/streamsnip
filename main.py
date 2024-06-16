@@ -275,9 +275,9 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
         channel_image = soup.find("meta", property="og:image")["content"]
         channel_name = soup.find("meta", property="og:title")["content"]
         try:
-            channel_username = yt_initial_data['header']['c4TabbedHeaderRenderer']['channelHandleText']['runs'][0]['text']
+            channel_username = yt_initial_data['metadata']['channelMetadataRenderer']['vanityChannelUrl'].split("/")[-1]
         except KeyError:
-            channel_username = None # for the time being
+            return channel_name, channel_image # stop caring abot channel username and putting it to cache 
     except TypeError:  # in case the channel is deleted or not found
         channel_image = "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
         channel_name = "<deleted channel>"
@@ -2072,11 +2072,10 @@ with conn:
 
 for ch_id in data:
     if local:
-        break  # don't build cache on locally running.
+        pass  # don't build cache on locally running.
     get_channel_name_image(ch_id[0])
-    if not channel_info[ch_id[0]]['username']:
-        del channel_info[ch_id[0]]
-    write_channel_cache()
+
+write_channel_cache()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True)
