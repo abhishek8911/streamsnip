@@ -1705,6 +1705,11 @@ def clip(message_id, clip_desc=None):
         for c in candidates:
             try:
                 extra_delay = int(c)
+                # if extra delay is in positive. make sure its appended with a + sign
+                # cases like `!clip 200 iq play` should not actually add 200 seconds. but `!clip +200 iq play` should
+                if extra_delay > 0:
+                    if not c.startswith("+"):
+                        continue
                 clip_desc = clip_desc.replace(c, "")
                 delay += extra_delay
                 break
