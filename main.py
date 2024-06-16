@@ -678,7 +678,6 @@ def get_channel_id_any(channel_id): # returns the UC id of the channel
                 if channel_info[x]["username"].lower() == channel_id.lower():
                     return x
             except AttributeError: # None
-                del channel_info[x]
                 continue
         if not found_flag:
             try:
