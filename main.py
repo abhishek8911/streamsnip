@@ -2074,6 +2074,9 @@ for ch_id in data:
     if local:
         break  # don't build cache on locally running.
     get_channel_name_image(ch_id[0])
+    if not channel_info[ch_id[0]]['username']:
+        del channel_info[ch_id[0]]
+    write_channel_cache()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True)
