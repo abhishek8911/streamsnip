@@ -615,6 +615,8 @@ def get_video_id(video_link):
         to_return = x.query.replace("v=", "")
     if "/live/" in x.path:
         to_return = x.path.replace("/live/", "")
+    if "youtu.be" in x.netloc:
+        to_return = x.path.replace("/", "")
     return to_return.split("&")[0]
 
 
@@ -661,7 +663,6 @@ def clips():
 
 def get_channel_id_any(channel_id): # returns the UC id of the channel 
     if channel_id.startswith("UC"):
-        print("Channel id is UC")
         return channel_id
     elif channel_id.startswith("@"):
         found_flag = False
@@ -892,6 +893,22 @@ def channel_stats(channel_id=None):
     for clip in clips:
         hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
+     # get the top most clipped streams
+    cur.execute(
+        """
+            SELECT stream_link, COUNT(message_id) AS occurrence_count
+            FROM QUERIES
+            WHERE channel_id=?
+            GROUP BY message_id
+            ORDER BY occurrence_count DESC
+            LIMIT 12;
+        """,
+        (channel_id,),
+    )
+    mcs = cur.fetchall()
+    most_clipped_streams = {} # stream_link: count
+    for x in mcs:
+        most_clipped_streams[get_video_id(x[0])] = x[1]
     message = f"Channel Stats for {streamer_name}. {user_count} users clipped\n{clip_count} clips till now. \nand counting."
     return render_template(
         "stats.html",
@@ -910,6 +927,7 @@ def channel_stats(channel_id=None):
         time_distribution=time_distribution,
         channel_name=streamer_name,
         channel_image=streamer_image,
+        most_clipped_streams=most_clipped_streams,
     )
 
 
@@ -1064,6 +1082,22 @@ def user_stats(channel_id=None):
     for clip in clips:
         hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
+     # get the top most clipped streams
+    cur.execute(
+        """
+            SELECT stream_link, COUNT(message_id) AS occurrence_count
+            FROM QUERIES
+            WHERE user_id = ?
+            GROUP BY message_id
+            ORDER BY occurrence_count DESC
+            LIMIT 12;
+        """,
+        (channel_id,)
+    )
+    mcs = cur.fetchall()
+    most_clipped_streams = {} # stream_link: count
+    for x in mcs:
+        most_clipped_streams[get_video_id(x[0])] = x[1]
     message = f"User Stats for {streamer_name}. Clipped\n{clip_count} clips in {user_count} channels till now. and counting."
     return render_template(
         "stats.html",
@@ -1082,6 +1116,7 @@ def user_stats(channel_id=None):
         time_distribution=time_distribution,
         channel_name=streamer_name,
         channel_image=streamer_image,
+        most_clipped_streams=most_clipped_streams,
     )
 
 
@@ -1232,6 +1267,20 @@ def stats():
         hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
         time_distribution[hm] += 1
 
+    # get the top most clipped streams
+    cur.execute(
+        """
+            SELECT stream_link, COUNT(message_id) AS occurrence_count
+            FROM QUERIES
+            GROUP BY message_id
+            ORDER BY occurrence_count DESC
+            LIMIT 12;
+        """
+    )
+    mcs = cur.fetchall()
+    most_clipped_streams = {} # stream_link: count
+    for x in mcs:
+        most_clipped_streams[get_video_id(x[0])] = x[1]
     message = f"{user_count} users clipped\n{clip_count} clips on \n{channel_count} channels till now. \nand counting."
     return render_template(
         "stats.html",
@@ -1250,6 +1299,7 @@ def stats():
         time_distribution=time_distribution,
         channel_name="All channels",
         channel_image="https://streamsnip.com/static/logo-grey.png",
+        most_clipped_streams=most_clipped_streams,
     )
 
 
