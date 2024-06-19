@@ -217,12 +217,16 @@
         return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
     }
     
-
+    function addtosearch(to_add){
+        var search = document.getElementById("search");
+        search.value = to_add;
+        updateClips();
+    }
     function updateClips() {
         var container = document.getElementById("clips-container");
-        var search = document.getElementById("search").value.toLowerCase();
+        var search = document.getElementById("search").value.toLowerCase().trim();
         var filteredData = data.filter(({ message, author, id, stream_id }) => {
-            var searchLower = search.toLowerCase();
+            var searchLower = search.toLowerCase().trim();
             return (
                 message.toLowerCase().includes(searchLower) || 
                 author.name.toLowerCase().includes(searchLower) || 
@@ -288,7 +292,7 @@
                                     <a href="${clip['link']}" target="_blank" class=${a_class}>
                                         <img class="card-img-top" src="${thumbnail}" alt="Card image cap" onerror="this.src='${alternative}';" onload="if(this.naturalHeight==90 && this.naturalWidth==120){this.src='${hq_live_thumbnail}'}">
                                     </a>
-                                    <center>${clip['id']} <a href="#${clip['id']}"> <i class="fa-solid fa-link"></i> </a> </br>${badges}</center>
+                                    <center><a title="More clip from this stream" href="#search" onclick="addtosearch('${clip['stream_id']}')"> <i class="fa-solid fa-plus"></i> </a>${clip['id']} <a href="#${clip['id']}"> <i class="fa-solid fa-link"></i> </a> </br>${badges}</center>
                                     <div class="card-body">
                                         <a href="${getUserChannelLink(clip['author']['id'])}" target="_blank" class=${a_class}>
                                             <h5 class="card-title"><i class="fa-solid fa-user"></i>${getAuthorTitle(clip['author']['level'])} ${escape(clip['author']['name'])}</h5>
