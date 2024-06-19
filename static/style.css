@@ -115,7 +115,8 @@ body.dark-theme {
 	background-color:rgba(33, 37, 41, 1);
 	color:white;
 }
-a:visited.dark-theme {
+
+.dark-theme a:visited {
 	color: rgb(255, 255, 255);
 	background-color: transparent;
 	text-decoration: none;
