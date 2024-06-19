@@ -221,9 +221,16 @@
     function updateClips() {
         var container = document.getElementById("clips-container");
         var search = document.getElementById("search").value.toLowerCase();
-        var filteredData = data.filter(function (clip) {
-            return (clip['message'].toLowerCase().includes(search) || clip['author']['name'].toLowerCase().includes(search) || clip['id'].toLowerCase().includes(search)) && (filter == 'all' || clip['author']['level'] == filter) ;
+        var filteredData = data.filter(({ message, author, id, stream_id }) => {
+            var searchLower = search.toLowerCase();
+            return (
+                message.toLowerCase().includes(searchLower) || 
+                author.name.toLowerCase().includes(searchLower) || 
+                id.toLowerCase().includes(searchLower) ||
+                stream_id.toLowerCase().includes(searchLower)
+            ) && (filter === 'all' || author.level === filter);
         });
+
         if (inverted) {
             filteredData = filteredData.reverse();
         }
