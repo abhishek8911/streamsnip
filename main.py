@@ -480,6 +480,7 @@ def generate_home_data():
         cur.execute(f"SELECT * FROM QUERIES GROUP BY channel_id ORDER BY MAX(time) DESC;")
         data = cur.fetchall()
     returning = []
+    today_clips = get_channel_clips()
     for clip in data:
         ch = {} 
         channel_name, channel_image = get_channel_name_image(clip[0])
@@ -495,8 +496,21 @@ def generate_home_data():
         else:
             htt = "http://"
         ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=get_channel_at(clip[0]))}"
+        ch['today_clip_count'] = 0 
         #ch["last_clip"] = get_channel_clips(ch_id[0])[0].json()
         returning.append(ch)
+    today = datetime.strptime(
+            datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d"
+    ).timestamp()
+    for clip in today_clips:
+        # today in seconds
+        if clip.time.timestamp() < today:
+            break
+        for ch in returning:
+            if ch["id"] == clip.channel:
+                ch['today_clip_count'] += 1
+                break
+    print(returning)
     """
     for ch in returning:
         ch["clips"] = get_channel_clips(ch["id"])
