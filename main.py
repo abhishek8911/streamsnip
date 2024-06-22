@@ -510,7 +510,6 @@ def generate_home_data():
             if ch["id"] == clip.channel:
                 ch['today_clip_count'] += 1
                 break
-    print(returning)
     """
     for ch in returning:
         ch["clips"] = get_channel_clips(ch["id"])
