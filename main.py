@@ -263,7 +263,12 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
             logging.log(logging.ERROR, e)
     
     channel_link = f"https://youtube.com/channel/{channel_id}"
-    html_data = get(channel_link).text
+    response = get(channel_link)
+    if response.status_code != 200:
+        # don't store anything. just for this instance return the default values. can be youtube side issue too
+        return "<deleted channel>", "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
+        
+    html_data = response.text
     with open("youtube.html", "w", encoding="utf-8") as f:
         f.write(html_data)
     yt_initial_data = loads(
