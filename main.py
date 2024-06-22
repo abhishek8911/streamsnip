@@ -1316,7 +1316,7 @@ def admin():
         config = load(f)
     channel_info_admin = {}
     for key, value in config.items():
-        if key in ["password", "management_webhook"]:
+        if key in ["password", "management_webhook", "update_webhook"]:
             continue
         get_channel_name_image(key)
         channel_info_admin[key] = channel_info[key]
