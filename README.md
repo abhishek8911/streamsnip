@@ -39,7 +39,9 @@ If you want to send a discord message. then I would need to add a webhook URL al
 - `showlink` (default: true) - Display the link where all clips can be viewed.
 - `screenshot` (default: false) - Enable or disable screenshot capture. If enabled the nightbot may not get response in given time and will say "Timed out" message. but it will still clip.
 - `delay` (default: 0) - Introduce an artificial delay to the command. Useful for scheduling links in the future or past.
-- `silent` (default: 2||Highest) - Level of the clipping message. see example below. </br> 
+- `force_desc` (default: false) - if set to true will deny any clip that doesn't have a title (description as its called in backend). please ensure that your viewers know this is the case. else you will miss out on a lot of clips <br>
+![image](https://github.com/SurajBhari/streamsnip/assets/45149585/537bfe37-8cb5-45c9-94f1-626396135b16)
+- `silent` (default: 2||Highest) - Level of the clipping message. see example below. </br>
   ![image](https://github.com/SurajBhari/streamsnip/assets/45149585/f4e0bffa-1759-491a-ada9-c1ca4a55240b)
 - `private` (default: false) - If set to true. the clips made are not shown on the web nor impact stats. if you don't want your channel to show up on website. you use it. This override `silent` and returns just ​​`clipped 😉` </br>
   ![image](https://github.com/SurajBhari/streamsnip/assets/45149585/42c6744e-f3d1-4335-822c-3c3713ac4ab4)
