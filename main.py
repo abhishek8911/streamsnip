@@ -1381,7 +1381,9 @@ def approve():
     embed.set_thumbnail(url=project_logo_discord)
     embed.set_color(0xebf0f7)
     webhook.add_embed(embed)
-    webhook.execute()
+    response = webhook.execute()
+    if response.status_code != 200:
+        return response.text
 
     if "update_webhook" in creds:
         webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo_discord)
