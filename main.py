@@ -264,6 +264,8 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
     
     channel_link = f"https://youtube.com/channel/{channel_id}"
     html_data = get(channel_link).text
+    with open("youtube.html", "w", encoding="utf-8") as f:
+        f.write(html_data)
     yt_initial_data = loads(
         get_json_from_html(html_data, "var ytInitialData = ", 0, "};") + "}"
     )
