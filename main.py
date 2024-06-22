@@ -1721,6 +1721,7 @@ def clip(message_id, clip_desc=None):
     private = arguments.get("private", False)
     webhook = arguments.get("webhook", False)
     take_delays = arguments.get("take_delays", False)
+    force_desc = arguments.get("force_desc", False)
     message_level = arguments.get(
         "message_level", 0
     )  # 0 is normal. 1 is to persist the defautl webhook name. 2 is for no record on discord message. 3 is for service badging
@@ -1743,6 +1744,7 @@ def clip(message_id, clip_desc=None):
     screenshot = True if screenshot == "true" else False
     private = True if private == "true" else False
     take_delays = True if take_delays == "true" else False
+    force_desc = True if force_desc == "true" else False
     
     if type(show_link) != bool:
         try:
@@ -1755,6 +1757,8 @@ def clip(message_id, clip_desc=None):
     except ValueError:
         return "Delay should be an integer (plus or minus)"
     if not clip_desc:
+        if force_desc:
+            return "Clip denied. You must give a title to the clip."
         clip_desc = "None"
     if take_delays:
         splitted = clip_desc.split()
