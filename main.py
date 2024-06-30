@@ -499,6 +499,9 @@ def generate_home_data():
             htt = "http://"
         ch["link"] = f"{htt}{request.host}{url_for('exports', channel_id=get_channel_at(clip[0]))}"
         ch['today_clip_count'] = 0 
+        ch['deleted'] = True if "deleted channel" in channel_name else False
+        if ch['deleted']:
+            ch['link'] = f"{htt}{request.host}{url_for('exports', channel_id=get_channel_id_any(clip[0]))}" # we can't get channel @ as its a deleted channel
         #ch["last_clip"] = get_channel_clips(ch_id[0])[0].json()
         returning.append(ch)
     today = datetime.strptime(

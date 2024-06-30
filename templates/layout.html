@@ -139,21 +139,29 @@
                     prev_order = [];
                     elems = document.getElementsByClassName("card");
                     for (var i = 0; i < elems.length; i++) {
-                        prev_order.push(elems[i].getElementsByTagName("h6")[0].innerHTML.trim());
+                        prev_order.push(elems[i].getElementsByTagName("h6")[0].id.trim());
                     }
                     new_order = [];
                     for(var i=0; i < data.length; i++){
-                        new_order.push(data[i].name.trim()); 
+                        new_order.push(data[i].id.trim()); 
                     }
                     if(JSON.stringify(prev_order) != JSON.stringify(new_order)){
                         new_html = "";
                         new_html += '<div class="row">';
                         for(var i=0; i < data.length; i++){
-                            new_html += '<div class="col-3"><a href="' + data[i].link + '"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body"><h6 class="card-title">' + data[i].name + '</h6></div></div></a></div>';
+                            if(data[i].name.includes(("deleted channel"))){
+                                new_html += '<div class="col-3"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body"><h6 class="card-title"> DELETED CHANNEL ( ' + data[i].id + ' )</h6></div></div></div>';
+                            }
+                            else{  
+                                new_html += '<div class="col-3"><a href="' + data[i].link + '"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body"><h6 class="card-title">' + data[i].name + '</h6></div></div></a></div>';
+                            }
                         }
                         new_html += '</div>';
                         document.getElementsByClassName("container")[1].innerHTML = new_html;
                         console.log("changed");
+                    }
+                    else{
+                        console.log("not changed");
                     }
                 }
                 is_first_load = false;
