@@ -106,6 +106,8 @@ project_repo_link = "https://github.com/SurajBhari/streamsnip"
 project_logo_discord = "https://raw.githubusercontent.com/SurajBhari/streamsnip/main/static/256_discord_ss.png" # link to logo that is used in discord 
 
 def is_it_expired(t:int): # we add some randomness so that not all of the cache get invalidated and added back at same time. 
+    if local:
+        return False # we don't need to expire the cache we have for testing purposes
     three_days_ago = int(time.time()) - 3 * 24 * 60 * 60
     last_time = three_days_ago + random.randint(0, 48) * 60 * 60
     if t < last_time:
