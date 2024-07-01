@@ -37,6 +37,18 @@
                     </a>
                 </div>
             {% endfor %}
+            {% if not all%}
+                <div class="col-3">
+                    <a href="#a" onclick="set_all()">
+                        <div class="card noborder">
+                            <img class="card-img-top rounded" src="/static/right.png" alt="Card image cap" load="lazy">
+                            <div class="card-body">
+                                <h6 class="card-title"> See More </h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </center>
