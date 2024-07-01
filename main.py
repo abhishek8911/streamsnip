@@ -407,7 +407,7 @@ def download_and_store(clip_id) -> str:
         return files[0]
 
 
-def mini_stats():
+def mini_stats(all:bool = False):
     today = datetime.strptime(
         datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d"
     ).timestamp()
@@ -426,7 +426,8 @@ def mini_stats():
     if data:
         last_clip = Clip(data[0])
         last_clip = last_clip.json()
-    return dict(today_count=today_count, last_clip=last_clip, data=generate_home_data())
+    home_data = generate_home_data() if all else generate_home_data(51)
+    return dict(today_count=today_count, last_clip=last_clip, data=home_data)
 
 @app.context_processor
 def inject_mini_stats():
@@ -463,8 +464,12 @@ def before_request():
         pass
 
 @app.route("/mini_stats")
+@app.route("/mini_stats/all")
 def mini_stats_r():
-    return mini_stats()
+    if "all" not in request.path:
+        return mini_stats()
+    else:
+        return mini_stats(all=True)
 
 # this function exists just because google chrome assumes that the favicon is at /favicon.ico
 @app.route("/favicon.ico")
@@ -476,7 +481,7 @@ def favicon():
 def robots():
     return send_file("static/robots.txt")
 
-def generate_home_data():
+def generate_home_data(limit=None):
     with conn:
         cur = conn.cursor()
         cur.execute(f"SELECT * FROM QUERIES GROUP BY channel_id ORDER BY MAX(time) DESC;")
@@ -520,15 +525,18 @@ def generate_home_data():
         ch["clips"] = get_channel_clips(ch["id"])
     NOT A GOOD IDEA. THIS WILL MAKE THE PAGE LOAD SLOWLY. rather show that on admin page.
     """
+    if limit:
+        return returning[:limit]
+    
     return returning
 
 
 @app.route("/")
 def slash():
-    returning = generate_home_data()
-    return render_template("home.html", data=returning)
+    returning = generate_home_data(limit=51)
+    return render_template("home.html", data=returning, all=False)
 
-
+@app.route("/")
 @app.route("/data")
 def data():
     return "Disabled"
