@@ -533,7 +533,7 @@ def generate_home_data(limit=None):
 
 @app.route("/")
 def slash():
-    returning = generate_home_data(limit=51)
+    returning = generate_home_data()
     return render_template("home.html", data=returning)
 
 @app.route("/")
