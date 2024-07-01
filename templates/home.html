@@ -21,7 +21,14 @@
 <center>
     <div class="container">
         <div class="row">
-            {% for channel in data %}
+            <div class="row">
+                <div class="col-md-12">
+                    <center>
+                    <input type="text" id="search" class="form-control search" placeholder="Search for channels..." style="border: 0px;">
+                </div>
+            </div>
+            <div id="clips-container" class="row">
+            {% for channel in data[:51] %}
                 <div class="col-3">
                     <a href="{{ channel['link'] }}">
                         <div class="card noborder">
@@ -37,22 +44,23 @@
                     </a>
                 </div>
             {% endfor %}
-            {% if not all%}
-                <div class="col-3">
-                    <a href="#a" onclick="set_all()">
-                        <div class="card noborder">
-                            <img class="card-img-top rounded" src="/static/right.png" alt="Card image cap" load="lazy">
-                            <div class="card-body">
-                                <h6 class="card-title"> See More </h6>
-                            </div>
+            <div class="col-3" id="more-card">
+                <a href="#a" onclick="set_all()">
+                    <div class="card noborder">
+                        <img class="card-img-top rounded" src="/static/right.png" alt="Card image cap" load="lazy">
+                        <div class="card-body">
+                            <h6 class="card-title"> See More </h6>
                         </div>
-                    </a>
-                </div>
-            {% endif %}
+                    </div>
+                </a>
+            </div>
+            </div>
         </div>
     </div>
 </center>
 <script>
     var data = {{ data|tojson }};
+
+    document.getElementById("search").addEventListener('input', update_mini_stats);
 </script>
 {% endblock %}

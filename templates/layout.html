@@ -16,6 +16,7 @@
         var is_home = false; // this will be overwritten on home page only
         var is_first_load = true;
         var all = false; 
+        
         function set_all(){
             all = true;
             update_mini_stats();
@@ -133,10 +134,9 @@
             if(!is_first_load && document.hidden){
                 return; // why care to update if the page is not visible
             }
-            var link = "/mini_stats";
-            if(all){
-                link = "/mini_stats/all"
-            }
+            link = "/mini_stats/all"
+            count = 51;
+
             fetch(link).then((response) => response.json()).then((last_clip) => {
                 var last_clip_time = document.getElementById("last_clip_time");
                 last_clip_time.innerHTML = `   Last Clip - ${timeSince(new Date(last_clip.last_clip.time))}`;
@@ -145,6 +145,14 @@
                 today_count_element.innerHTML = '<i class="fa-solid fa-clipboard-list"></i>' + today_count + " Clips Today";
                 var data = last_clip.data;
                 if(is_home) { // we need to change the order just in case it got changed. 
+                    var search_query = document.getElementById("search").value.toLowerCase();
+                    if(search_query){
+                        data = data.filter(channel => channel.name.toLowerCase().includes(search_query));
+                        all = true;
+                    }
+                    if(!all){
+                        data = data.slice(0, count);
+                    }
                     prev_order = [];
                     elems = document.getElementsByClassName("card");
                     for (var i = 0; i < elems.length; i++) {
@@ -159,10 +167,7 @@
                     }
                     
                     if(JSON.stringify(prev_order) != JSON.stringify(new_order)){
-                        console.log(prev_order);
-                        console.log(new_order);
                         new_html = "";
-                        new_html += '<div class="row">';
                         for(var i=0; i < data.length; i++){
                             if(data[i].name.includes(("deleted channel"))){
                                 new_html += '<div class="col-3"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body"><h6 class="card-title" id="' + data[i].id +'"> DELETED CHANNEL ( ' + data[i].id + ' )</h6></div></div></div>';
@@ -171,8 +176,7 @@
                                 new_html += '<div class="col-3"><a href="' + data[i].link + '"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body"><h6 class="card-title" id="' + data[i].id +'">' + data[i].name + '</h6></div></div></a></div>';
                             }
                         }
-                        new_html += '</div>';
-                        document.getElementsByClassName("container")[1].innerHTML = new_html;
+                        document.getElementById("clips-container").innerHTML = new_html;
                         console.log("changed");
                     }
                     else{
