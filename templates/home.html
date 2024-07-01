@@ -61,6 +61,8 @@
 <script>
     var data = {{ data|tojson }};
 
-    document.getElementById("search").addEventListener('input', update_mini_stats);
+    document.getElementById("search").addEventListener('input', function(event) {
+        update_channels(data);
+    });
 </script>
 {% endblock %}
