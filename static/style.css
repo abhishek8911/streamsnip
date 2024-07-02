@@ -467,3 +467,10 @@ input[type="password"]:focus {
   cursor: pointer;
   font-weight: bold;
 }
+
+
+.card-no-left-right-padding{
+  padding: 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
