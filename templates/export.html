@@ -129,6 +129,7 @@
     var inverted = false;
     var maxPage = 0;
     var data = {{ data|tojson }};
+    var emojis = {{ emoji_lookup_table|tojson }};
     var channel_name = "{{ channel_name }}";
     var channel_image = "{{ channel_image }}";
     var filter = "all";  // Default filter option
@@ -216,6 +217,15 @@
     function escape(text){
         return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
     }
+
+    function add_yt_emojis(text){
+        var new_text = text;
+        for (var key in emojis) {
+            var link = '<img height="24" width="24"  src="' + emojis[key]+'" loading="eager" aria-label=":face-blue-question-mark:" alt="face-blue-question-mark">';
+            new_text = new_text.replaceAll(key, link);
+        }
+        return new_text;
+    }
     
     function addtosearch(to_add){
         var search = document.getElementById("search");
@@ -299,7 +309,7 @@
                                         </a>
                                         <a href="${clip['link']}" target="_blank" class=${a_class}>
                                             <p class="card-text">
-                                                <i class="fa-solid fa-clipboard-list"></i> ${escape(clip['message'])}${edit_button}</br>
+                                                <i class="fa-solid fa-clipboard-list"></i> ${add_yt_emojis(escape(clip['message']))}${edit_button}</br>
                                                 <i class="fa-solid fa-clock"></i> At ${clip['hms']} (+${clip['delay']*-1}s)</br>
                                                 <span title="${clip['time']}"> <i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))} </span>
                                             </p>

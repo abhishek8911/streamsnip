@@ -105,6 +105,12 @@ project_logo = base_domain + "/static/logo.png"
 project_repo_link = "https://github.com/SurajBhari/streamsnip"
 project_logo_discord = "https://raw.githubusercontent.com/SurajBhari/streamsnip/main/static/256_discord_ss.png" # link to logo that is used in discord 
 
+if "youtubeemoji.json" in os.listdir():
+    with open("youtubeemoji.json", "r") as f:
+        emoji_lookup_table = load(f)
+else:
+    emoji_lookup_table = {}
+
 def is_it_expired(t:int): # we add some randomness so that not all of the cache get invalidated and added back at same time. 
     if local:
         return False # we don't need to expire the cache we have for testing purposes
@@ -692,6 +698,7 @@ def clips():
         regular_icon=regular_icon,
         subscriber_icon=subscriber_icon,
         channel_id="all",
+        emoji_lookup_table=emoji_lookup_table
     )
 
 def get_channel_id_any(channel_id): # returns the UC id of the channel 
@@ -770,6 +777,7 @@ def exports(channel_id=None):
         regular_icon=regular_icon,
         subscriber_icon=subscriber_icon,
         channel_id=get_channel_at(channel_id),
+        emoji_lookup_table=emoji_lookup_table
     )
 
 
