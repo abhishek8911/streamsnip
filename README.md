@@ -11,6 +11,9 @@
 | ![Apache](https://img.shields.io/badge/apache-%23D42029.svg?style=Flat&logo=apache&logoColor=white) | ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=Flat&logo=amazon-aws&logoColor=white) |
 | ![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=Flat&logo=YouTube&logoColor=white) | ![Youtube Gaming](https://img.shields.io/badge/Youtube%20Gaming-FF0000?style=Flat&logo=Youtubegaming&logoColor=white) |
 
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by-nc-nd/4.0/) </br>
+You can view additional details on [this page](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
 The primary goal of streamsnip is to streamline the clipping process, addressing challenges faced by one of my favorite streamers. Here's how you can make the most of it:
 ## Monetization
 This program is a free for everyone as of now. But you can contribute. </br>
