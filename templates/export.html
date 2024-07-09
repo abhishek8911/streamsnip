@@ -221,7 +221,7 @@
     function add_yt_emojis(text){
         var new_text = text;
         for (var key in emojis) {
-            var link = '<img height="24" width="24"  src="' + emojis[key]+'" loading="eager" aria-label=":face-blue-question-mark:" alt="face-blue-question-mark">';
+            var link = `<img height="24" width="24"  src="${emojis[key]}" loading="eager" aria-label="${key}" alt="${key}">`;
             new_text = new_text.replaceAll(key, link);
         }
         return new_text;
