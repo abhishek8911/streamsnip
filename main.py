@@ -105,6 +105,11 @@ project_logo = base_domain + "/static/logo.png"
 project_repo_link = "https://github.com/SurajBhari/streamsnip"
 project_logo_discord = "https://raw.githubusercontent.com/SurajBhari/streamsnip/main/static/256_discord_ss.png" # link to logo that is used in discord 
 
+if "cookies.txt" in os.listdir():
+    cookies = "cookies.txt"
+else:
+    cookies = None
+
 if "youtubeemoji.json" in os.listdir():
     with open("youtubeemoji.json", "r") as f:
         emoji_lookup_table = load(f)
@@ -1521,7 +1526,7 @@ def get_latest_live(channel_id):
             break
     if not live_found_flag:
         return None
-    vid = YouTubeChatDownloader().get_video_data(video_id=vid["videoId"])
+    vid = YouTubeChatDownloader(cookies=cookies).get_video_data(video_id=vid["videoId"])
     return vid
 
 
@@ -1544,7 +1549,7 @@ def add():
             vid_id = get_video_id(link)
             if not vid_id:
                 return "Invalid link"
-            vid = YouTubeChatDownloader().get_video_data(video_id=vid_id)
+            vid = YouTubeChatDownloader(cookies=cookies).get_video_data(video_id=vid_id)
             streamer_id = vid["author_id"]
             if not password == get_webhook_url(streamer_id):
                 return "Invalid password"
@@ -1586,7 +1591,7 @@ def add():
             delay = data.get("delay")
             if not delay:
                 delay = 0
-            vid = YouTubeChatDownloader().get_video_data(video_id=vid_id)
+            vid = YouTubeChatDownloader(cookies=cookies).get_video_data(video_id=vid_id)
             password = data.get("password", None)
             streamer_id = vid["author_id"]
             if not password == get_webhook_url(streamer_id):
@@ -1852,7 +1857,7 @@ def clip(message_id, clip_desc=None):
         else:
             return "You are blacklisted from using this service. for undisclosed reasons. :)"
     if h_vid:
-        vid = YouTubeChatDownloader().get_video_data(video_id=h_vid)
+        vid = YouTubeChatDownloader(cookies=cookies).get_video_data(video_id=h_vid)
     if not vid:
         return "No LiveStream Found."
     clip_time = request_time - vid["start_time"] / 1000000 + 5
