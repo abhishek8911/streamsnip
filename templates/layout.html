@@ -25,7 +25,9 @@
             update_mini_stats();
             // remove the element 
             var elem = document.getElementById("more-card");
-            elem.parentNode.removeChild(elem);
+            if (elem){
+                elem.parentNode.removeChild(elem);
+            }
             return true;
         }
         function timeSince(previous) {
