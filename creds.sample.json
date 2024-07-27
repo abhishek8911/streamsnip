@@ -1,5 +1,0 @@
-{
-    "channel_id" : "discord webhook url here",
-    "management_webhook": "discord webhook url here for managment",
-    "update_webhook": "discord webhook for times when a new channel is added through /admin"
-}

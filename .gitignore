@@ -1,11 +1,9 @@
-creds.json
 queries.db
 record.log
 *.pyc
-testing_config.json
-blacklisted.json
 channel_cache.json
 test.json
 youtube.html
 yt_initial_data.json
 cookies.txt
+config.json

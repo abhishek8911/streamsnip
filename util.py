@@ -20,8 +20,8 @@ def time_to_hms(seconds: int):
 
 
 def get_webhook_url(channel_id) -> Optional[str]:
-    with open("creds.json", "r") as f:
-        creds = load(f)
+    with open("config.json", "r") as f:
+        creds = load(f)['creds']
 
     try:
         webhook_url = creds[channel_id]
