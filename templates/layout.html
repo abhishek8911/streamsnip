@@ -20,8 +20,13 @@
         
         function set_all(){
             all = true;
-            document.getElementById("more-img").src = "https://media.tenor.com/wpSo-8CrXqUAAAAi/loading-loading-forever.gif";
+            var moree_img = document.getElementById("more-img");
+            moree_img.src = "https://media.tenor.com/wpSo-8CrXqUAAAAi/loading-loading-forever.gif";
             update_mini_stats();
+            // remove the element 
+            var elem = document.getElementById("more-card");
+            elem.parentNode.removeChild(elem);
+            return true;
         }
         function timeSince(previous) {
             var current = new Date();
@@ -182,10 +187,12 @@
 
             fetch(link).then((response) => response.json()).then((last_clip) => {
                 var last_clip_time = document.getElementById("last_clip_time");
-                last_clip_time.innerHTML = `   Last Clip - ${timeSince(new Date(last_clip.last_clip.time))}`;
-                var today_count = last_clip.today_count;
-                var today_count_element = document.getElementById("today_count");
-                today_count_element.innerHTML = '<i class="fa-solid fa-clipboard-list"></i>' + today_count + " Clips Today";
+                if(last_clip_time){
+                    last_clip_time.innerHTML = `   Last Clip - ${timeSince(new Date(last_clip.last_clip.time))}`;
+                    var today_count = last_clip.today_count;
+                    var today_count_element = document.getElementById("today_count");
+                    today_count_element.innerHTML = '<i class="fa-solid fa-clipboard-list"></i>' + today_count + " Clips Today";
+                }
                 var data = last_clip.data;
                 if(is_home){
                     update_channels(data);
