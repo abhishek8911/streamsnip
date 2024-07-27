@@ -459,6 +459,8 @@ def mini_stats(all:bool = False):
     if data:
         last_clip = Clip(data[0])
         last_clip = last_clip.json()
+    else:
+        last_clip = None
     home_data = generate_home_data() if all else generate_home_data(51)
     return dict(today_count=today_count, last_clip=last_clip, data=home_data)
 
