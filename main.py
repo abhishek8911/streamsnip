@@ -62,11 +62,16 @@ if not local:
     )
 
 try:
-    testing = load(open("testing_config.json", "r"))
+    config = load(open("config.json", "r"))
+except FileNotFoundError:
+    print("Config file not found")
+    exit(1)
+
+try:
+    cronitor.api_key = config["cronitor_api_key"]
 except FileNotFoundError:
     cronitor.api_key = None
-else:
-    cronitor.api_key = testing["api_key"]
+    
 
 if not local:
     monitor = cronitor.Monitor.put(key="Streamsnip-Clips-Performance", type="job")
@@ -125,6 +130,25 @@ def is_it_expired(t:int): # we add some randomness so that not all of the cache 
         return True
     return False
 
+def get_creds():
+    try:
+        with open("config.json", "r") as f:
+            creds = load(f)['creds']
+    except (FileNotFoundError, KeyError):
+        creds = {}
+    return creds
+
+def write_creds(new_creds:dict):
+    if not new_creds:
+        return
+    # load the config as whole and then update the creds
+    with open("config.json", "r") as f:
+        config = load(f)
+    config['creds'] = new_creds
+    with open("config.json", "w") as f:
+        dump(config, f, indent=4)
+    return True
+
 if not project_logo_discord:
     project_logo_discord = project_logo
 
@@ -180,12 +204,10 @@ if not os.path.exists("clips"):
     print("Created clips folder")
 
 try:
-    with open("creds.json", "r") as f:
-        creds = load(f)
-except FileNotFoundError:
-    with open("creds.json", "w") as f:
-        dump({}, f)
-        creds = {}
+    creds = config['creds']
+except KeyError:
+    creds = {}
+    config['creds'] = creds
 
 def is_blacklisted(channel_id):
     try:
@@ -310,7 +332,7 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
         "last_updated": last_updated
     }
     # write channel_info to channel_cache.json
-    write_channel_cache()
+    write_channel_cache(channel_info)
     
     return channel_name, channel_image
 
@@ -437,6 +459,8 @@ def mini_stats(all:bool = False):
     if data:
         last_clip = Clip(data[0])
         last_clip = last_clip.json()
+    else:
+        last_clip = None
     home_data = generate_home_data() if all else generate_home_data(51)
     return dict(today_count=today_count, last_clip=last_clip, data=home_data)
 
@@ -564,8 +588,7 @@ def session_data():
 def login():
     if request.method == "POST":
         # set cookies to this password
-        with open("creds.json", "r") as f:
-            creds = load(f)
+        creds = get_creds()
         for cred in creds:
             if creds[cred] == request.form["password"]:
                 session["password"] = request.form["password"]
@@ -602,8 +625,7 @@ def webedit():
     if not clip:
         return "Clip not found", 404
     # compare the password of the session against the creds to verify legitmacy of the request
-    with open("creds.json", "r") as f:
-        creds = load(f)
+    creds = get_creds()
 
     try:
         if creds["password"] == session["password"]: # for admin
@@ -630,13 +652,11 @@ def webdelete():
     if not session.get("logged_in"):
         print("Not logged in")
         return "Not logged in", 401
-    print(clip_id)
     clip = get_clip(clip_id=clip_id)
     if not clip:
         return "Clip not found", 404
     # compare the password of the session against the creds to verify legitmacy of the request
-    with open("creds.json", "r") as f:
-        creds = load(f)
+    creds = get_creds()
 
     try:
         if creds["password"] == session["password"]: # for admin
@@ -1356,12 +1376,9 @@ def admin():
     clip_ids = [x.id for x in clips]
     print(f"took {time.time()-t} to get clips")
     t = time.time()
-    with open("creds.json", "r") as f:
-        config = load(f)
+    creds = get_creds()
     channel_info_admin = {}
-    for key, value in config.items():
-        if key in ["password", "management_webhook", "update_webhook"]:
-            continue
+    for key, value in creds.items():
         get_channel_name_image(key)
         channel_info_admin[key] = channel_info[key]
         if request.is_secure:
@@ -1393,7 +1410,7 @@ def approve():
     
     value = value.replace("discordapp.com", "discord.com")
 
-    if password != get_webhook_url("password"):
+    if password != config['password']:
         return "Wrong password"
     if "youtube.com" not in key:
         return f"Key isn't of youtube {key}"
@@ -1404,11 +1421,9 @@ def approve():
     if not channel_id:
         return "Channel id not found"
 
-    with open("creds.json", "r") as f:
-            creds = load(f)
+    creds = get_creds()
     creds[channel_id] = value
-    with open("creds.json", "w") as f:
-        dump(creds, f, indent=4)
+    write_creds(creds)
 
     channel_name, channel_image = get_channel_name_image(channel_id)
     webhook = DiscordWebhook(url=value, username=project_name, avatar_url=project_logo_discord)
@@ -1438,9 +1453,7 @@ def approve():
 
 @app.route("/ed", methods=["POST"])
 def edit_delete():
-    actual_password = get_webhook_url(
-        "password"
-    )  # i know this is not a good way to store password. but i am too lazy to implement a proper login system
+    actual_password = config['password']
     if not actual_password:
         return "Password not set"
     password = request.form.get("password")
@@ -1479,11 +1492,9 @@ def edit_delete():
         key = request.form.get("key").strip()
         value = request.form.get("value").strip()
 
-        with open("creds.json", "r") as f:
-            creds = load(f)
+        creds = get_creds()
         creds[key] = value
-        with open("creds.json", "w") as f:
-            dump(creds, f, indent=4)
+        write_creds(creds)
 
         channel_name, channel_image = get_channel_name_image(key)
         if value.startswith("https://discord"):
@@ -1509,7 +1520,7 @@ def edit_delete():
             webhook.execute()
         return jsonify(creds)
     elif request.form.get("show") == "show":
-        return jsonify(open("creds.json", "r").read())
+        return jsonify(get_creds())
     else:
         return f"what ? {request.form}" 
 
@@ -2125,7 +2136,7 @@ def extension_clips(video_id):
 
 @app.route("/video/<clip_id>")
 def video(clip_id):
-    if not id:
+    if not clip_id:
         return redirect(url_for("slash"))
     global download_lock
     if download_lock:
@@ -2165,7 +2176,7 @@ if 'channel_cache.json' in os.listdir('.'):
     with open("channel_cache.json","r") as f:
         channel_info = load(f)
 
-def write_channel_cache():
+def write_channel_cache(channel_info=channel_info):
     with open("channel_cache.json","w") as f:
         dump(channel_info, f, indent=4)
     return True
@@ -2182,7 +2193,7 @@ for ch_id in data:
         pass  # don't build cache on locally running.
     get_channel_name_image(ch_id[0])
 
-write_channel_cache()
+write_channel_cache(channel_info)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True)

@@ -1,0 +1,12 @@
+{
+    "creds": {
+        "channel_id": "discord_webhhok_url"
+    },
+    "cronitor_api_key": "<optional> cronitor api key",
+    "blacklisted": {
+        "channel_id " : "Reason for blacklisting"
+    },
+    "password": "webpanel and admin password",
+    "management_webhook": "where to send backups to, discord webhook",
+    "update_webhook": "where to send notification for new entries to creds"
+}
