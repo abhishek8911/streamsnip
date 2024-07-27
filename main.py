@@ -1410,7 +1410,7 @@ def approve():
     
     value = value.replace("discordapp.com", "discord.com")
 
-    if password != get_webhook_url("password"):
+    if password != config['password']:
         return "Wrong password"
     if "youtube.com" not in key:
         return f"Key isn't of youtube {key}"
