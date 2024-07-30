@@ -304,14 +304,14 @@ def get_channel_name_image(channel_id: str) -> Tuple[str, str]:
         return "<deleted channel>", "https://yt3.googleusercontent.com/a/default-user=s100-c-k-c0x00ffffff-no-rj"
         
     html_data = response.text
-    with open("youtube.html", "w", encoding="utf-8") as f:
-        f.write(html_data)
+    # with open("youtube.html", "w", encoding="utf-8") as f:
+    #     f.write(html_data)
     yt_initial_data = loads(
         get_json_from_html(html_data, "var ytInitialData = ", 0, "};") + "}"
     )
     # put this in a local file for test purposes
-    with open("yt_initial_data.json", "w") as f:
-        dump(yt_initial_data, f, indent=4)
+    # with open("yt_initial_data.json", "w") as f:
+    #     dump(yt_initial_data, f, indent=4)
     soup = BeautifulSoup(html_data, "html.parser")
     try:
         channel_image = soup.find("meta", property="og:image")["content"]
