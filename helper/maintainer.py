@@ -4,7 +4,7 @@ import time
 import requests as request
 import os
 import psutil
-from main import *
+from ..main import *
 import threading
 
 management_webhook_url = None

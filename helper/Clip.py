@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from util import *
+from .util import *
 from discord_webhook import DiscordWebhook
 
 import sqlite3

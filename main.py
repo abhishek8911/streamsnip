@@ -36,8 +36,8 @@ from datetime import datetime, timedelta
 import cronitor
 
 from string import ascii_letters, digits
-from util import *
-from Clip import Clip
+from helper.util import *
+from helper.Clip import Clip
 
 # we are in /var/www/streamsnip
 import os
@@ -110,13 +110,13 @@ project_logo = base_domain + "/static/logo.png"
 project_repo_link = "https://github.com/SurajBhari/streamsnip"
 project_logo_discord = "https://raw.githubusercontent.com/SurajBhari/streamsnip/main/static/256_discord_ss.png" # link to logo that is used in discord 
 
-if "cookies.txt" in os.listdir():
-    cookies = "cookies.txt"
+if "cookies.txt" in os.listdir("./helper"):
+    cookies = "./helper/cookies.txt"
 else:
     cookies = None
 
-if "youtubeemoji.json" in os.listdir():
-    with open("youtubeemoji.json", "r") as f:
+if "youtubeemoji.json" in os.listdir("./helper"):
+    with open("./helper/youtubeemoji.json", "r") as f:
         emoji_lookup_table = load(f)
 else:
     emoji_lookup_table = {}
@@ -2173,11 +2173,11 @@ def index():
 
 channel_info = {}
 if 'channel_cache.json' in os.listdir('.'):
-    with open("channel_cache.json","r") as f:
+    with open("helper/channel_cache.json","r") as f:
         channel_info = load(f)
 
 def write_channel_cache(channel_info=channel_info):
-    with open("channel_cache.json","w") as f:
+    with open("helper/channel_cache.json","w") as f:
         dump(channel_info, f, indent=4)
     return True
 
