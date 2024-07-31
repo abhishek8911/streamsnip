@@ -1439,8 +1439,8 @@ def approve():
     if response.status_code != 200:
         return response.text
 
-    if "update_webhook" in creds:
-        webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo_discord)
+    if "update_webhook" in config:
+        webhook = DiscordWebhook(url=config["update_webhook"], username=project_name, avatar_url=project_logo_discord)
         embed = DiscordEmbed(
             title=f"New webhook added",
             description=f"New webhook added for {channel_name}",
@@ -1508,8 +1508,8 @@ def edit_delete():
             embed.set_color(0xebf0f7)
             webhook.add_embed(embed)
             webhook.execute()
-        if "update_webhook" in creds:
-            webhook = DiscordWebhook(url=creds["update_webhook"], username=project_name, avatar_url=project_logo_discord)
+        if "update_webhook" in config:
+            webhook = DiscordWebhook(url=config["update_webhook"], username=project_name, avatar_url=project_logo_discord)
             embed = DiscordEmbed(
                 title=f"New webhook added",
                 description=f"New webhook added for {channel_name}",
