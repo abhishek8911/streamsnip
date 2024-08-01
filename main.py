@@ -2172,7 +2172,7 @@ def index():
 
 
 channel_info = {}
-if 'channel_cache.json' in os.listdir('.'):
+if 'channel_cache.json' in os.listdir('./helper'):
     with open("helper/channel_cache.json","r") as f:
         channel_info = load(f)
 
