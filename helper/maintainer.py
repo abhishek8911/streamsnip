@@ -4,7 +4,6 @@ import time
 import requests as request
 import os
 import psutil
-from ..main import *
 import threading
 
 management_webhook_url = None
@@ -14,7 +13,7 @@ management_webhook_url = json.load(open("../config.json", "r")).get(
 if not management_webhook_url:
     exit("No management webhook found")
 
-
+"""
 def download_clips(ids, thread_no):
     for clip_id in ids:
         out = download_and_store(clip_id)
@@ -25,7 +24,7 @@ def download_clips(ids, thread_no):
                     content=f"#{thread_no} - Downloaded - {out}",
                 )
                 management_webhook.execute()
-
+"""
 
 DiscordWebhook(url=management_webhook_url, content="Maintainer started").execute()
 
