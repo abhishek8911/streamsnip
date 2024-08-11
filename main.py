@@ -996,6 +996,223 @@ def channel_stats(channel_id=None):
         most_clipped_streams=most_clipped_streams,
     )
 
+@app.route("/timestats/<start>/<end>")
+@app.route("/ts/<start>/<end>")
+@app.route("/timestats/<start>/")
+@app.route("/ts/<start>/")
+@app.route("/timestats/")
+@app.route("/ts/")
+def time_stats(start=None, end=None):
+    if not start:
+        # if there is no start then start is today. if there is no end then end is tomorrow
+        start = datetime.strptime(str(datetime.now().date()), "%Y-%m-%d")
+    else:
+        start = datetime.strptime(start, "%Y-%m-%d")
+    if not end:
+        # if there is no end then choose one day after start
+        end = start + timedelta(days=1)
+    else:
+        end = datetime.strptime(end, "%Y-%m-%d")
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM QUERIES WHERE private is not '1' AND time >= ? AND time < ?", (start.timestamp(), end.timestamp(),))
+        data = cur.fetchall()
+    clips = []
+    for x in data:
+        c = Clip(x)
+        clips.append(c)
+    clip_count = len(data)
+    user_count = len(set([x[5] for x in data]))
+    # "Name": no of clips
+    user_clips = {}
+    top_clippers = {}
+    notes = {}
+    for clip in clips:
+        if clip.channel not in user_clips:
+            user_clips[clip.channel] = 0
+        user_clips[clip.channel] += 1
+        if clip.desc and clip.desc != "None":
+            for word in clip.desc.lower().split():
+                if word not in notes:
+                    notes[word] = 0
+                notes[word] += 1
+        if clip.user_id not in top_clippers:
+            top_clippers[clip.user_id] = 0
+        top_clippers[clip.user_id] += 1
+
+    # sort
+    user_clips = {
+        k: v
+        for k, v in sorted(user_clips.items(), key=lambda item: item[1], reverse=True)
+    }
+    # get only top 25 and other as sum of rest
+    _user_clips = user_clips
+    channel_count = len(_user_clips)
+    user_clips = {}
+    max_count = 0
+    top_25_ids = []
+
+    for k, v in _user_clips.items():
+        max_count += 1
+        if max_count > 25:
+            break
+        top_25_ids.append(k)
+        user_clips[k] = v
+    user_clips["Others"] = sum(list(_user_clips.values())[max_count-1:])
+    if user_clips["Others"] == 0:
+        user_clips.pop("Others")
+    top_clippers = {
+        k: v
+        for k, v in sorted(top_clippers.items(), key=lambda item: item[1], reverse=True)
+    }
+    notes = {
+        k:  v
+        for k, v in sorted(notes.items(), key=lambda item: item[1], reverse=True)
+    }
+    notes = dict(list(notes.items())[:200])
+    # replace dict_keys with actual channel
+    new_dict = {}
+    for k, v in user_clips.items():
+        if k != "Others":
+            channel_name, image = get_channel_name_image(k)
+        else:
+            channel_name = "Others"
+        new_dict[channel_name] = v
+    user_clips = new_dict
+    new = []
+    count = 0
+    for k, v in top_clippers.items():
+        count += 1
+        if count > 12:
+            break
+        channel_name, image = get_channel_name_image(k)
+        new.append(
+            {
+                "name": channel_name,
+                "image": image,
+                "count": v,
+                "link": f"https://youtube.com/channel/{k}",
+                "otherlink": url_for("user_stats", channel_id=k),
+            }
+        )
+    top_clippers = new
+    new_dict = {}
+    # time trend
+    # day : no_of_clips
+    # for that hour that have no clips, add 0
+    # get all hours from start date to end date
+    temp_start = start
+    while temp_start < end:
+        new_dict[temp_start.strftime("%Y-%m-%d %H")] = 0
+        temp_start += timedelta(hours=1)
+        
+    for clip in clips:
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d %H")
+        if day not in new_dict:
+            new_dict[day] = 0
+        new_dict[day] += 1
+    
+    # sort the new_dict 
+    time_trend = new_dict
+
+    streamer_trend_data = {}
+    # streamer: {day: no_of_clips}
+    streamers_trend_days = []
+    
+    for clip in clips:
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d %H")
+        channel_id = clip.channel
+        if channel_id not in top_25_ids:
+            channel_id = "Others"
+
+        if channel_id not in streamer_trend_data:
+            streamer_trend_data[channel_id] = {}
+
+        temp_start = start
+        while temp_start < end:
+            if temp_start.strftime("%Y-%m-%d %H") not in streamer_trend_data[channel_id]:
+                streamer_trend_data[channel_id][temp_start.strftime("%Y-%m-%d %H")] = 0
+                if temp_start.strftime("%Y-%m-%d %H") not in streamers_trend_days:
+                    streamers_trend_days.append(temp_start.strftime("%Y-%m-%d %H"))
+            temp_start += timedelta(hours=1)
+        
+        if day not in streamer_trend_data[channel_id]:
+            streamer_trend_data[channel_id][day] = 0
+        streamer_trend_data[channel_id][day] += 1
+        if day not in streamers_trend_days:
+            streamers_trend_days.append(day)
+    # for that hour that have no clips, add 0
+    # get all hours from start date to end date
+    
+    #streamers_trend_days.sort()
+    # only top 25 and others 
+    streamer_trend_data = {
+        k: v
+        for k, v in sorted(
+            streamer_trend_data.items(),
+            key=lambda item: sum(item[1].values()),
+            reverse=True,
+        )
+    }
+    new_dict = {}
+    known_k = []
+    max_count = 0
+    new_dict['Others'] = {}
+    for k, v in streamer_trend_data.items():
+        max_count += 1
+        if k != "Others":
+            channel_name, image = get_channel_name_image(k)
+        else:
+            channel_name = k
+        new_dict[channel_name] = v
+        known_k.append(k)
+    if new_dict["Others"] == {}:
+        new_dict.pop("Others")
+    streamer_trend_data = new_dict
+    time_distribution = {}
+    for x in range(24):
+        time_distribution[x] = 0
+    for clip in clips:
+        hm = int((clip.time + timedelta(hours=5, minutes=30)).strftime("%H"))
+        time_distribution[hm] += 1
+
+    # get the top most clipped streams
+    cur.execute(
+        """
+            SELECT stream_link, COUNT(message_id) AS occurrence_count
+            FROM QUERIES WHERE time >= ? AND time < ?
+            GROUP BY message_id
+            ORDER BY occurrence_count DESC
+            LIMIT 12;
+        """,
+        (start.timestamp(), end.timestamp(),),
+    )
+    mcs = cur.fetchall()
+    most_clipped_streams = {} # stream_link: count
+    for x in mcs:
+        most_clipped_streams[get_video_id(x[0])] = x[1]
+    message = f"{user_count} users clipped\n{clip_count} clips on \n{channel_count} channels on {start.strftime("%Y-%m-%d")} till {end.strftime('%Y-%m-%d')}."
+    print(streamers_trend_days)
+    print(len(streamers_trend_days))
+    return render_template(
+        "stats.html",
+        message=message,
+        notes=notes,
+        clip_count=clip_count,
+        user_count=user_count,
+        clip_users=[(k, v) for k, v in user_clips.items()],
+        top_clippers=top_clippers,
+        channel_count=channel_count,
+        times=list(time_trend.keys()),
+        counts=list(time_trend.values()),
+        streamer_trend_data=streamer_trend_data,
+        streamers_trend_days=streamers_trend_days,
+        streamers_labels=list(streamer_trend_data.keys()),
+        time_distribution=time_distribution,
+        channel_name=start.strftime("%Y-%m-%d") + " to " + end.strftime("%Y-%m-%d"),
+        channel_image="https://streamsnip.com/static/logo-grey.png",
+        most_clipped_streams=most_clipped_streams,
+    )
 
 @app.route("/userstats/<channel_id>")
 @app.route("/us/<channel_id>")
@@ -1315,6 +1532,7 @@ def stats():
     new_dict = {}
     known_k = []
     max_count = 0
+    new_dict['Others'] = {}
     for k, v in streamer_trend_data.items():
         max_count += 1
         if k != "Others":
