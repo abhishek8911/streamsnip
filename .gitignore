@@ -7,3 +7,4 @@ youtube.html
 yt_initial_data.json
 cookies.txt
 config.json
+__pycache__/*
