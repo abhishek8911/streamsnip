@@ -176,11 +176,11 @@ https://streamsnip.com/clip/$(chatid)/$(querystring)?showlink=false&screenshot=t
   1. Clone the repo
   2. Install requirements - `pip install -r requirements.txt`
   3. (Optional) Install ffmpeg and ytdlp for screenshot to work.
-  4. CONFIG - edit creds.sample.json to creds.json and insert few keys in it. `password` to use at `/admin` page and `/add` route.
+  4. CONFIG - edit config.sample.json to config.json and insert few keys in it. `password` to use at `/admin` page and `/add` route.
 
   ### Running
   1. Run by doing. `python main.py`
-  2. (Optional) You can run. `maintainer.py`. for this you will need `management_webhook` in creds.json to send you backup and logs to your discord.
+  2. (Optional) You can run. `helper/maintainer.py`. for this you will need `management_webhook` in config.json to send you backup and logs to your discord.
   3. For nightbot. you need to replace `streamsnip.com` to your ip. and use `http` instead of `https`. 
 </details>
 
