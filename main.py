@@ -1191,7 +1191,7 @@ def time_stats(start=None, end=None):
     most_clipped_streams = {} # stream_link: count
     for x in mcs:
         most_clipped_streams[get_video_id(x[0])] = x[1]
-    message = f"{user_count} users clipped\n{clip_count} clips on \n{channel_count} channels on {start.strftime("%Y-%m-%d")} till {end.strftime('%Y-%m-%d')}."
+    message = f"{user_count} users clipped\n{clip_count} clips on \n{channel_count} channels on {start.strftime('%Y-%m-%d')} till {end.strftime('%Y-%m-%d')}."
     print(streamers_trend_days)
     print(len(streamers_trend_days))
     return render_template(
