@@ -8,7 +8,7 @@ from ..main import *
 import threading
 
 management_webhook_url = None
-management_webhook_url = json.load(open("creds.json", "r")).get(
+management_webhook_url = json.load(open("../config.json", "r")).get(
     "management_webhook", None
 )
 if not management_webhook_url:
@@ -44,13 +44,13 @@ def periodic_task():
     management_webhook.add_file(
         file=open("/var/log/apache2/access.log", "rb"), filename="access.log"
     )
-    # management_webhook.add_file(file=open("creds.json", "rb"), filename="creds.json")
+    # management_webhook.add_file(file=open("../config.json", "rb"), filename="config.json")
     # consturct a string that contains most important vitals of system
     # and send it to the webhook
     system_vitals = f"{task_count} CPU: {psutil.cpu_percent()}%\nMemory: {psutil.virtual_memory().percent}%\nDisk: {psutil.disk_usage('/').percent}%"
     management_webhook.content += system_vitals
     if task_count % 5 == 0:
-        management_webhook.add_file(file=open("creds.json", "r"), filename="creds.json")
+        management_webhook.add_file(file=open("../config.json", "r"), filename="config.json")
     try:
         management_webhook.execute()
     except request.exceptions.MissingSchema:

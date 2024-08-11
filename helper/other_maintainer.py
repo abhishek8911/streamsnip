@@ -9,7 +9,7 @@ import threading
 from requests import get
 
 management_webhook_url = None
-management_webhook_url = json.load(open("creds.json", "r")).get(
+management_webhook_url = json.load(open("../config.json", "r")).get(
     "management_webhook", None
 )
 if not management_webhook_url:
