@@ -58,6 +58,8 @@
             </div>
             {% endfor %}
         </div>
+        {% endif %}
+
 
         <h1>
             Top Clipped Stream
@@ -76,8 +78,24 @@
             </div>
             {% endfor %}
         </div>
-        </br></br></br></br></br>
+        {% if best_days %}
+        <div class="row">
+            <h1>Top Days</h1>
+            {% for key, value in best_days.items() %}
+            <div class="col-md-3 col-lg-3">
+                <a href="/ts/{{key}}">
+                    <div class="card" style="width: 100%;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ key }}</h5>
+                            <p class="card-text">{{ value }} Clips</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
         {% endif %}
+        </br>
     </div>
 </center>
 <script>
@@ -104,7 +122,6 @@
         var fontcolor = isDark == true ? 'white' : 'black';
         Chart.defaults.color = fontcolor;
         var wordcloud_data = {{notes|tojson}};
-        console.log(wordcloud_data);
         var ctx = document.getElementById('wordcloud').getContext('2d');
         if(Object.keys(wordcloud_data).length == 0){
             wordcloud_data = {"": 0};
@@ -123,7 +140,6 @@
                 }
             };
         };
-        console.log(wordcloud_data);
         var wordcloud = new Chart(ctx, {
             type: "wordCloud",
             data: {

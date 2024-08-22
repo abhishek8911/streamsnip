@@ -901,13 +901,22 @@ def channel_stats(channel_id=None):
     new_dict = {}
     # time trend
     # day : no_of_clips
+    best_days = {}
     for clip in clips:
         day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
+        if day not in best_days:
+            best_days[day] = 1
+        else:
+            best_days[day] += 1
     time_trend = new_dict
-
+    best_days = {
+        k: v
+        for k, v in sorted(best_days.items(), key=lambda item: item[1], reverse=True)
+    }
+    best_days = dict(list(best_days.items())[:12])
     streamer_trend_data = {}
     # "clipper" : {day: no_of_clips}
     streamers_trend_days = []
@@ -994,6 +1003,7 @@ def channel_stats(channel_id=None):
         channel_name=streamer_name,
         channel_image=streamer_image,
         most_clipped_streams=most_clipped_streams,
+        best_days=best_days,
     )
 
 @app.route("/timestats/<start>/<end>")
@@ -1212,6 +1222,7 @@ def time_stats(start=None, end=None):
         channel_name=start.strftime("%Y-%m-%d") + " to " + end.strftime("%Y-%m-%d"),
         channel_image="https://streamsnip.com/static/logo-grey.png",
         most_clipped_streams=most_clipped_streams,
+        best_days={},
     )
 
 @app.route("/userstats/<channel_id>")
@@ -1253,6 +1264,7 @@ def user_stats(channel_id=None):
         if clip.channel not in top_clippers:
             top_clippers[clip.channel] = 0
         top_clippers[clip.channel] += 1
+        
     # sort
     notes = {
         k: 5 + 5 * v
@@ -1307,12 +1319,23 @@ def user_stats(channel_id=None):
     new_dict = {}
     # time trend
     # day : no_of_clips
+    best_days = {}
+
     for clip in clips:
         day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
         if day not in new_dict:
             new_dict[day] = 0
         new_dict[day] += 1
+        if day not in best_days:
+            best_days[day] = 1
+        else:
+            best_days[day] += 1
     time_trend = new_dict
+    best_days = {
+        k: v
+        for k, v in sorted(best_days.items(), key=lambda item: item[1], reverse=True)
+    }
+    best_days = dict(list(best_days.items())[:12])
 
     streamer_trend_data = {}
     # "clipper" : {day: no_of_clips}
@@ -1400,6 +1423,7 @@ def user_stats(channel_id=None):
         channel_name=streamer_name,
         channel_image=streamer_image,
         most_clipped_streams=most_clipped_streams,
+        best_days=best_days,
     )
 
 
@@ -1501,6 +1525,18 @@ def stats():
             new_dict[day] = 0
         new_dict[day] += 1
     time_trend = new_dict
+    best_days = {}
+    for clip in clips:
+        day = (clip.time + timedelta(hours=5, minutes=30)).strftime("%Y-%m-%d")
+        try:
+            best_days[day] += 1
+        except KeyError:
+            best_days[day] = 1
+    best_days = {
+        k: v
+        for k, v in sorted(best_days.items(), key=lambda item: item[1], reverse=True)
+    }
+    best_days = dict(list(best_days.items())[:12])
 
     streamer_trend_data = {}
     # streamer: {day: no_of_clips}
@@ -1584,6 +1620,7 @@ def stats():
         channel_name="All channels",
         channel_image="https://streamsnip.com/static/logo-grey.png",
         most_clipped_streams=most_clipped_streams,
+        best_days=best_days
     )
 
 
