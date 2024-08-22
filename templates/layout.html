@@ -30,40 +30,6 @@
             // }
             return true;
         }
-        function timeSince(previous) {
-            var current = new Date();
-            var msPerMinute = 60 * 1000;
-            var msPerHour = msPerMinute * 60;
-            var msPerDay = msPerHour * 24;
-            var msPerMonth = msPerDay * 30;
-            var msPerYear = msPerDay * 365;
-        
-            var elapsed = current - previous;
-        
-            if (elapsed < msPerMinute) {
-                 return Math.round(elapsed/1000) + ' seconds ago';   
-            }
-        
-            else if (elapsed < msPerHour) {
-                 return Math.round(elapsed/msPerMinute) + ' minutes ago';   
-            }
-        
-            else if (elapsed < msPerDay ) {
-                 return Math.round(elapsed/msPerHour ) + ' hours ago';   
-            }
-        
-            else if (elapsed < msPerMonth) {
-                return '~ ' + Math.round(elapsed/msPerDay) + ' days ago';   
-            }
-        
-            else if (elapsed < msPerYear) {
-                return '~ ' + Math.round(elapsed/msPerMonth) + ' months ago';   
-            }
-        
-            else {
-                return '~ ' + Math.round(elapsed/msPerYear ) + ' years ago';   
-            }
-        }
         document.addEventListener("DOMContentLoaded", function () {
             // Check user preference and set the initial theme
             var isDarkTheme = localStorage.getItem("darkTheme") === "true";
@@ -169,7 +135,7 @@
                         new_html += '<div class="col-3"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body card-no-left-right-padding"><h6 class="card-title" id="' + data[i].id +'"> DELETED CHANNEL ( ' + data[i].id + ' )</h6></div></div></div>';
                     }
                     else{  
-                        new_html += '<div class="col-3"><a href="' + data[i].link + '"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body card-no-left-right-padding"><h6 class="card-title" id="' + data[i].id +'">' + data[i].name + '</h6></div></div></a></div>';
+                        new_html += '<div class="col-3">'+'<span title='+ data[i]['last_clip']['timesince'] + '><a href="' + data[i].link + '"><div class="card noborder"><img class="card-img-top rounded" src="' + data[i].image + '" alt="Card image cap"><div class="card-body card-no-left-right-padding"><h6 class="card-title" id="' + data[i].id +'">' + data[i].name + '</h6></div></div></a></div> </span>';
                     }
                 }
                 document.getElementById("clips-container").innerHTML = new_html;
@@ -189,8 +155,9 @@
 
             fetch(link).then((response) => response.json()).then((last_clip) => {
                 var last_clip_time = document.getElementById("last_clip_time");
+                console.log(last_clip);
                 if(last_clip_time){
-                    last_clip_time.innerHTML = `   Last Clip - ${timeSince(new Date(last_clip.last_clip.time))}`;
+                    last_clip_time.innerHTML = `   Last Clip - ${last_clip.last_clip.timesince}`;
                     var today_count = last_clip.today_count;
                     var today_count_element = document.getElementById("today_count");
                     today_count_element.innerHTML = '<i class="fa-solid fa-clipboard-list"></i>' + today_count + " Clips Today";

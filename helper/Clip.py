@@ -5,6 +5,29 @@ from discord_webhook import DiscordWebhook
 import sqlite3
 
 
+def time_since(time):
+    current = datetime.now(timezone.utc)
+    elapsed = current - time
+    elapsed = elapsed.total_seconds()
+    msPerMinute = 60 
+    msPerHour = msPerMinute * 60
+    msPerDay = msPerHour * 24
+    msPerMonth = msPerDay * 30
+    msPerYear = msPerDay * 365
+    if elapsed < msPerMinute:
+        return f"{int(elapsed)} seconds ago"
+    elif elapsed < msPerHour:
+        return f"{int(elapsed / 60)} minutes ago"
+    elif elapsed < msPerDay:
+        return f"{int(elapsed / 3600)} hours ago"
+    elif elapsed < msPerMonth:
+        return f"~ {int(elapsed / 86400)} days ago"
+    elif elapsed < msPerYear:
+        return f"~ {int(elapsed / 2592000)} months ago"
+    else:
+        return f"~ {int(elapsed / 31536000)} years ago"
+    
+
 class Clip:
     channel = None
     id = None
@@ -50,6 +73,7 @@ class Clip:
             self.message_level = int(data[14])
         except (ValueError, TypeError):
             self.message_level = 0
+        self.timesince = time_since(self.time)
 
     def __str__(self):
         return self.desc
@@ -78,8 +102,10 @@ class Clip:
         x["download_link"] = self.download_link
         x["private"] = self.private
         x["message_level"] = self.message_level
+        x["timesince"] = self.timesince
         return x
 
+    
     def edit(self, new_desc: str, conn: sqlite3.Connection):
         with conn:
             cur = conn.cursor()

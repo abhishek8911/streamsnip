@@ -30,18 +30,20 @@
             <div id="clips-container" class="row">
             {% for channel in data[:51] %}
                 <div class="col-3">
-                    <a href="{{ channel['link'] }}">
-                        <div class="card noborder">
-                            <img class="card-img-top rounded" src="{{ channel['image'] }}" alt="Card image cap" load="lazy">
-                            <div class="card-body card-no-left-right-padding">
-                                {% if channel['deleted'] %}
-                                <h6 class="card-title" id="{{ channel['id'] }}"> DELETED CHANNEL ( {{ channel['id'] }} )</h6>
-                                {% else %}
-                                <h6 class="card-title" id="{{ channel['id'] }}">{{ channel['name'] }}</h6>
-                                {% endif %}
+                    <span title="{{channel['last_clip']['timesince']}}">
+                        <a href="{{ channel['link'] }}">
+                            <div class="card noborder">
+                                <img class="card-img-top rounded" src="{{ channel['image'] }}" alt="Card image cap" load="lazy">
+                                <div class="card-body card-no-left-right-padding">
+                                    {% if channel['deleted'] %}
+                                    <h6 class="card-title" id="{{ channel['id'] }}"> DELETED CHANNEL ( {{ channel['id'] }} )</h6>
+                                    {% else %}
+                                    <h6 class="card-title" id="{{ channel['id'] }}">{{ channel['name'] }}</h6>
+                                    {% endif %}
+                                </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                    </span>
                 </div>
             {% endfor %}
             <div class="col-3" id="more-card">

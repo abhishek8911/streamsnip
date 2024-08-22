@@ -311,7 +311,7 @@
                                             <p class="card-text">
                                                 <i class="fa-solid fa-clipboard-list"></i> ${add_yt_emojis(escape(clip['message']))}${edit_button}</br>
                                                 <i class="fa-solid fa-clock"></i> At ${clip['hms']} (+${clip['delay']*-1}s)</br>
-                                                <span title="${clip['time']}"> <i class="fa-solid fa-clock-rotate-left"></i> ${timeSince(new Date(clip['time']))} </span>
+                                                <span title="${clip['time']}"> <i class="fa-solid fa-clock-rotate-left"></i> ${clip['timesince']} </span>
                                             </p>
                                         </a>
                                     </div>
@@ -385,13 +385,11 @@
         .then(response => response.status == 200 ? response.text() : Promise.reject(response))
         .then(d => {
             for(var i=0; i<data.length; i++){
-                console.log(data[i]['id'], clip_id)
                 if(data[i]['id'] == clip_id){
                     data[i]['message'] = d;
                     break;
                 }
             }
-            console.log(data[i]);
         }).then(() => {
             updateClips();
         })
